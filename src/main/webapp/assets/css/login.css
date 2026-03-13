@@ -1,0 +1,205 @@
+﻿/* --- Thiết lập chung (Reset và Font) --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f8f8;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    /* 1. Chỉ định đường dẫn đến ảnh nền của bạn */
+    background-image: url('https://media.rolex.com/image/upload/q_auto:eco/f_auto/c_limit,w_1920/v1725888680/rolexcom/collection/configurator/config-launcher/2024/config-launcher-watches-submariner-m124060-0001_2403jva_002.jpg');
+    
+    /* 2. NGĂN CHẶN ảnh lặp lại */
+    background-repeat: no-repeat;
+    
+    /* 3. ĐẢM BẢO ảnh luôn lấp đầy toàn bộ viewport */
+    background-size: cover;
+    
+    /* 4. Đặt vị trí ảnh (để phần trung tâm của ảnh luôn được hiển thị) */
+    background-position: center center;
+    
+    /* 5. Giữ ảnh cố định khi người dùng cuộn (tùy chọn) */
+    background-attachment: fixed;
+    
+    /* Đảm bảo chiều cao tối thiểu là 100% viewport */
+    min-height: 100vh;
+}
+.back-home{
+    /* 1. Đặt vị trí cố định theo màn hình */
+    position: fixed; 
+    
+    /* 2. Căn vào cạnh trên */
+    top: 0; 
+    
+    /* 3. Căn vào cạnh phải */
+    right: 0; 
+    
+    /* Tùy chọn: Thêm padding để không dính sát mép */
+    padding: 20px; 
+    
+    /* Tùy chọn: Đảm bảo nó luôn nằm trên các nội dung khác */
+    z-index: 1000;
+}
+
+
+.back-home-button {
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s;
+    /* FIX: Ngăn nút bị ngắt dòng hoặc co lại quá mức */
+    white-space: nowrap;
+}
+
+.back-home-button:hover {
+    color: #1B6E76; /* Màu xanh lục đậm khi hover */
+    border-color: #1B6E76;
+    background-color: #f4fcfc;
+}
+
+.back-home-button i {
+    margin-right: 5px;
+}
+
+/* 2. CONTAINER FORM VÀ CĂN CHỈNH */
+.login-container {
+    padding-top: 60px; /* Khoảng trống cho header cố định */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 35px 40px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px); /* 8px là độ mờ */
+}
+
+/* --- Tiêu đề Form --- */
+.login-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* --- Nhóm Input --- */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 15px;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #333;
+    transition: border-color 0.3s;
+
+}
+
+.input-group input:focus {
+    border-color: #B4DCF3;
+    box-shadow: 0 0 0 3px rgba(180, 220, 243, 0.2);
+    outline: none;
+}
+
+/* --- Tùy chọn và Quên mật khẩu --- */
+.options-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 13px;
+}
+
+.options-group label {
+    color: #555;
+}
+
+.options-group input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: #1B6E76;
+}
+
+.forgot-password {
+    color: #1B6E76;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+    color: #0d4a50;
+}
+
+/* --- Nút Đăng Nhập --- */
+.login-button {
+    width: 100%;
+    padding: 13px;
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    text-align: center;
+}
+.login-button a {
+ text-decoration: none;
+ color: #ddd;
+ 
+}
+
+.login-button:hover {
+    background-color: #13565c;
+    transform: translateY(-1px);
+}
+
+/* --- Link Đăng ký --- */
+.register-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #555;
+}
+
+.register-link a {
+    color: #daa51e; /* Màu vàng đồng */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+    color: #d1ab4b;
+}

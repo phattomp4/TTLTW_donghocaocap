@@ -1,0 +1,178 @@
+/* --- FOOTER STYLE START --- */
+.site-footer {
+    background-color: #0b1120; /* Màu nền xanh đen đậm giống ảnh AuraSound */
+    color: #ffffff;
+    padding: 60px 0 20px 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    margin-top: 50px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Bố cục 4 cột --- */
+.footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 200px; /* Đảm bảo không bị co quá nhỏ trên mobile */
+}
+
+/* Style cho từng cột */
+.footer-col h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cột 1: Logo & Mô tả */
+.footer-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1b6e76;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-desc {
+    line-height: 1.6;
+    color: #cbd5e1; /* Màu chữ xám nhạt */
+}
+
+/* Cột 2: Links */
+.footer-col.links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-col.links ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col.links ul li a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: 0.3s;
+    border-bottom: 1px solid transparent; /* Hiệu ứng gạch chân */
+}
+
+.footer-col.links ul li a:hover {
+    color: #fff;
+    border-bottom: 1px solid #fff;
+}
+
+/* Cột 3: Liên hệ */
+.contact-item {
+    margin-bottom: 15px;
+}
+
+.contact-item .label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.contact-item p {
+    margin: 0;
+    color: #fff;
+}
+
+/* Cột 4: Instagram Grid */
+.insta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột ảnh */
+    gap: 10px;
+    max-width: 200px;
+}
+
+.insta-grid img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.insta-grid img:hover {
+    opacity: 0.8;
+}
+
+/* --- BOTTOM BAR (Thanh dưới cùng) --- */
+.footer-bottom {
+    border-top: 1px solid #1e293b; /* Đường kẻ ngang mờ */
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Icons thanh toán */
+.payment-icons {
+    display: flex;
+    gap: 10px;
+    font-size: 24px;
+    color: #fff;
+}
+
+.copyright {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* Icons mạng xã hội */
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    width: 35px;
+    height: 35px;
+    background-color: #fff;
+    color: #0b1120;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.social-icons a:hover {
+    background-color: #3b82f6;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* --- Responsive cho Mobile --- */
+@media (max-width: 768px) {
+    .footer-row {
+        flex-direction: column; /* Xếp chồng các cột lên nhau */
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}

@@ -18,8 +18,11 @@ public class Product {
     private int soldQuantity;
     private boolean isLuxury;
 
+    // List chứa danh sách đường dẫn ảnh (cho bảng ProductImages)
     private List<String> imageList = new ArrayList<>();
 
+    // Map chứa thông số kỹ thuật (cho bảng ProductSpecifications)
+    // Key = Tên thông số (vd: Chống nước), Value = Giá trị (vd: 5 ATM)
     private Map<String, String> specifications = new HashMap<>();
 
     public Product() {}
@@ -29,11 +32,11 @@ public class Product {
         this.brandId = brandId;
         this.name = name;
         this.sku = sku;
-        this.description = description;
+        this.description = description; // 3. Gán giá trị description
         this.originalPrice = originalPrice;
         this.currentPrice = currentPrice;
         this.imageUrl = imageUrl;
-        this.stockQuantity = stockQuantity;
+        this.stockQuantity = stockQuantity; // 4. Gán giá trị stockQuantity
         this.soldQuantity = soldQuantity;
         this.isLuxury = isLuxury;
     }

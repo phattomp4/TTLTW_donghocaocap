@@ -31,16 +31,16 @@
         border-color: #1b6e76;
     }
 
-    /* Menu Dropdown (Mặc định ẩn) */
+    /* Menu Dropdown */
     .dropdown-menu {
-        display: none; /* Quan trọng: Ẩn đi */
+        display: none;
         position: absolute;
         right: 0;
-        top: 120%; /* Cách nút một chút */
+        top: 120%; /
         background-color: white;
         min-width: 220px;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.15);
-        z-index: 99999; /* Số lớn để luôn nổi lên trên */
+        z-index: 99999;
         border-radius: 8px;
         border: 1px solid #eee;
         animation: fadeIn 0.2s;
@@ -251,14 +251,14 @@
 
                         <c:choose>
 
-                            <%-- TRƯỜNG HỢP 1: LÀ ADMIN --%>
+                            <%-- TRƯỜNG HỢP LÀ ADMIN --%>
                             <c:when test="${sessionScope.acc.role == 'Admin'}">
                                 <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #d0011b; font-weight: bold; background-color: #fff5f5;">
                                     <i class="fa-solid fa-screwdriver-wrench"></i> Trang Quản Trị
                                 </a>
                             </c:when>
 
-                            <%-- TRƯỜNG HỢP 2: LÀ USER THƯỜNG (Hoặc khác Admin) --%>
+                            <%-- TRƯỜNG HỢP LÀ USER THƯỜNG--%>
                             <c:otherwise>
                                 <a href="${pageContext.request.contextPath}/profile">
                                     <i class="fa-regular fa-user"></i> Hồ sơ cá nhân
@@ -285,7 +285,6 @@
 
     <script>
         function toggleProfileMenu(event) {
-            // Ngăn sự kiện click lan ra ngoài (giúp menu không bị đóng ngay lập tức)
             event.stopPropagation();
 
             var menu = document.getElementById("profile-menu");
@@ -294,7 +293,7 @@
             }
         }
 
-        // Sự kiện click bất kỳ đâu trên màn hình để đóng menu
+        // click bất kỳ đâu trên màn hình để đóng menu
         window.onclick = function(event) {
             if (!event.target.closest('.profile-avatar-btn')) {
                 var dropdowns = document.getElementsByClassName("dropdown-menu");

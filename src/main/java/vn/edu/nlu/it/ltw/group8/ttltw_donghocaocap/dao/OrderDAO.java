@@ -1,11 +1,9 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
-
-
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.*;
-
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +19,14 @@ public class OrderDAO {
         try {
             conn = new DBContext().getConnection();
 
+            // Tắt chế độ tự động lưu (để quản lý Transaction)
             conn.setAutoCommit(false);
 
+            // Insert vào bảng Orders
             String sqlOrder = "INSERT INTO Orders (UserID, ShippingAddressID, OrderDate, TotalAmount, DiscountAmount, PaymentMethod, PaymentStatus, Status) "
                     + "VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)";
 
+            // RETURN_GENERATED_KEYS để lấy lại OrderID vừa tạo
             psOrder = conn.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             psOrder.setInt(1, user.getId());
             psOrder.setInt(2, addressId);
@@ -36,13 +37,14 @@ public class OrderDAO {
             psOrder.setString(7, "Processing");
             psOrder.executeUpdate();
 
-
+            // Lấy OrderID vừa tạo ra
             rs = psOrder.getGeneratedKeys();
             int orderId = 0;
             if (rs.next()) {
                 orderId = rs.getInt(1);
             }
 
+            // 3. Insert vào bảng OrderDetails và update Products
             String sqlDetail = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
             String sqlUpdateProduct = "UPDATE Products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ?";
 
@@ -50,22 +52,25 @@ public class OrderDAO {
             psUpdateProduct = conn.prepareStatement(sqlUpdateProduct);
 
             for (CartItem item : cart) {
-
+                // Thêm chi tiết đơn hàng
                 psDetail.setInt(1, orderId);
                 psDetail.setInt(2, item.getProduct().getId());
                 psDetail.setInt(3, item.getQuantity());
                 psDetail.setDouble(4, item.getProduct().getCurrentPrice());
-                psDetail.addBatch();
+                psDetail.addBatch(); // Gom lệnh lại chạy 1 lần
 
+                // Trừ tồn kho, tăng đã bán
                 psUpdateProduct.setInt(1, item.getQuantity());
                 psUpdateProduct.setInt(2, item.getQuantity());
                 psUpdateProduct.setInt(3, item.getProduct().getId());
                 psUpdateProduct.addBatch();
             }
 
+            // Chạy các lệnh đã Batch
             psDetail.executeBatch();
             psUpdateProduct.executeBatch();
 
+            // Chốt giao dịch commit
             conn.commit();
             return true;
 
@@ -78,6 +83,7 @@ public class OrderDAO {
             }
             return false;
         } finally {
+            // Đóng kết nối
             try {
                 if (rs != null) rs.close();
                 if (psOrder != null) psOrder.close();
@@ -90,6 +96,7 @@ public class OrderDAO {
         }
     }
 
+    // Lấy danh sách đơn hàng của 1 User
     public List<Order> getOrdersByUserId(int userId) {
         List<Order> list = new ArrayList<>();
         Connection conn = null;
@@ -118,6 +125,8 @@ public class OrderDAO {
         return list;
     }
 
+    // Lấy chi tiết sản phẩm của 1 đơn hàng
+        // Lấy số lượng SP trước
     public int countProductsInOrder(int orderId) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -135,9 +144,9 @@ public class OrderDAO {
         return 0;
     }
 
+       // Lấy danh sách chi tiết đơn hàng
     public List<OrderDetail> getOrderDetails(int orderId) {
         List<OrderDetail> list = new ArrayList<>();
-
         String query = "SELECT od.*, p.Name, " +
                 "(SELECT ImageURL FROM ProductImages WHERE ProductID = p.ProductID LIMIT 1) AS ImageURL " +
                 "FROM OrderDetails od " +
@@ -163,11 +172,13 @@ public class OrderDAO {
 
                 Product p = new Product();
                 p.setId(rs.getInt("ProductID"));
+
                 p.setName(rs.getString("Name"));
 
                 String img = rs.getString("ImageURL");
                 if (img == null) img = "https://via.placeholder.com/150";
                 p.setImageUrl(img);
+
                 od.setProduct(p);
                 list.add(od);
             }
@@ -184,6 +195,9 @@ public class OrderDAO {
         }
         return list;
     }
+
+
+    // lấy thông tin 1 đơn hàng theo ID
     public Order getOrderById(int orderId) {
         String query = "SELECT * FROM orders WHERE OrderID = ?";
         Connection conn = null;
@@ -213,6 +227,7 @@ public class OrderDAO {
         return null;
     }
 
+    // Cập nhật trạng thái đơn hàng
     public void updateOrderStatus(int orderId, String status) {
         String query = "UPDATE orders SET Status = ? WHERE OrderID = ?";
         Connection conn = null;

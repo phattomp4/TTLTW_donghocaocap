@@ -1,0 +1,378 @@
+﻿/* :root dùng để định nghĩa các "biến" CSS.
+    Giúp dùng lại các giá trị như màu sắc ở nhiều nơi. Khi muốn đổi màu, chỉ cần sửa 1 chỗ. */
+:root {
+    --primary-color: #1b6e76; /* Màu xanh navy đậm (màu chủ đạo) */
+    --secondary-color: #f4f7fa; /* Màu nền chính (màu xám nhạt) */
+    --text-color: #333; /* Màu chữ cơ bản */
+    --sidebar-bg: #ffffff; /* Màu nền của thanh menu bên trái */
+    --header-bg: #ffffff; /* Màu nền của header */
+    --card-bg: #ffffff; /* Màu nền của các "thẻ" (hộp) */
+    --border-color: #e0e0e0; /* Màu viền chung */
+    --success-color: #28a745; /* Màu xanh lá (thành công) */
+    --danger-color: #dc3545; /* Màu đỏ (nguy hiểm, xóa) */
+    --warning-color: #ffc107; /* Màu vàng (cảnh báo) */
+}
+
+/* --- Cài đặt chung cho toàn trang --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--secondary-color); /* Dùng biến màu nền */
+    color: var(--text-color);
+    margin: 0;
+    display: flex; /* Sử dụng Flexbox để tạo bố cục */
+    min-height: 100vh; /* Đảm bảo trang luôn cao ít nhất bằng màn hình */
+}
+
+/* --- 1. SIDEBAR (MENU BÊN TRÁI) --- */
+.sidebar {
+    width: 260px; /* Cố định độ rộng */
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column; /* Các mục xếp chồng lên nhau (dọc) */
+    padding: 20px 0;
+    position: fixed; /* Cố định menu khi cuộn trang */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000; /* Đảm bảo menu luôn nằm trên */
+}
+
+.sidebar-header {
+    padding: 0 25px 20px 25px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .sidebar-header i {
+        margin-right: 10px;
+    }
+
+.sidebar-nav {
+    list-style: none; /* Bỏ dấu chấm tròn của <ul> */
+    padding: 20px 0;
+    margin: 0;
+    flex-grow: 1; /* Cho phép nó giãn ra để đẩy footer xuống dưới */
+}
+
+    .sidebar-nav li a {
+        display: flex; /* Dùng flexbox để căn icon và chữ */
+        align-items: center; /* Căn giữa theo chiều dọc */
+        padding: 15px 25px;
+        text-decoration: none; /* Bỏ gạch chân của link */
+        color: #555;
+        font-weight: 500;
+        transition: all 0.2s ease; /* Hiệu ứng chuyển động mượt */
+        cursor: pointer; /* Biến thành hình bàn tay */
+    }
+
+        .sidebar-nav li a i {
+            width: 30px;
+            font-size: 1.1em;
+        }
+
+        /* Định nghĩa style cho link khi được "hover" (di chuột) hoặc "active" (đang chọn) */
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border-right: 3px solid var(--primary-color); /* Đường kẻ bên phải */
+        }
+
+/* --- 2. MAIN WRAPPER (Bao bọc HEADER + CONTENT) --- */
+.main-wrapper {
+    flex-grow: 1; /* Tự động lấp đầy phần không gian còn lại */
+    margin-left: 260px; /* Đẩy nội dung sang phải 1 khoảng = độ rộng sidebar */
+    display: flex;
+    flex-direction: column; /* Xếp header và content theo chiều dọc */
+}
+
+/* --- 2a. HEADER (Thanh ngang trên cùng) --- */
+.header {
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between; /* Đẩy 2 item con ra 2 phía */
+
+}
+
+
+.header-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+    .header-profile i {
+        font-size: 1.3em;
+        color: #555;
+        cursor: pointer;
+    }
+
+    .header-profile span {
+        font-weight: 500;
+    }
+
+/* --- 2b. MAIN CONTENT (Nội dung chính của các trang) --- */
+.main-content {
+    padding: 30px;
+    flex-grow: 1; /* Lấp đầy phần còn lại của .main-wrapper */
+}
+
+/* === PHÉP MÀU ẨN/HIỆN TRANG === */
+.page-content {
+    display: none; /* 1. Ẩn TẤT CẢ các trang */
+}
+
+    .page-content.active {
+        display: block; /* 2. CHỈ hiển thị trang nào có class "active" */
+    }
+/* (JavaScript sẽ làm nhiệm vụ thêm/xóa class "active" này) */
+
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 1.8em;
+    }
+
+/* --- Nút bấm (Button) chung --- */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px; /* Khoảng cách giữa icon và chữ */
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+    .btn-primary:hover {
+        opacity: 0.9; /* Giảm độ mờ khi di chuột */
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Nút chỉ có icon (sửa, xóa) */
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.1em;
+}
+
+    .btn-icon.view {
+        color: #17a2b8;
+    }
+
+    .btn-icon.edit {
+        color: var(--primary-color);
+    }
+
+    .btn-icon.delete {
+        color: var(--danger-color);
+    }
+
+
+/* --- Thẻ (Card) --- */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Đổ bóng nhẹ */
+}
+
+/* --- Thẻ thống kê (Trang Dashboard) --- */
+.stat-cards {
+    display: grid; /* Sử dụng Grid Layout */
+    /* Tự động chia cột, mỗi cột rộng tối thiểu 220px */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px; /* Khoảng cách giữa các thẻ */
+    margin-bottom: 30px;
+}
+
+.card .card-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.card.sales .card-icon {
+    color: var(--success-color);
+}
+
+.card.orders .card-icon {
+    color: #17a2b8;
+}
+
+.card.products .card-icon {
+    color: var(--warning-color);
+}
+
+.card.customers .card-icon {
+    color: var(--danger-color);
+}
+
+.card h3 {
+    font-size: 1em;
+    color: #888;
+    text-transform: uppercase;
+    margin: 0 0 5px 0;
+}
+
+.card p {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* --- Bảng dữ liệu (Table) --- */
+.data-table {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+}
+
+    .data-table h2 {
+        margin-top: 0;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse; /* Gộp các đường viền ô */
+    margin-top: 20px;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle; /* Căn giữa nội dung ô theo chiều dọc */
+}
+
+th { /* Tiêu đề cột */
+    background-color: #f9f9f9;
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background-color: #f5f5f5;
+}
+/* Hiệu ứng khi di chuột */
+
+/* --- Trạng thái (Status) --- */
+.status {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+    white-space: nowrap; /* Ngăn chữ xuống hàng */
+}
+    /* Các màu trạng thái khác nhau */
+    .status.completed, .status.active {
+        background-color: #e6f7ec;
+        color: var(--success-color);
+    }
+
+    .status.pending {
+        background-color: #fff8e1;
+        color: var(--warning-color);
+    }
+
+    .status.cancelled, .status.hidden {
+        background-color: #fbe9e7;
+        color: var(--danger-color);
+    }
+
+/* Ảnh sản phẩm nhỏ trong bảng */
+.product-image-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    object-fit: cover; /* Đảm bảo ảnh vừa vặn mà không bị méo */
+}
+
+/* --- Biểu mẫu (Form) --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Tạo bố cục 2 cột bằng nhau */
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; /* Nhãn và ô input xếp dọc */
+}
+
+    /* Dùng cho ô nào cần chiếm cả 2 cột */
+    .form-group.full-width {
+        grid-column: 1 / -1; /* Bắt đầu từ cột 1, kết thúc ở cột cuối cùng */
+    }
+
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        box-sizing: border-box; /* Quan trọng: để padding không làm tăng width */
+        font-size: 0.95em;
+    }
+
+        .form-group input[disabled] {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+
+    .form-group textarea {
+        height: 120px;
+        resize: vertical; /* Cho phép kéo dãn theo chiều dọc */
+    }
+
+/* Khu vực chứa các nút bấm của form (Lưu, Hủy) */
+.form-actions {
+    grid-column: 1 / -1; /* Chiếm cả 2 cột */
+    display: flex;
+    justify-content: flex-end; /* Đẩy các nút sang phải */
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+    margin-top: 10px;
+}
+

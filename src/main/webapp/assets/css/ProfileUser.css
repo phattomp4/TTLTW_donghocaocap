@@ -1,0 +1,301 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden; /* Ngăn cuộn ngang */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* KHÔNG CẦN THIẾT NỮA TRONG CẤU TRÚC MỚI: .left-side button{display: grid; ...} */
+
+.main-container {
+    display: flex; /* Giữ nguyên Flexbox để .left-side và .right-side nằm ngang */
+    width: 90%;
+    heghht: auto;
+    gap: 20px;
+    padding: 20px 0;
+    align-items: flex-start;
+}
+
+/* LEFT SIDE (Menu Tab) */
+.left-side {
+    width: 30%; /* Chiếm 30% chiều rộng */
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    
+    /* Thêm style khung cho menu */
+    background-color: white; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px 0; /* Giảm padding trên dưới */
+}
+
+.left-side button{
+    /* CHỈNH SỬA: Đặt width 100% để nút điền đầy 30% của left-side */
+    width: 100%; 
+    border: none; /* Bỏ border trắng */
+    background-color: transparent; /* Màu nền trong suốt */
+    cursor: pointer;
+    padding: 10px 15px; /* Thêm padding ngang để căn chỉnh */
+    margin-bottom: 2px;
+    border-radius: 0px; /* Bỏ border radius cho hiệu ứng tab */
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+}
+
+.left-side button .Name-product{
+    text-align: left;
+    margin: 0; 
+}
+
+/* RIGHT SIDE (Content Wrapper) */
+.right-side {
+    width: 90%; /* Chiếm 70% chiều rộng */
+    /* Thêm style khung cho nội dung */
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 5px 6px 6px 2px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Trạng thái ACTIVE (Nút đang được chọn) */
+.left-side button.active {
+    background-color: #f0f0f0 !important; /* Màu nền hơi xám */
+    border-left: 3px solid #1b6e76;
+}
+
+.left-side button:hover {
+    background-color: #F7F7F7;
+    border-left: 3px solid #1b6e76;
+}
+
+
+/* --- CÁC STYLE KHÁC GIỮ NGUYÊN HOẶC CHỈNH SỬA NHỎ --- */
+
+.right-side form .label{
+    font-size: 17px;
+}
+.right-side form{
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 15px 10px; 
+    
+}
+
+
+.page-title-wrapper {
+    width: 70%;
+    padding-left: 20px; 
+    align-items: center;
+    display: flex;
+}
+
+.Account{
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 10px;
+    font-size: 17px;
+}
+.Account p .user-name {
+    font-weight: bold;
+}
+.title-page{
+    font-size: 20px;
+    font-weight: normal;
+    text-decoration: underline;
+    margin: 0; /* Xóa margin mặc định của H1 */
+}
+
+.order-tab-group{
+    display: flex;
+    gap: 15px; /* Tăng khoảng cách giữa các nút */
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #f0f0f0; /* Viền phân tách */
+}
+
+.order-tab{
+    width: auto;
+    padding: 8px 0; /* Giảm padding ngang, chỉ giữ padding đứng */
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    background-color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #666; /* Màu chữ mặc định */
+}
+
+.order-tab:hover {
+    color: #000;
+    border-bottom: 2px solid #ccc;
+}
+
+/* Thêm style cho nút đang được chọn (Active) nếu cần */
+    .order-tab.active {
+        color: #1b6e76; /* Màu chữ xanh nổi bật */
+        font-weight: bold;
+        border-bottom: 2px solid #1b6e76;
+        background-color: transparent; /* Đảm bảo không có màu nền */
+    }
+.order-details-wrapper {
+    padding-top: 10px;
+}
+
+/* Style cho các phần nội dung đơn hàng */
+.order-content h3 {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+.order-content p {
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.order{
+    display: flex;
+    align-items: flex-start; 
+    border: 1px solid #eee; /* Thêm border cho toàn bộ khối đơn hàng */
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.order img{
+    width: auto;
+    height: 150px; /* Thêm chiều cao cố định để hình ảnh đồng đều */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    margin-right: 15px; /* Khoảng cách giữa ảnh và nội dung */
+    border: 1px solid lightgray;
+    border-radius: 4px;
+}
+
+.product-info-details {
+    display: flex;
+    flex-direction: column;
+    /* Thuộc tính này sẽ đẩy nội dung lên trên một chút */
+    
+    /* Khoảng cách giữa tên và giá */
+   justify-content: space-between;
+}
+
+
+
+.Price-product{
+    font-size: 18px;
+    color: red;
+    font-weight: bold;
+}
+
+.quantity-product{
+    margin-left: 180px;
+    padding: 0;
+    margin: 0;
+}
+
+.name-and-quantity {
+    display: flex;
+    flex-direction: column; 
+    gap: 3px; /* Khoảng cách nhỏ giữa Tên sản phẩm và x1 */
+    /* Đảm bảo không có padding/margin xung quanh khối này */
+    padding: 0;
+    margin: 0;
+}
+.Name-product {
+    font-weight: bold;
+    /* Đảm bảo không có margin/padding ở đây */
+    padding: 0;
+    margin: 0;
+}
+
+.price{
+    display: flex; /* Bật Flexbox để căn chỉnh ngang */
+    justify-content: flex-start; /* Đẩy nội dung (p) sang phải */
+    width: 100%; /* Đảm bảo nó chiếm hết chiều rộng */
+    
+    /* XÓA margin-left: 400px; cứng nhắc */
+}
+.price p {
+    /* Đảm bảo chữ Tổng tiền không có padding/margin thừa */
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    margin-left: 300px;
+    margin-top: 30px;
+}
+
+.address-customer1 {
+    /* Thêm đường kẻ dưới */
+    border-bottom: 1px solid #e0e0e0; /* Đường kẻ mỏng, màu xám nhạt */
+    
+    /* Tạo khoảng cách giữa nội dung và đường kẻ */
+    padding-bottom: 15px;
+    margin-bottom: 15px; 
+}
+
+.address-customer2 {
+    /* Thêm đường kẻ dưới */
+    border-bottom: 1px solid #e0e0e0; /* Đường kẻ mỏng, màu xám nhạt */
+    
+    /* Tạo khoảng cách giữa nội dung và đường kẻ */
+    padding-bottom: 15px;
+    margin-bottom: 20px; /* Khoảng cách lớn hơn một chút để tách biệt với nút */
+}
+
+.address-customer1 p,
+.address-customer2 p {
+    margin: 0 0 5px 0; /* Margin dưới 5px để tạo khoảng cách giữa các dòng */
+    padding: 0;
+}
+
+/* Tên khách hàng nổi bật */
+.Name-customer {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px !important;
+}
+
+/* Số điện thoại và Địa chỉ */
+.phone-number, .address {
+    color: #555;
+    font-size: 14px;
+}
+
+.add-address{
+ background-color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.add-address i {
+    /* Tạo khoảng cách 8px bên phải icon */
+    margin-right: 8px;
+    
+    /* Đảm bảo căn chỉnh đứng tốt hơn nếu cần */
+    vertical-align: middle; 
+}
+
+
+
+.log-out {
+    border: none;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    color: black;
+}
+    .log-out:hover {
+        background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+        color: white;
+    }

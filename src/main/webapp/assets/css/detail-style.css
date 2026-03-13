@@ -1,0 +1,287 @@
+/* --- FILE: assets/css/detail-style.css --- */
+
+/* 1. CẤU HÌNH CHUNG */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f8; /* Màu nền nhẹ cho toàn trang */
+    color: #333;
+}
+
+/* 2. KHUNG CHỨA CHÍNH (CONTAINER) */
+.Body {
+    max-width: 1200px;
+    width: 95%;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    gap: 40px; /* Khoảng cách giữa ảnh và thông tin */
+    align-items: flex-start;
+}
+
+/* 3. CỘT TRÁI: ẢNH SẢN PHẨM */
+.Picture-clock {
+    flex: 1 1 45%; /* Chiếm 45% chiều rộng */
+    width: 100%;
+}
+
+.Main-image-container {
+    width: 100%;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+}
+
+.Main-image-container img {
+    width: 100%;
+    max-width: 500px; /* Giới hạn độ to tối đa */
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 1/1; /* Luôn vuông */
+}
+
+/* Thumbnails (Ảnh nhỏ) */
+.Thumbnail-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.Thumbnail-list {
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow-x: auto;
+    padding-bottom: 5px; /* Để chừa chỗ cho thanh cuộn nếu có */
+}
+
+.Thumbnail-list li img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border: 2px solid #eee;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.Thumbnail-list li img:hover,
+.Thumbnail-list li img.active {
+    border-color: #d0011b;
+}
+
+.scroll-button {
+    background: #eee;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 4. CỘT PHẢI: THÔNG TIN SẢN PHẨM */
+.Right-body {
+    flex: 1 1 55%; /* Chiếm 55% chiều rộng */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.Name-clock {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.Avalable {
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.available {
+    color: #27ae60;
+    font-weight: bold;
+    background: #eafaf1;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Giá bán */
+.Feedback {
+    background: #fafafa;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+    border: 1px dashed #ccc;
+}
+
+.price {
+    font-size: 30px;
+    color: #d0011b;
+    font-weight: bold;
+    margin: 0;
+}
+
+.discount {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 16px;
+}
+
+.percent-discount {
+    background: #d0011b;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Đặc quyền & Vận chuyển */
+.privilege {
+    border: 1px solid #bce3eb;
+    background: #f2fbff;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.privilege-in-VVP {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.privilege ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.privilege li {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Nút bấm (Mua ngay / Thêm giỏ) */
+.button-service {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.shopping-cart, .Buying-now {
+    flex: 1; /* Chia đều 50-50 */
+    height: 50px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.shopping-cart {
+    background: #ff9f00;
+    border: 1px solid #ff9f00;
+}
+.shopping-cart a { color: #fff; text-decoration: none; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;}
+
+.Buying-now {
+    background: #d0011b;
+    border: 1px solid #d0011b;
+}
+.Buying-now a { color: #fff; text-decoration: none; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;}
+
+.shopping-cart:hover, .Buying-now:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* 5. PHẦN THÔNG SỐ KỸ THUẬT (FOOTER DETAIL) */
+.infoProduct {
+    max-width: 1200px;
+    width: 95%;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.detail-product {
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Lưới thông số kỹ thuật */
+.detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia 2 cột */
+    gap: 10px 40px;
+}
+
+.detail p {
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between; /* Tên thông số bên trái, giá trị bên phải */
+}
+
+/* Responsive Mobile */
+@media (max-width: 768px) {
+    .Body {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .detail {
+        grid-template-columns: 1fr; /* Về 1 cột trên mobile */
+    }
+
+    .button-service {
+        flex-direction: column;
+    }
+
+    .Name-clock {
+        font-size: 20px;
+    }
+
+    .price {
+        font-size: 24px;
+    }
+}

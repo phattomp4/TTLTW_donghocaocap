@@ -1,0 +1,74 @@
+body { background-color: #f5f5f5; }
+
+.profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    display: flex;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.13);
+    min-height: 600px;
+}
+
+/* SIDEBAR */
+.profile-sidebar {
+    width: 250px;
+    border-right: 1px solid #efefef;
+    padding: 20px;
+}
+.user-brief { display: flex; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid #efefef; margin-bottom: 15px; }
+.user-avatar-img { width: 50px; height: 50px; border-radius: 50%; border: 1px solid #e1e1e1; }
+.sidebar-menu a { display: block; padding: 12px 0; color: #333; text-decoration: none; font-size: 14px; }
+.sidebar-menu a:hover, .sidebar-menu a.active { color: #1b6e76; font-weight: 500; }
+.sidebar-menu i { width: 25px; text-align: center; }
+
+/* CONTENT */
+.profile-content { flex: 1; padding: 30px; }
+.profile-header { border-bottom: 1px solid #efefef; padding-bottom: 20px; margin-bottom: 30px; }
+.profile-header h2 { margin: 0 0 5px 0; font-size: 20px; font-weight: 500; }
+.profile-header p { margin: 0; color: #555; font-size: 14px; }
+
+/* LAYOUT 2 CỘT: INFO & ADDRESS */
+.profile-body-grid { display: flex; gap: 40px; }
+.info-column { flex: 3; border-right: 1px solid #efefef; padding-right: 30px; }
+.address-column { flex: 2; }
+
+/* FORM STYLE */
+.form-group { margin-bottom: 25px; display: flex; align-items: center; }
+.form-group label { width: 120px; color: #555; font-size: 14px; text-align: right; margin-right: 20px; }
+.form-control { flex: 1; height: 40px; padding: 0 15px; border: 1px solid #e0e0e0; border-radius: 2px; outline: none; transition: 0.2s; }
+.form-control:focus { border-color: #888; }
+.form-control:disabled { background: #f9f9f9; color: #999; }
+
+.btn-save { background: #1b6e76; color: #fff; border: none; height: 40px; padding: 0 25px; border-radius: 2px; cursor: pointer; margin-left: 140px; }
+.btn-save:hover { opacity: 80 }
+
+/* ADDRESS SECTION */
+.address-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.address-header h3 { font-size: 16px; margin: 0; }
+.btn-add-address { background: #333; color: #fff; border: none; padding: 8px 12px; font-size: 12px; border-radius: 2px; cursor: pointer; }
+
+/* Form thêm địa chỉ */
+.add-address-box { background: #fdfdfd; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+.add-address-box input, .add-address-box textarea { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 2px; }
+.btn-submit-addr { background: #1b6e76; color: white; border: none; padding: 5px 15px; cursor: pointer; }
+.btn-cancel-addr { background: #eee; border: none; padding: 5px 15px; cursor: pointer; margin-left: 5px; }
+
+/* Address Cards */
+.address-card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 4px; position: relative; }
+.addr-header { font-weight: bold; font-size: 14px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+.addr-body p { color: #666; font-size: 13px; margin: 0; line-height: 1.4; }
+.addr-footer { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+.badge-default { border: 1px solid #d0011b; color: #d0011b; font-size: 11px; padding: 1px 4px; }
+.btn-edit-addr { font-size: 12px; color: #007bff; text-decoration: none; }
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+    .profile-body-grid { flex-direction: column; }
+    .info-column { border-right: none; padding-right: 0; border-bottom: 1px solid #efefef; padding-bottom: 30px; margin-bottom: 30px; }
+}
+@media (max-width: 768px) {
+    .profile-container { flex-direction: column; margin-top: 20px; }
+    .profile-sidebar { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-menu a span { display: none; }
+}
