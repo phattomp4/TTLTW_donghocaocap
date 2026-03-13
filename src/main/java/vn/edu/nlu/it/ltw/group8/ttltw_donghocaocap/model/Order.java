@@ -5,13 +5,28 @@ public class Order {
     private int orderId;
     private int userId;
     private int shippingAddressId;
-    private int voucherId; // Có thể null (dùng Integer hoặc int = 0)
+    private int voucherId;
     private Timestamp orderDate;
     private double totalAmount;
     private double discountAmount;
     private String paymentMethod;
     private String paymentStatus;
     private String status;
+
+    public Order() {}
+
+    public Order(int orderId, int userId, int shippingAddressId, int voucherId, Timestamp orderDate, double totalAmount, double discountAmount, String paymentMethod, String paymentStatus, String status) {
+        this.orderId = orderId;
+        this.userId = userId;
+        this.shippingAddressId = shippingAddressId;
+        this.voucherId = voucherId;
+        this.orderDate = orderDate;
+        this.totalAmount = totalAmount;
+        this.discountAmount = discountAmount;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.status = status;
+    }
 
     public int getOrderId() {
         return orderId;

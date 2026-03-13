@@ -42,37 +42,103 @@ public class Product {
     }
 
 
-    public int getId() { return id; }
-    public int getBrandId() { return brandId; }
-    public String getName() { return name; }
-    public String getSku() { return sku; }
-    public String getDescription() { return description; } // 5. Thêm getter
-    public double getOriginalPrice() { return originalPrice; }
-    public double getCurrentPrice() { return currentPrice; }
-    public String getImageUrl() { return imageUrl; }
-    public int getStockQuantity() { return stockQuantity; } // 6. Thêm getter
-    public int getSoldQuantity() { return soldQuantity; }
-    public boolean isLuxury() { return isLuxury; }
-    public Map<String, String> getSpecifications() {
-        return specifications;
+    public int getId() {
+        return id;
     }
 
-    public void setId(int id) { this.id = id; }
-    public void setBrandId(int brandId) { this.brandId = brandId; }
-    public void setName(String name) { this.name = name; }
-    public void setSku(String sku) { this.sku = sku; }
-    public void setDescription(String description) { this.description = description; }
-    public void setOriginalPrice(double originalPrice) { this.originalPrice = originalPrice; }
-    public void setCurrentPrice(double currentPrice) { this.currentPrice = currentPrice; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
-    public void setSoldQuantity(int soldQuantity) { this.soldQuantity = soldQuantity; }
-    public void setLuxury(boolean luxury) { isLuxury = luxury; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(int brandId) {
+        this.brandId = brandId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(double originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public double getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(double currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public int getSoldQuantity() {
+        return soldQuantity;
+    }
+
+    public void setSoldQuantity(int soldQuantity) {
+        this.soldQuantity = soldQuantity;
+    }
+
+    public boolean isLuxury() {
+        return isLuxury;
+    }
+
+    public void setLuxury(boolean luxury) {
+        isLuxury = luxury;
+    }
+
     public List<String> getImageList() {
         return imageList;
     }
     public void setImageList(List<String> imageList) {
         this.imageList = imageList;
+    }
+
+    public Map<String, String> getSpecifications() {
+        return specifications;
     }
     public void setSpecifications(Map<String, String> specifications) {
         this.specifications = specifications;
