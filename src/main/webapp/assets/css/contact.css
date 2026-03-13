@@ -1,0 +1,175 @@
+﻿*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Khu vực cửa hàng --- */
+.contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    font-size: 18px;
+    padding: 25px;
+    text-align: center;
+
+}
+
+.Ch {
+    font-size: 26px;
+    color: #FF4500;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.imgtop {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+.font-top-text{
+    color: black;
+    list-style-type: none;
+
+}
+/* --- Khu vực liên hệ --- */
+#contact-bottom {
+    text-align: center;
+    padding: 10px 20px;
+    margin-top: 10px;
+    color: black;
+    line-height: 1.8;
+}
+
+#contact-bottom h2 {
+    color: #FF4500;
+    margin-bottom: 20px;
+}
+/* --- Slideshow --- */
+.slideshow-container {
+    max-width: 900px;
+    position: relative;
+    margin: 50px auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.mySlides {
+    display: none;
+}
+
+.mySlides img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 1s ease-in-out;
+}
+/* --- Slideshow --- */
+.slideshow-container {
+    max-width: 900px;
+    position: relative;
+    margin: auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    background: #000;
+}
+
+.mySlides {
+    display: none;
+}
+
+.mySlides img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 1s ease-in-out;
+}
+
+/* --- Nút điều hướng --- */
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 12px;
+    margin-top: -22px;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    transition: 0.3s;
+    user-select: none;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.3);
+}
+
+.next {
+    right: 0;
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.6);
+}
+
+/* --- Hiệu ứng chuyển ảnh --- */
+.fade {
+    animation-name: fade;
+    animation-duration: 1.5s;
+}
+
+@keyframes fade {
+    from {opacity: 0.4;}
+    to {opacity: 1;}
+}
+/* phần đoạn văn lưu ý */
+
+.luuy{
+    margin: auto;
+    padding: 10px 50px;
+}
+#p1{
+    font-size: 20px;
+    color: red;
+    line-height: 1.8;
+}
+#p2{
+    font-size: 15px;
+    color: gray;
+}
+
+.button {
+    background-color: #fff0;
+    border: 1px solid #fff0;
+    border-radius: 0;
+    box-sizing: border-box;
+    color: currentColor;
+    cursor: pointer;
+    display: inline-block;
+    font-size: .97em;
+    font-weight: bolder;
+    letter-spacing: .03em;
+    line-height: 2.4em;
+    margin-right: 1em;
+    margin-top: 0;
+    max-width: 100%;
+    min-height: 2.5em;
+    min-width: 24px;
+    padding: 0 1.2em;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    text-rendering: optimizeLegibility;
+    text-shadow: none;
+    text-transform: uppercase;
+    transition: transform .3s, border .3s, background .3s, box-shadow .3s, opacity .3s, color .3s;
+    vertical-align: middle;
+}

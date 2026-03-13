@@ -1,0 +1,894 @@
+﻿/*Phat*/
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden; /* Ngăn cuộn ngang */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Scroll To Top */
+#btnScrollToTop {
+    /* 1. Định vị nút nằm cố định ở góc màn hình */
+    position: fixed;
+    bottom: 30px; /* Cách đáy 30px */
+    right: 30px; /* Cách phải 30px */
+    z-index: 9999; /* Luôn nằm trên cùng */
+    /* 2. Tạo hình dáng tròn */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Bo tròn tuyệt đối */
+    /* 3. Màu sắc giống hình mẫu */
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    color: #fff; /* Mũi tên trắng */
+    border: 1px solid #fff; /* Viền trắng mỏng */
+    /* 4. Căn giữa mũi tên bên trong */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 5. Hiệu ứng và trạng thái ban đầu */
+    cursor: pointer;
+    opacity: 0; /* Ban đầu ẩn đi */
+    visibility: hidden; /* Ban đầu ẩn đi */
+    transition: all 0.4s ease-in-out; /* Hiệu ứng hiện ra mượt mà */
+}
+
+    /* Class này sẽ được JS thêm vào để hiện nút lên */
+    #btnScrollToTop.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Hiệu ứng khi hover vào */
+    #btnScrollToTop:hover {
+        opacity: 0.9; /* Đổi màu nền nhẹ khi hover */
+        transform: translateY(-3px); /* Nhún nhẹ lên trên */
+    }
+
+
+/* Slideshow container */
+.slideshow-container {
+
+    max-width: 100%;
+    position: relative;
+}
+    /* Slideshow container */
+
+    .slideshow-container {
+        position: relative;
+    }
+
+    /* Dots container */
+
+    .dots-container {
+        /* Quan trọng: Cho phép nó "nổi" */
+        position: absolute;
+        bottom: 15px;
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Hide the images by default */
+
+    .mySlides {
+        display: none;
+    }
+
+    /* Next & previous buttons */
+
+    .prev, .next {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        width: auto;
+        margin-top: -22px;
+        padding: 16px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.6s ease;
+        border-radius: 0 3px 3px 0;
+        user-select: none;
+    }
+
+    /* Position the "next button" to the right */
+
+    .next {
+        right: 0;
+        border-radius: 3px 0 0 3px;
+    }
+
+    /* On hover, add a black background color with a little bit see-through */
+
+    .prev:hover, .next:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Caption text */
+
+    .text {
+        color: #f2f2f2;
+        font-size: 15px;
+        padding: 8px 12px;
+        position: absolute;
+        bottom: 8px;
+        width: 100%;
+        text-align: center;
+    }
+
+
+    /* The dots/bullets/indicators */
+
+    .dot {
+        cursor: pointer;
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: aliceblue;
+        border-radius: 50%;
+        display: inline-block;
+        transition: background-color 0.6s ease;
+    }
+
+        .dot:hover {
+            background-image: linear-gradient(to right, #b4dcf3, #dddddd, #b4dcf3);
+        }
+
+    /* Fading animation */
+
+    .fade {
+        animation-name: fade;
+        animation-duration: 1.5s;
+    }
+
+    @keyframes fade {
+        from {
+            opacity: .4
+        }
+        to {
+            opacity: 1
+        }
+    }
+
+    
+    /*Service*/
+
+    .service {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 5px 10px !important;
+    }
+
+        .service .icon-box {
+            background-image: linear-gradient(to right, #b4dcf3, #dddddd, #b4dcf3);
+            display: flex;
+            flex-wrap: wrap;
+            border-radius: 8px 8px 8px 8px;
+        }
+
+        .service .icon-box .icon-box-img {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+            min-width: 35px;
+            border-radius: 8px 0px 0px 8px;
+        }
+
+    .service .icon-box .icon-box-text h4 {
+        font-size: 12px;
+        line-height: 14px;
+        margin: 10px;
+        font-weight: 700;
+        font-family: Helvetica Neue, sans-serif;
+    }
+
+    .service .icon-box .icon-box-text p {
+        font-size: 10px;
+        line-height: 16px;
+        margin: 10px;
+        color: #666;
+    }
+
+    /* Khoang cach tren duoi cua cac div trong introduce */
+
+    .introduce-section {
+        margin: 20px 0px 20px 0px;
+    }
+
+    /* ĐỒNG HỒ ĐEO TAY CHÍNH HÃNG */
+
+    .introduce-title {
+        text-align: center;
+        align-items: center;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        position: relative;
+        width: 100%;
+    }
+
+    /* tạo button dùng chung (các button khác ghi đè lên để thay đổi)*/
+
+    .button {
+        background-color: #fff0;
+        border: 1px solid #fff0;
+        border-radius: 0;
+        box-sizing: border-box;
+        color: currentColor;
+        cursor: pointer;
+        display: inline-block;
+        font-size: .97em;
+        font-weight: bolder;
+        letter-spacing: .03em;
+        line-height: 2.4em;
+        margin-right: 1em;
+        margin-top: 0;
+        max-width: 100%;
+        min-height: 2.5em;
+        min-width: 24px;
+        padding: 0 1.2em;
+        position: relative;
+        text-align: center;
+        text-decoration: none;
+        text-rendering: optimizeLegibility;
+        text-shadow: none;
+        text-transform: uppercase;
+        transition: transform .3s, border .3s, background .3s, box-shadow .3s, opacity .3s, color .3s;
+        vertical-align: middle;
+    }
+
+    .container-button-introduce {
+        margin: 0px 0px -30px 0px;
+    }
+
+.button-flash-sales {
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    margin-bottom: 50px;
+    box-shadow: 0px 0px 28px rgb(0 0 0 / .25), 0px 0px 10px rgb(0 0 0 / .1);
+}
+
+    .button-flash-sales:hover {
+        opacity: 0.9;
+        transform: translateY(-6px);
+    }
+
+    /* Định dạng dòng 4 ảnh brand */
+
+    .row-brand {
+        display: flex;
+        flex-flow: row wrap;
+        padding: 0 9.8px 19.6px;
+        /* 1. Xếp con theo chiều ngang (đây là mặc định, có thể bỏ) */
+        flex-direction: row;
+        /* 2. Căn giữa các con theo chiều ngang */
+        justify-content: center;
+        /* 3. Căn giữa các con theo chiều dọc (nếu chúng có chiều cao khác nhau) */
+        align-items: center;
+    }
+
+    /* Dòng chữ trên thẻ ảnh brand */
+
+    .text-brand h4 {
+        margin-top: 0;
+        text-align: center;
+        font-weight: lighter;
+    }
+
+    /* Khoảng cách giữa các ảnh brand, bo góc */
+
+.img-brand img {
+    margin: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+
+        .img-brand img:hover {
+            cursor: default;
+            box-shadow: 5px 6px 6px 2px #a7a7a7;
+            transform: scale(1.05);
+        }
+    /* COLLECTION LUXURY */
+
+.collection-luxury {
+    margin: 15px 5px 15px 5px; 
+}
+
+.luxury-cards {
+    margin: 3px 15px 3px 15px;
+}
+
+    .luxury-title h2 {
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .luxury-gallary {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+        .luxury-gallary img {
+            object-fit: cover;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+        }
+
+    .luxury-gallary img:hover {
+         cursor: pointer;
+        box-shadow: 5px 6px 6px 2px #a7a7a7;
+        transform: translateY(-4px);
+    }
+    
+
+    .luxury-banner img {
+        width: 300px;
+        height: 400px;
+        border-radius: 8px;
+    }
+
+.card-wrapper {
+    max-width: 900px;
+}
+
+.ul-luxury-cards {
+    margin: 0;
+    padding:0;
+}
+
+.ul-luxury-cards.swiper-wrapper {
+    align-items: center; /* Căn giữa các slide (card) theo chiều dọc */
+}
+
+.ul-luxury-cards .luxury-card {
+    margin: 0 0 0 0;
+    list-style: none;
+}
+
+    .ul-luxury-cards .luxury-card .Product {
+        display: block;
+        max-width: 160px;
+        height: auto;
+        margin: 0 0 0 0;
+        border: 1px solid #eee;
+        text-decoration: none;
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.05);
+        transition: 0.2s ease;
+    }
+
+        .ul-luxury-cards .luxury-card .Product:active {
+            cursor: grabbing;
+        }
+
+        .ul-luxury-cards .luxury-card .Product:hover {
+            border-color: #daa51e;
+        }
+
+.card-wrapper .swiper-pagination-bullet {
+    height: 12px;
+    width: 12px;
+    opacity: 0.5;
+    background: #1b6e76;
+}
+
+.card-wrapper .swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+/* 1. Định dạng chung cho cả 2 nút */
+.card-wrapper .swiper-button-prev,
+.card-wrapper .swiper-button-next {
+    width: 30px;
+    height: 30px;
+    color: #1b6e76;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.card-wrapper:hover .swiper-button-prev,
+.card-wrapper:hover .swiper-button-next {
+    opacity: 0.8;
+}
+
+.card-wrapper .swiper-button-prev:hover,
+.card-wrapper .swiper-button-next:hover {
+    opacity: 1;
+    color: #1b6e76;
+}
+
+.card-wrapper swiper-slide-button {
+    margin:0;
+}
+
+
+    .luxury-cards {
+        display: flex;
+    }
+
+    .luxury-cards .Product p {
+        font-size: 13px;
+    }
+
+.ul-luxury-cards li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/*Vu*/
+.ThuongHieu {
+    text-align: center;
+    font-size: 250%;
+    font-weight: 540;
+    margin-bottom: 5px;
+}
+
+    .CamKet {
+        text-align: center;
+        font-size: 150%;
+        font-weight: 500;
+        margin-top: 10px;
+    }
+
+/* --- CSS CHO SLIDER THƯƠNG HIỆU MỚI --- */
+
+.brand-slider-wrapper {
+    position: relative;
+    padding: 0 40px; /* Chừa chỗ cho 2 nút bấm */
+}
+
+.logo-container {
+    display: flex; /* Chuyển từ Grid sang Flex để xếp hàng ngang */
+    gap: 20px;
+    overflow-x: auto; /* Cho phép cuộn ngang */
+    scroll-behavior: smooth; /* Cuộn mượt */
+    padding: 20px 0;
+
+    /* Ẩn thanh cuộn xấu xí đi */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE */
+}
+
+.logo-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* Style cho từng ô thương hiệu */
+.logo-brand {
+    /* Quan trọng: Giữ kích thước cố định, không bị co lại */
+    flex: 0 0 calc(100% / 6 - 20px); /* Hiển thị 6 logo trên 1 dòng */
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+    transition: 0.3s;
+
+    /* Căn giữa ảnh */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+}
+
+.logo-brand:hover {
+    border-color: #1b6e76;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Nút điều hướng (Next/Prev) */
+.brand-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #1b6e76; /* Màu xanh thương hiệu */
+    color: white;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.8;
+    transition: 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.brand-nav-btn:hover {
+    opacity: 1;
+    background-color: #0e3e43;
+}
+
+.prev-brand { left: 0; }
+.next-brand { right: 0; }
+
+/* Responsive cho Mobile: Hiển thị 2 logo/dòng */
+@media (max-width: 768px) {
+    .logo-brand {
+        flex: 0 0 calc(100% / 2 - 20px);
+    }
+}
+    .BST {
+        text-align: center;
+        font-size: 230%;
+        font-weight: 540;
+        margin-top: 40px;
+    }
+
+    .button-bst-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 10px auto;
+    }
+
+    .button-bst-container button {
+        padding: 15px 40px;
+        font-size: 18px;
+        background-color: white;
+        cursor: pointer;
+        border: 1px solid #888;
+        border-radius: 5px;
+        transition: 0.3s ease;
+        color: #555;
+    }
+
+    .button-bst-container button:hover {
+        color: #1b6e76; /* Khi hover -> chữ trắng */
+        background-color: white;
+        border-color: #1b6e76;
+    }
+
+        .button-bst-container button.active {
+            background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+            color: #fff; /* Chữ màu trắng */
+        }
+
+/* Đặt ẩn đi các tab */
+.tab-content.hidden {
+    display: none;
+}
+
+    .InformationStore {
+        background-color: black;
+        padding: 30px;
+        box-sizing: border-box;
+        text-align: center; /* Căn giữa mọi thứ inline bên trong */
+    }
+
+    .InformationStore .Picture-Brand img {
+        height: 280px;
+        width: 380px;
+    }
+
+    .InformationStore .LogoStore {
+        font-size: 3vw;
+        color: #fff;
+
+    }
+
+    .InformationStore .ReputationBrand {
+        font-size: 3vw;
+        color: #daa51e;
+    }
+
+    .History-Brand {
+        display: flex;
+        align-items: center !important;
+    }
+
+    .History1 {
+        color: #fff;
+        font-size: 1vw;
+        margin-top: 20px;
+    }
+
+    .History2 {
+        color: #fff;
+        font-size: 1vw;
+        margin-top: 5px;
+    }
+
+    .History3 {
+        color: #fff;
+        font-size: 1vw;
+        margin-top: 5px;
+    }
+
+.btn-timhieuthem {
+    width: 150px;
+    height: auto;
+    margin: 10px 150px 0 720px;
+    padding: 5px;
+    border: 1px solid #1b6e76;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+    .btn-timhieuthem a {
+        font-size: 15px;
+        text-align: center;
+        text-decoration: none;
+        color: #1b6e76;
+    }
+
+    .btn-timhieuthem:hover {
+        border: 1px solid #b4dcf3;
+    }
+    .btn-timhieuthem a:hover {
+        color: #b4dcf3;
+    }
+/*them phan CSS danh sach cua Vy */
+/* --- PHẦN SLIDESHOW GALLERY --- */
+.slideshow-gallery-section {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.new-store-gallery-container {
+    /* Quan trọng: Tạo thanh cuộn ngang */
+    display: flex;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+    padding:  0px;
+
+    /* Ẩn thanh cuộn mặc định */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.new-store-gallery-container::-webkit-scrollbar {
+    display: none;
+}
+
+.gallery-image {
+    /* Định dạng cho từng ảnh */
+    width: 300px; /* CHIỀU RỘNG CỐ ĐỊNH (Quan trọng cho JS) */
+    height: 200px; /* Chiều cao cố định trên desktop */
+    object-fit: cover;
+    margin-right: 15px; /* MARGIN PHÂN CÁCH (Quan trọng cho JS) */
+    border-radius: 8px;
+    flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
+}
+/* Nút Điều hướng */
+.gallery-button {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    z-index: 10;
+    transition: 0.3s;
+}
+.prev-gallery {
+    left: 25px;
+}
+
+.next-gallery {
+    right: 25px;
+}
+
+.gallery-button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Responsive cho Mobile */
+@media (max-width: 768px) {
+    .gallery-image {
+        width: 180px; /* Giảm kích thước ảnh trên mobile để cuộn mượt hơn */
+        height: 180px; /* Giữ chiều cao tương ứng */
+    }
+
+    .gallery-button {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+        left: 5px;
+    }
+    .next-gallery {
+        right: 5px;
+    }
+}
+
+
+
+
+/*them phan CSS danh sach cua hang cua Vy */
+/* --- 1. TIÊU ĐỀ DANH SÁCH CỬA HÀNG --- */
+.dscuahang-title {
+    text-align: center; /* Căn giữa tiêu đề */
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+.dscuahang-title h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* --- 2. BỐ CỤC CHÍNH (3 CỘT MẶC ĐỊNH) --- */
+.grid-container {
+    display: grid;
+    /* Mặc định 3 cột bằng nhau, tạo bố cục lớn như trên màn hình 24 inch */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; /* Khoảng cách giữa các ô */
+    /* Giới hạn chiều rộng và căn giữa container */
+    max-width: 1200px;
+    margin: 0 auto 50px auto; /* Căn giữa khối và thêm khoảng cách dưới */
+    padding: 0 20px; /* Thêm padding ngang để nội dung không bị dính vào mép màn hình */
+}
+
+/* --- 3. STYLING CHO MỖI Ô CỬA HÀNG --- */
+.store-box {
+    height: 130px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    text-align: left;
+}
+
+.store-box h3 {
+
+            padding: 15px;
+            background-color: #f4f4f4;
+            border-top-right-radius: 8px;
+            border-top-left-radius: 8px;
+            margin:0 ;
+            font-size: 2vh;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            font-weight: 400;
+        }
+
+.store-box p {
+    font-size: 14px;
+    color: #555;
+    margin: 10px;
+}
+
+    .store-box a {
+        color: #007bff; /* Màu xanh nổi bật cho link */
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 10px;
+    }
+
+        .store-box a:hover {
+            color: #daa51e;
+        }
+
+        /* --- 4. MEDIA QUERIES (Giải quyết vấn đề màn hình 14 inch) --- */
+        /* @media cho màn hình vừa (như laptop 14 inch) */
+        @media (max-width: 1024px) {
+            .grid-container {
+        /* Chuyển từ 3 cột sang 2 cột, giúp các ô rộng hơn và không bị co */
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* @media cho màn hình nhỏ (như điện thoại) */
+@media (max-width: 600px) {
+    .grid-container {
+        /* Chuyển sang 1 cột duy nhất */
+        grid-template-columns: 1fr;
+        padding: 0 15px;
+    }
+}
+
+.container-button-lhtv {
+    margin: 30px 0px 30px 0px;
+}
+
+.button-lhtv {
+    border: none;
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    box-shadow: 0px 0px 28px rgb(0 0 0 / .25), 0px 0px 10px rgb(0 0 0 / .1);
+}
+
+    .button-lhtv:hover {
+        opacity: 0.9;
+        transform: translateY(-6px);
+    }
+
+.suggest-box {
+    position: absolute;
+    background: white;
+    width: 100%;
+    border: 1px solid #ddd;
+    display: none;
+    z-index: 999;
+}
+
+.suggest-box div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggest-box div:hover {
+    background: #f2f2f2;
+}
+
+
+/* Class dùng để ẩn sản phẩm */
+.hidden-style {
+    display: none !important;
+}
+
+/* Style cho nút Xem thêm mới */
+.btn-view-more-style {
+    padding: 12px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b6e76; /* Màu xanh thương hiệu của bạn */
+    background-color: white;
+    border: 1px solid #1b6e76;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s all ease;
+}
+
+.btn-view-more-style:hover {
+    background-color: #1b6e76;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* --- FIX LỖI GIAO DIỆN LUXURY CARD --- */
+
+/* 1. Căn giữa nội dung trong thẻ Luxury */
+.ul-luxury-cards .luxury-card .Product {
+    display: flex !important;       /* Dùng Flex để căn giữa dễ hơn */
+    flex-direction: column;
+    align-items: center;            /* Căn giữa theo chiều ngang */
+    height: auto !important;        /* Chiều cao tự động theo nội dung */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* 2. Sửa lỗi ảnh bị lệch (Bỏ margin trái 13px mặc định) */
+.ul-luxury-cards .luxury-card .Product .img-product {
+    margin: 0 !important;           /* Xóa margin thừa */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;             /* Quan trọng: Để chữ Hết Hàng căn theo ảnh này */
+}
+
+/* 3. Đảm bảo ảnh không bị méo hoặc tràn ra ngoài */
+.ul-luxury-cards .luxury-card .Product img {
+    width: auto;
+    max-width: 100%;
+    max-height: 150px;              /* Giới hạn chiều cao ảnh cho đều */
+    object-fit: contain;
+}
+
+/* 4. Căn giữa chữ "Hết Hàng" chính xác đè lên ảnh */
+.ul-luxury-cards .luxury-card .badge-out-of-stock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: max-content;             /* Chiều rộng theo nội dung chữ */
+    z-index: 10;
+}
