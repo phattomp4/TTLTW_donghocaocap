@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ page isELIgnored="false" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -17,7 +18,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
 
     <style>
-        /* CSS sửa nhanh cho ảnh không bị vỡ */
         .Main-image-container img { max-width: 100%; height: auto; }
         .Body { display: flex; gap: 30px; margin: 20px auto; max-width: 1200px; }
         @media (max-width: 768px) { .Body { flex-direction: column; } }
@@ -26,8 +26,9 @@
 <body>
 
 <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
-
-<div class="product-detail-container" style="margin-top: 150px; display: flex; gap: 30px; padding: 0 10%;">
+<c:set var="pName" value="${fn:toLowerCase(p.name)}" />
+<c:set var="isAccessory" value="${fn:contains(pName, 'dây') or fn:contains(pName, 'hộp') or fn:contains(pName, 'khóa') or fn:contains(pName, 'phụ kiện')}" />
+<div class="product-detail-container" style="margin-top: 5px; display: flex; gap: 30px; padding: 0 10%;">
 
     <div class="product-images" style="width: 50%;">
         <div class="main-image" style="margin-bottom: 10px;">
@@ -57,7 +58,37 @@
                 </span>
         </div>
 
-        <p class="desc" style="line-height: 1.6; margin-bottom: 20px;">${p.description}</p>
+        <div class="specs-table" style="margin-top: 40px;">
+            <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">THÔNG SỐ KỸ THUẬT</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+
+                <c:if test="${not empty p.specifications['Thương hiệu']}">
+                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Thương hiệu</td><td>${p.specifications['Thương hiệu']}</td></tr>
+                </c:if>
+
+                <c:if test="${not empty p.specifications['Thương hiệu']}">
+                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Xuất xứ</td><td>${p.specifications['Xuất xứ']}</td></tr>
+                </c:if>
+
+                <c:if test="${not empty p.specifications['Đối tượng']}">
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Đối tượng</td><td>${p.specifications['Đối tượng']}</td></tr>
+                </c:if>
+
+                <c:if test="${not empty p.specifications['Chống nước']}">
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chống nước</td><td>${p.specifications['Chống nước']}</td></tr>
+                </c:if>
+
+                <c:if test="${not empty p.specifications['Loại máy']}">
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Loại máy</td><td>${p.specifications['Loại máy']}</td></tr>
+                </c:if>
+
+                <c:if test="${not empty p.specifications['Chất liệu kính']}">
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chất liệu kính</td><td>${p.specifications['Chất liệu kính']}</td></tr>
+                </c:if>
+
+            </table>
+        </div>
+
 
         <div class="actions">
             <form id="productForm" action="${pageContext.request.contextPath}/add-to-cart" method="GET">
@@ -65,60 +96,70 @@
 
                 <div class="quantity-box">
                     <label>Số lượng:</label>
-                    <input type="number" id="qtyInput" name="quantity" value="1" min="1" style="width: 50px; text-align: center;">
+                    <input type="number" id="qtyInput" name="quantity" value="1" min="1"
+                           style="width: 50px; text-align: center;"
+                    ${p.stockQuantity <= 0 ? 'disabled' : ''}>
                 </div>
 
-                <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;">
-                        <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
-                    </button>
+                <c:choose>
+                    <c:when test="${p.stockQuantity > 0}">
+                        <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
 
-                    <button type="submit" name="action" value="buynow" class="btn-buy-now" style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">
-                        Mua ngay
-                    </button>
-                </div>
+                            <c:choose>
+                                <c:when test="${sessionScope.acc != null && sessionScope.acc.role == 'Admin'}">
+                                    <a href="admin/product-form?id=${p.id}" class="btn-buy-now"
+                                       style="background: #343a40; color: white; border: none; padding: 10px 30px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                        <i class="fa-solid fa-screwdriver-wrench"></i> QUẢN LÝ / SỬA SẢN PHẨM NÀY
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart"
+                                            style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;">
+                                        <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+
+                                    <button type="submit" name="action" value="buynow" class="btn-buy-now"
+                                            style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">
+                                        Mua ngay
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
+
+                        </div>
+                        <p style="color: green; margin-top: 10px; font-size: 14px;">
+                            <i class="fa-solid fa-check-circle"></i> Còn lại ${p.stockQuantity} sản phẩm
+                        </p>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="out-of-stock-alert" style="margin-top: 20px; padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+                            <strong style="font-size: 16px;"><i class="fa-solid fa-circle-exclamation"></i> Sản phẩm tạm hết hàng</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 14px;">Vui lòng quay lại sau hoặc liên hệ cửa hàng để được hỗ trợ.</p>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </form>
 
             <div id="toast" style="visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; font-size: 17px;">
                 <i class="fa-solid fa-check"></i> Đã thêm sản phẩm vào giỏ!
             </div>
         </div>
-
-
-        <div class="specs-table" style="margin-top: 40px;">
-            <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">THÔNG SỐ KỸ THUẬT</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Thương hiệu</td><td>${p.specifications['Thương hiệu']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Xuất xứ</td><td>${p.specifications['Xuất xứ']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Đối tượng</td><td>${p.specifications['Đối tượng']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chống nước</td><td>${p.specifications['Chống nước']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Loại máy</td><td>${p.specifications['Loại máy']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chất liệu kính</td><td>${p.specifications['Chất liệu kính']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chất liệu dây</td><td>${p.specifications['Chất liệu dây']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Đường kính mặt</td><td>${p.specifications['Đường kính mặt']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Size mặt</td><td>${p.specifications['Size mặt']}</td></tr>
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Độ dày</td><td>${p.specifications['Độ dầy']}</td></tr>
-            </table>
-        </div>
-
     </div>
 </div>
+<div class="description-product" style="padding:5px 85px 5px 85px;">
+    <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">MÔ TẢ CHI TIẾT</h3>
+    <p class="desc" >${p.description}</p></div>
 <script>
     function addToCartAjax() {
         const pidInput = document.querySelector('input[name="pid"]');
         const pid = pidInput ? pidInput.value : "";
 
-        // --- THÊM ĐOẠN KIỂM TRA NÀY ---
         if (!pid) {
             alert("Lỗi: Không tìm thấy ID sản phẩm. Vui lòng tải lại trang.");
             return;
         }
-        // ------------------------------
-
         const qtyInput = document.getElementById('qtyInput');
         const qty = qtyInput ? qtyInput.value : 1;
 
-        // Gửi request ngầm
         fetch('${pageContext.request.contextPath}/add-to-cart?pid=' + pid + '&quantity=' + qty + '&ajax=true')
             .then(response => {
                 if (!response.ok) {
@@ -127,15 +168,11 @@
                 return response.text();
             })
             .then(data => {
-                // Cập nhật số trên header (Tìm theo class .cart-count)
                 const listCartCounts = document.querySelectorAll(".cart-count");
-
-                // Cập nhật tất cả các chỗ hiển thị số lượng (nếu có nhiều icon giỏ hàng)
                 listCartCounts.forEach(el => {
                     el.innerText = data;
                 });
 
-                // Hiện thông báo thành công
                 const x = document.getElementById("toast");
                 if (x) {
                     x.style.visibility = "visible";

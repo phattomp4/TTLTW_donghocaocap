@@ -1,0 +1,389 @@
+﻿*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- 1. SỬA LỖI HEADER --- */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    /* FIX LỖI: Dùng rgba thay vì opacity để menu con không bị trong suốt */
+    background-color: rgba(248, 248, 248, 0.98);
+    box-shadow: 0 5px 5px rgba(0,0,0,0.1);
+}
+
+/* Khối logo */
+.logo-header {
+    display: flex;
+    align-content: center;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-right: 40px;
+}
+
+.logo-img { width: 90px; height: 60px; }
+
+.logo-text {
+    padding: 0 0 4px 0;
+    margin: 0 50px 0 80px;
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Khối Nav */
+.nav-item { flex: 1; }
+
+.main-nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.main-nav a:hover { color: #1b6e76; }
+.main-nav .link-yellow { color: #daa51e; }
+.main-nav .fa-chevron-down { font-size: 0.7rem; margin-left: 4px; }
+
+/* Khối Action */
+.header-action {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ul-header-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ul-header-action li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 7px;
+    padding: 0;
+}
+
+/* Ô tìm kiếm */
+.search-bar {
+    position: relative;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 0 10px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    width: 300px;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+    border-color: #d0011b;
+    box-shadow: 0 0 5px rgba(208, 1, 27, 0.2);
+}
+
+.search-form {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+
+.search-form input[type="text"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex-grow: 1;
+    font-size: 14px;
+    color: #333;
+    padding: 0 10px;
+}
+
+.search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+    padding: 5px;
+    transition: color 0.3s;
+}
+
+.search-button:hover { color: #d0011b; }
+
+/* Icon hành động */
+.action-icon {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    font-size: 1.3rem;
+    position: relative;
+}
+
+.cart-icon { color: #1b6e76; }
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #d0011b;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* Nút đăng nhập */
+.container-button-login { margin: 0; }
+
+.button-login {
+    background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    border: none;
+    transition: all 0.4s ease-in-out;
+    padding: 8px 15px; /* Thêm padding cho nút */
+    border-radius: 4px; /* Bo góc */
+}
+
+.button-login:hover {
+    opacity: 0.9;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar-btn {
+    background: none;
+    border: 1px solid #d0d7de;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+}
+
+.profile-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 220px;
+    background-color: white;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 99999; /* Tăng Z-index */
+    padding: 5px 0;
+}
+
+.dropdown-menu.show { display: block; }
+
+.menu-header {
+    padding: 8px 16px;
+    font-weight: 600;
+    border-bottom: 1px solid #d0d7de;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #24292e;
+    font-size: 14px;
+}
+
+.dropdown-menu a:hover { background-color: #f6f8fa; }
+.divider { height: 1px; background-color: #d0d7de; margin: 5px 0; }
+
+/* --- 2. SỬA LỖI MEGAMENU --- */
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: space-between;
+    height: 100%;
+    max-width: 658px;
+    position: relative;
+}
+
+.main-nav li { position: relative; }
+
+.main-nav li a {
+    display: block;
+    padding: 20px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+/* Khối Megamenu Chung */
+.megamenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    background-color: #fff; /* Nền trắng tuyệt đối */
+    padding: 25px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Bóng đậm hơn chút */
+    z-index: 9999; /* Nổi lên trên banner */
+    border-top: 3px solid #1b6e76; /* Viền trên màu xanh */
+    height: auto; /* Chiều cao tự động theo nội dung */
+
+}
+
+/* Hover để hiện menu */
+/* FIX LỖI VỠ BỐ CỤC: Đổi từ grid sang block để không ép nội dung vào 1 cột */
+.nav-item-has-dropdown:hover .megamenu-dongho {
+    display: block !important;
+    animation: fadeInMenu 0.3s ease;
+}
+
+.nav-item-has-dropdown:hover .megamenu-phukien {
+    display: block;
+    animation: fadeInMenu 0.3s ease;
+}
+
+/* Menu Đồng Hồ */
+.megamenu-dongho {
+    width: 1000px; /* Rộng hơn để chứa 3 cột */
+    left: -150px; /* Căn chỉnh vị trí */
+    opacity: 0.9;
+}
+
+/* Menu Phụ Kiện */
+.megamenu-phukien {
+    width: 200px;
+    height: 100px;
+    opacity: 0.9;
+    left: 0;
+}
+
+/* 1. Tìm đoạn code cũ của .megamenu-column ul và thay thế bằng đoạn này */
+.megamenu-column ul, .megamenu-column-phukien ul {
+    display: block !important; /* QUAN TRỌNG: Ghi đè thuộc tính flex của menu cha */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Thêm đoạn này để đảm bảo thẻ li luôn xuống dòng */
+.megamenu-column li, .megamenu-column-phukien li {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px; /* Tạo khoảng cách nhỏ giữa các dòng */
+}
+
+/* Các đoạn code a (link) giữ nguyên */
+.megamenu-column li a, .megamenu-column-phukien li a {
+    display: block;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.9rem;
+    padding: 5px 0;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.megamenu-column li a:hover, .megamenu-column-phukien li a:hover {
+    padding-left: 5px; /* Hiệu ứng đẩy chữ sang phải */
+    font-weight: 500;
+}
+
+/* Tiêu đề cột trong menu */
+.megamenu-column h4 {
+    margin-top: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Hiệu ứng hiện menu */
+@keyframes fadeInMenu {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Search Results Box */
+.search-results-box {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 0 0 5px 5px;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+.live-search-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.live-search-item:hover { background-color: #f9f9f9; }
+
+.live-search-img img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+
+.live-name {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.live-price {
+    font-size: 13px;
+    color: #d0011b;
+    font-weight: bold;
+}

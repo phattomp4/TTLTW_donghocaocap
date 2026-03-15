@@ -1,0 +1,240 @@
+﻿
+
+.Product {
+    position: relative;
+
+    /* SỬA DÒNG NÀY: Tăng chiều cao lên để chứa đủ nút */
+    height: 430px;
+
+    padding: 10px;
+    width: 250px;
+
+    /* Căn chỉnh nội dung */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    /* THÊM DÒNG NÀY: Giúp dàn đều nội dung, đẩy nút xuống dưới cùng nếu còn trống */
+    justify-content: space-between;
+
+    /* Các thuộc tính khác giữ nguyên */
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+    .Product:hover {
+        border-color: #daa51e;
+        box-shadow: 5px 6px 6px 2px #d7d7d7;
+    }
+
+    .Product .img-product {
+        margin: 0 0 0 13px;
+    }
+
+
+    /* Biểu tượng trái tim */
+    .wishlist-icon {
+        position: absolute;
+        z-index: 98;
+        top: 10px;
+        left: 10px;
+        background: white; /* Nền trắng */
+        border: 1px solid #ddd;
+        border-radius: 50%; /* Hình tròn */
+        width: 36px; /* Kích thước nút */
+        height: 36px; /* Kích thước nút */
+        display: flex; /* Dùng flexbox để căn icon */
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 18px; /* Kích thước icon */
+        color: #888; /* Màu icon mặc định */
+        transition: all 0.2s ease; /* Hiệu ứng chuyển động mượt mà */
+        outline: none; /* Bỏ viền khi focus */
+    }
+
+/* Khi hover vào nút */
+.wishlist-icon:hover {
+    border-color: #daa51e; /* Đổi màu viền khi hover */
+    color: #daa51e; /* Đổi màu icon khi hover */
+}
+
+/* TRẠNG THÁI ACTIVE: Khi trái tim được tô đặc */
+        .wishlist-icon.active {
+            background-color: #daa51e;
+            border-color: #daa51e;
+            color: white; /* Icon màu trắng */
+        }
+
+/* 2. Tạo container cho danh sách sản phẩm (chứa Page1 và Page2) */
+
+.Product-list-container {
+    padding: 0 60px;
+}
+
+/* 3. Đặt Grid cho Product-page (Page1, Page2) */
+
+.Product-page {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 Cột */
+    grid-template-rows: repeat(2, 1fr); /* 2 Hàng */
+    gap: 20px;
+    padding: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+    /* 4. Thêm class ẩn cho Page2 */
+
+    .Product-page.hidden {
+        display: none; /* Ẩn hoàn toàn Page2 khi chưa nhấn nút */
+    }
+
+
+
+
+/* --- THÊM CSS CHO NÚT XEM THÊM --- */
+
+.ViewMore-Container {
+    text-align: center;
+    margin: 30px auto 30px auto;
+}
+
+.ViewMore-Button {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b6e76;
+    background-color: #fff;
+    border: 1px solid #1b6e76;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s all ease-in-out;
+    width: 300px;
+}
+
+    .ViewMore-Button:hover {
+        color: #fff;
+        background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
+    }
+
+
+
+.Product img {
+    /* 💥 QUAN TRỌNG: Giới hạn chiều cao ảnh */
+    max-height: 200px;
+    width: 100%;
+    object-fit: contain; /* Đảm bảo ảnh không bị méo */
+    margin-bottom: 5px; /* Thêm chút khoảng cách với tên sản phẩm */
+    /* Thêm transition */
+    transition: transform 0.3s ease-in-out;
+}
+
+.Product a {
+    text-decoration: none;
+}
+.Product .Item {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    /* Giới hạn số dòng để tránh tên quá dài làm vỡ bố cục */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Chỉ hiển thị tối đa 2 dòng */
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.Product-info-bottom {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Giá bán chính thức */
+
+.Product .PriceOfPoduct {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF4500; /* Màu nổi bật cho giá */
+    margin: 3px 0;
+}
+
+/* Giá gốc (bị gạch) và Chiết khấu */
+
+.Product .Discount {
+    font-size: 13px;
+    color: #888;
+    text-decoration: line-through;
+    margin: 0;
+}
+
+.Product .DiscountPercent {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgb(27, 110, 118); /* Màu nổi bật cho chiết khấu */
+    margin: 0;
+}
+
+.Product .Sold {
+    font-size: 14px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.Product .Discount .DiscountPercent {
+    display: flex;
+}
+
+.Discount-row {
+    display: flex;
+    gap: 10px;
+}
+
+.Product .Item:hover {
+    color: rgb(227, 189, 93);
+}
+
+/* Hiệu ứng khi hover vào khung sản phẩm */
+
+.Product:hover img {
+    /* Phóng to ảnh lên 1.1 lần (10%) */
+    transform: scale(1.1);
+}
+
+/* --- CSS CHO SẢN PHẨM HẾT HÀNG --- */
+
+/* Làm mờ sản phẩm khi hết hàng */
+.Product.out-of-stock .img-product {
+    opacity: 0.5; /* Làm mờ ảnh */
+    filter: grayscale(100%); /* Chuyển sang đen trắng (tuỳ chọn) */
+}
+
+/* Nhãn Hết hàng đè lên ảnh */
+.badge-out-of-stock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+/* Vô hiệu hóa hover hiệu ứng khi hết hàng */
+.Product.out-of-stock:hover {
+    cursor: not-allowed;
+    border-color: #eee; /* Không đổi màu viền */
+    box-shadow: none;
+}
