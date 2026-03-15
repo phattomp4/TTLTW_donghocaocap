@@ -18,9 +18,7 @@ public class UserDAO {
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // 1. ĐĂNG NHẬP (Sửa lại tên bảng và tên cột)
     public User login(String user, String pass) {
-        // Dùng bảng Users, cột Username
         String query = "SELECT * FROM Users WHERE Username = ?";
         try {
             conn = new DBContext().getConnection();
@@ -28,10 +26,8 @@ public class UserDAO {
             ps.setString(1, user);
             rs = ps.executeQuery();
             if (rs.next()) {
-                // Lấy mật khẩu mã hóa từ cột PasswordHash
                 String dbPass = rs.getString("PasswordHash");
 
-                // So sánh mật khẩu (Dùng BCrypt)
                 if (BCrypt.checkpw(pass, dbPass)) {
                     User u = new User();
                     u.setId(rs.getInt("UserID")); // Khớp UserID
@@ -40,10 +36,8 @@ public class UserDAO {
                     u.setFullName(rs.getString("FullName"));
                     u.setEmail(rs.getString("Email"));
 
-                    // Cột Role (String) thay vì isAdmin (int)
                     u.setRole(rs.getString("Role"));
 
-                    // Lấy thêm thông tin mới
                     u.setPhone(rs.getString("Phone"));
                     u.setGender(rs.getString("Gender"));
                     u.setAddress(rs.getString("Address"));
@@ -57,7 +51,6 @@ public class UserDAO {
         return null;
     }
 
-    // Giữ nguyên hàm signup cũ của bạn
     public void signup(String user, String pass, String fullName, String email) {
         String query = "INSERT INTO Users(Username, PasswordHash, FullName, Email, Role) VALUES(?,?,?,?,?)";
         try {
@@ -74,7 +67,6 @@ public class UserDAO {
         }
     }
 
-    // Giữ nguyên checkUserExist
     public User checkUserExist(String user) {
         String query = "SELECT * FROM Users WHERE Username = ?";
         try {
@@ -98,17 +90,14 @@ public class UserDAO {
         return null;
     }
 
-    // 2. CẬP NHẬT HỒ SƠ (Sửa lại tên bảng Users)
-    // SỬA LẠI: Dùng đúng bảng 'Users' và cột 'UserID'
+
     public void updateAccountProfile(User a) {
-        // 1. Câu lệnh SQL phải trỏ vào bảng Users
         String query = "UPDATE Users SET Email=?, FullName=?, Phone=?, Gender=?, Address=? WHERE UserID=?";
 
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
 
-            // 2. Gán dữ liệu
             ps.setString(1, a.getEmail());
             ps.setString(2, a.getFullName()); // Đảm bảo hỗ trợ tiếng Việt
             ps.setString(3, a.getPhone());
@@ -116,10 +105,8 @@ public class UserDAO {
             ps.setString(5, a.getAddress());
             ps.setInt(6, a.getId()); // Điều kiện WHERE UserID = ...
 
-            // 3. Thực thi và kiểm tra
             int rowCount = ps.executeUpdate();
 
-            // In ra console để kiểm tra xem có dòng nào được update không
             if (rowCount > 0) {
                 System.out.println("Update thành công cho UserID: " + a.getId());
             } else {
@@ -134,7 +121,6 @@ public class UserDAO {
 
     public List<UserAddress> getAddresses(int userId) {
         List<UserAddress> listAddress = new ArrayList<>();
-        // Lấy hết các cột, bao gồm cả City
         String query = "SELECT * FROM Addresses WHERE UserID = ? ORDER BY IsDefault DESC";
         try {
             conn = new DBContext().getConnection();
@@ -145,10 +131,10 @@ public class UserDAO {
                 listAddress.add(new UserAddress(
                         rs.getInt("AddressID"),
                         rs.getInt("UserID"),
-                        rs.getString("ReceiverName"), // Cột ReceiverName
-                        rs.getString("Phone"),        // Cột Phone
-                        rs.getString("Street"),       // Cột Street
-                        rs.getString("City"),         // Cột City (Lấy luôn cho đủ, dù Null cũng ko sao)
+                        rs.getString("ReceiverName"),
+                        rs.getString("Phone"),
+                        rs.getString("Street"),
+                        rs.getString("City"),
                         rs.getBoolean("IsDefault")
                 ));
             }
@@ -158,9 +144,7 @@ public class UserDAO {
         return listAddress;
     }
 
-    // 2. THÊM ĐỊA CHỈ MỚI (Sửa tên bảng và cột)
     public void addAddress(int userId, String name, String phone, String address) {
-        // Lưu ý: Lưu địa chỉ vào cột 'Street'
         String query = "INSERT INTO Addresses (UserID, ReceiverName, Phone, Street, IsDefault) VALUES (?,?,?,?,0)";
         try {
             conn = new DBContext().getConnection();
@@ -168,14 +152,13 @@ public class UserDAO {
             ps.setInt(1, userId);
             ps.setString(2, name);
             ps.setString(3, phone);
-            ps.setString(4, address); // Gán địa chỉ vào cột Street
+            ps.setString(4, address);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 1. XÓA ĐỊA CHỈ
     public void deleteAddress(int addressId) {
         String query = "DELETE FROM Addresses WHERE AddressID = ?";
         try {
@@ -188,7 +171,6 @@ public class UserDAO {
         }
     }
 
-    // 2. CẬP NHẬT ĐỊA CHỈ
     public void updateUserAddress(int addressId, String name, String phone, String street) {
         String query = "UPDATE Addresses SET ReceiverName=?, Phone=?, Street=? WHERE AddressID=?";
         try {
@@ -204,7 +186,6 @@ public class UserDAO {
         }
     }
 
-    // Lấy thông tin 1 địa chỉ theo ID
     public UserAddress getAddressById(int addressId) {
         String query = "SELECT * FROM Addresses WHERE AddressID = ?";
         try {
@@ -252,25 +233,22 @@ public class UserDAO {
         return null;
     }
 
-    // 1. HÀM ĐẶT ĐỊA CHỈ MẶC ĐỊNH
     public void setDefaultAddress(int userId, int addressId) {
         try {
             conn = new DBContext().getConnection();
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
-            // B1: Reset tất cả địa chỉ của user này về 0
-            // Lưu ý tên bảng là: addresses
+
             PreparedStatement ps1 = conn.prepareStatement("UPDATE addresses SET IsDefault = 0 WHERE UserID = ?");
             ps1.setInt(1, userId);
             ps1.executeUpdate();
 
-            // B2: Set địa chỉ được chọn thành 1
             PreparedStatement ps2 = conn.prepareStatement("UPDATE addresses SET IsDefault = 1 WHERE AddressID = ? AND UserID = ?");
             ps2.setInt(1, addressId);
             ps2.setInt(2, userId);
             ps2.executeUpdate();
 
-            conn.commit(); // Lưu thay đổi
+            conn.commit();
         } catch (Exception e) {
             try { if(conn!=null) conn.rollback(); } catch(SQLException ex){}
             e.printStackTrace();
@@ -279,10 +257,8 @@ public class UserDAO {
         }
     }
 
-    // 2. CẬP NHẬT HÀM LẤY DANH SÁCH (Để hiển thị ra Profile và Checkout)
     public List<UserAddress> getListAddress(int userId) {
         List<UserAddress> list = new ArrayList<>();
-        // Sắp xếp IsDefault DESC để địa chỉ mặc định luôn hiện lên đầu
         String query = "SELECT * FROM addresses WHERE UserID = ? ORDER BY IsDefault DESC";
 
         try {
@@ -293,12 +269,11 @@ public class UserDAO {
             while (rs.next()) {
                 UserAddress a = new UserAddress();
                 a.setId(rs.getInt("AddressID"));
-                a.setName(rs.getString("ReceiverName")); // DB là ReceiverName
+                a.setName(rs.getString("ReceiverName"));
                 a.setPhone(rs.getString("Phone"));
-                a.setAddress(rs.getString("Street"));    // DB là Street
+                a.setAddress(rs.getString("Street"));
                 a.setCity(rs.getString("City"));
 
-                // Lấy trạng thái mặc định
                 a.setDefaultAddress(rs.getBoolean("IsDefault"));
 
                 list.add(a);

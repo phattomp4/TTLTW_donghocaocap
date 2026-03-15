@@ -19,7 +19,6 @@ public class RegisterServlet extends HttpServlet {
         String re_pass = request.getParameter("re_pass");
         String fullName = request.getParameter("fullname");
         String email = request.getParameter("email");
-        String phone = request.getParameter("phone");
         if (!pass.equals(re_pass)) {
             request.setAttribute("mess", "Mật khẩu không khớp!");
             request.getRequestDispatcher("register.jsp").forward(request, response);
@@ -27,7 +26,7 @@ public class RegisterServlet extends HttpServlet {
             UserDAO dao = new UserDAO();
             User a = dao.checkUserExist(user);
             if (a == null) {
-                dao.signup(user, pass, fullName, email,phone);
+                dao.signup(user, pass, fullName, email);
                 response.sendRedirect("login.jsp");
             } else {
                 request.setAttribute("mess", "Tài khoản đã tồn tại!");
