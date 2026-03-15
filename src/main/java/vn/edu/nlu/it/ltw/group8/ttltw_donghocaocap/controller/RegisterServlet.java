@@ -27,7 +27,7 @@ public class RegisterServlet extends HttpServlet {
             UserDAO dao = new UserDAO();
             User a = dao.checkUserExist(user);
             if (a == null) {
-                dao.signup(user, pass, fullName, email,phone);
+                dao.signup(user, pass, fullName, email);
                 response.sendRedirect("login.jsp");
             } else {
                 request.setAttribute("mess", "Tài khoản đã tồn tại!");

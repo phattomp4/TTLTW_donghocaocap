@@ -1,6 +1,6 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocapcom.vvp.dao.OrderDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
