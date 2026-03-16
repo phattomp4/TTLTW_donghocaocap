@@ -4,7 +4,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Khôi phục mật khẩu - INOLA</title>
+    <title>Khôi phục mật khẩu</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/forgot_password.css">
 
@@ -12,14 +12,15 @@
         .auth-card {
             max-width: 500px;
             margin: 50px auto;
-            background: #ffffff;
+            background-color: rgba(255, 255, 255, 0.3);
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
+            backdrop-filter: blur(8px);
         }
         .auth-card h2 {
-            color: #800080;
+            color: #0e3e43;
             margin-bottom: 15px;
             font-weight: 700;
             text-transform: uppercase;
@@ -50,7 +51,7 @@
             transition: all 0.3s ease;
         }
         .code-box:focus {
-            border-color: #800080;
+            border-color: #0e3e43;
             box-shadow: 0 0 8px rgba(128, 0, 128, 0.2);
             outline: none;
         }
@@ -62,7 +63,7 @@
             font-size: 14px;
         }
         .back-link:hover {
-            color: #800080;
+            color: #0e3e43;
         }
     </style>
 </head>
@@ -78,13 +79,13 @@
                 <c:if test="${not empty error}">
                     <div class="error-msg"><i class="fa fa-exclamation-circle"></i> ${error}</div>
                 </c:if>
-                <form action="${pageContext.request.contextPath}/forgot-password" method="post">
+                <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
                     <input type="hidden" name="action" value="send_code">
                     <div class="input_group">
                         <i class="fa fa-user"></i>
                         <input type="text" name="account_info" placeholder="Email hoặc số điện thoại" required>
                     </div>
-                    <button type="submit" class="btn_login" style="width: 100%; margin-top: 10px;">GỬI YÊU CẦU</button>
+                    <button type="submit" class="login-button" style="width: 100%; margin-top: 10px;">GỬI YÊU CẦU</button>
                 </form>
             </c:when>
 
@@ -97,7 +98,7 @@
                     <div class="error-msg">${error}</div>
                 </c:if>
 
-                <form action="${pageContext.request.contextPath}/forgot-password" method="post">
+                <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
                     <input type="hidden" name="action" value="verify_code">
                     <div class="code-input-group">
                         <c:forEach var="i" begin="1" end="6">
@@ -117,7 +118,7 @@
                     <div class="error-msg">${error}</div>
                 </c:if>
 
-                <form action="${pageContext.request.contextPath}/forgot-password" method="post">
+                <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
                     <input type="hidden" name="action" value="update_password">
                     <div class="input_group">
                         <i class="fa fa-lock"></i>
@@ -133,7 +134,7 @@
                 </form>
             </c:when>
         </c:choose>
-        <a href="${pageContext.request.contextPath}/login" class="back-link">
+        <a href="../login.jsp" class="back-link">
             <i class="fa fa-arrow-left"></i> Quay lại Đăng nhập
         </a>
     </div>

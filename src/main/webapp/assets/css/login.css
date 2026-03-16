@@ -200,12 +200,12 @@ body {
 }
 
 .btn_login {
-    background-color: #800080;
+    background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
     color: #fff;
 }
 
 .btn_login:hover {
-    background-color: #800080;
+    background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
 }
 
 .light_bg {
@@ -224,7 +224,7 @@ body {
 }
 
 .forgot_pass a {
-    color:#800080;
+    color:#0e3e43;
     text-decoration: none;
     font-size: 14px;
 }
@@ -241,7 +241,7 @@ body {
 }
 
 .terms_text a {
-    color: #800080;
+    color: #0e3e43;
     text-decoration: none;
 }
 
@@ -369,7 +369,6 @@ body {
 /* --- Nút Đăng Nhập --- */
 .login-button {
     width: 100%;
-    padding: 13px;
     background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
     color: white;
     border: none;
