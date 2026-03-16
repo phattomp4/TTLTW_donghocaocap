@@ -8,7 +8,7 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.EmailUtil;
 
 import java.io.IOException;
 
-@WebServlet(name = "ForgotPasswordServlet", value = "/ForgotPasswordServlet")
+@WebServlet(name = "ForgotPasswordServlet", urlPatterns = {"/forgotPassword"})
 public class ForgotPasswordServlet extends HttpServlet {
     private final UserDAO dao = new UserDAO();
 
