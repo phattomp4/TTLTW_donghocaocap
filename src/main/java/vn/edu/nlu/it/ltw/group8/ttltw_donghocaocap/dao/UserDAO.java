@@ -5,6 +5,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.UserAddress;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.PasswordUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -282,5 +283,60 @@ public class UserDAO {
         return list;
     }
 
+    // funtion forgetpass
 
+    //1. Reset Password
+    public boolean resetPassword(String accountInfo, String newPassword) {
+        String sql = "UPDATE users SET password = ?, reset_token = NULL, token_expiry = NULL " +
+                "WHERE email = ? OR phone = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, PasswordUtil.hashPassword(newPassword));
+            ps.setString(2, accountInfo.trim());
+            ps.setString(3, accountInfo.trim());
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    //2. verifyCode
+    public boolean verifyCode(String accountInfo, String code) {
+        String sql = "SELECT id FROM users WHERE (email = ? OR phone = ?) " +
+                "AND reset_token = ? AND token_expiry > NOW()";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, accountInfo.trim());
+            ps.setString(2, accountInfo.trim());
+            ps.setString(3, code);
+            return ps.executeQuery().next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    //3. setResetCode
+    public boolean setResetCode(String accountInfo, String code) {
+        String sql = "UPDATE users SET reset_token = ?, token_expiry = DATE_ADD(NOW(), INTERVAL 5 MINUTE) " +
+                "WHERE email = ? OR phone = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, code);
+            ps.setString(2, accountInfo.trim());
+            ps.setString(3, accountInfo.trim());
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

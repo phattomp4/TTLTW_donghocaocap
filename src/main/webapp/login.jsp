@@ -12,7 +12,7 @@
 
 <div class="login-container">
     <div class="back-home">
-        <a href="index.jsp" class="back-home-button">
+        <a href="${pageContext.request.contextPath}/home" class="back-home-button">
             <i class="fa-solid fa-arrow-left"></i> Quay về Trang chủ
         </a>
     </div>
@@ -38,12 +38,12 @@
                 <label>
                     <input type="checkbox" name="remember"> Ghi nhớ đăng nhập
                 </label>
-                <a href="forgot_password.html" class="forgot-password">Quên mật khẩu?</a>
+                <a href="user/userpass.jsp" class="forgot-password">Quên mật khẩu?</a>
             </div>
 
-            <div class="login-button">
-                <button type="submit" style="width: 100%; padding: 10px; background-color: #000; color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
-            </div>
+
+                <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
+
         </form>
 
         <p class="register-link">
