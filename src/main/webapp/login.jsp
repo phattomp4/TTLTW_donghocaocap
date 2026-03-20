@@ -26,17 +26,17 @@
 
             <div class="input-group">
                 <label for="username">Tên đăng nhập</label>
-                <input type="text" id="username" name="username" value="${requestScope.username}" placeholder="Nhập tên đăng nhập" required>
+                <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" value="${not empty requestScope.username ? requestScope.username : cookie.userC.value}" required>
             </div>
 
             <div class="input-group">
                 <label for="password">Mật khẩu</label>
-                <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" value="${cookie.passC.value}" required>
             </div>
 
             <div class="options-group">
                 <label>
-                    <input type="checkbox" name="remember"> Ghi nhớ đăng nhập
+                    <input type="checkbox" name="remember" value="ON" ${not empty cookie.userC ? 'checked': ''}> Ghi nhớ đăng nhập
                 </label>
                 <a href="user/userpass.jsp" class="forgot-password">Quên mật khẩu?</a>
             </div>
