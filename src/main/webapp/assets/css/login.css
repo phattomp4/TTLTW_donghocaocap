@@ -59,7 +59,7 @@ body {
 
 .container {
     width: 80%;
-    max-width: 1200px; /* giới hạn tối đa */
+    max-width: 1200px; 
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -138,28 +138,33 @@ body {
     width: 100%;
 }
 
-.input_group {
+.input-group {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    padding: 10px 12px;
+    margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    padding: 10px 12px;
-    margin-bottom: 15px;
-    background: #fafafa;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.4);
 }
 
-.input_group i {
+.input-group i {
     color: #800080;
     margin-right: 10px;
     font-size: 16px;
 }
 
-.input_group input {
+.input-group input {
     border: none;
     outline: none;
     width: 100%;
     font-size: 15px;
     background: transparent;
+    background: transparent !important;
+    color: #333;
+
 }
 
 
@@ -282,9 +287,6 @@ body {
     font-weight: bold;
 }
 
-.input-group {
-    margin-bottom: 20px;
-}
 
 .input-group label {
     display: block;
@@ -352,6 +354,8 @@ body {
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
     text-align: center;
+    margin-bottom: 12px;
+
 }
 .login-button a {
  text-decoration: none;
@@ -382,22 +386,21 @@ body {
     color: #d1ab4b;
 }
 
-/* --- Container chứa 2 nút mạng xã hội --- */
 .social-login {
     display: flex;
-    flex-direction: column; /* Xếp dọc */
-    gap: 12px; /* Khoảng cách giữa các nút */
+    flex-direction: column;
+    gap: 12px;
     width: 100%;
+    margin-top: 8px;
+    gap: 12px;
 }
 
-/* --- Style chung của nút mạng xã hội, giống nút đăng nhập --- */
-/* Đảm bảo nút Google và Facebook giống nút Đăng nhập */
+
 a {
     text-decoration: none !important;
     color: inherit !important;
 }
 
-/* KHẮC PHỤC 100% LỖI NÚT GOOGLE VÀ FACEBOOK */
 .btn-social {
     text-decoration: none !important;
     color: white !important;
@@ -412,35 +415,76 @@ a {
     color: white !important;
 }
 
-/* --- Hover giống nút đăng nhập --- */
 .btn-social:hover {
     transform: translateY(-1px);
     opacity: 0.9;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Làm tất cả nút có cùng kích thước */
 .login-button,
 .btn-social {
     width: 100%;
-    padding: 12px;          /* Đồng bộ padding */
-    font-size: 17px;        /* Đồng bộ font */
-    border-radius: 5px;     /* Đồng bộ bo góc */
+    padding: 12px;
+    font-size: 17px;
+    border-radius: 5px;
     font-weight: bold;
-    box-sizing: border-box; /* Chống co giãn bất thường */
+    box-sizing: border-box;
 }
 
-/* RESET CHO THẺ <a> */
+
 a {
     text-decoration: none !important;
-    color: inherit !important;
 }
 
-/* KHẮC PHỤC 100% LỖI NÚT GOOGLE VÀ FACEBOOK */
+
 .btn-social {
     text-decoration: none !important;
     color: white !important;
     display: flex !important;
     justify-content: center;
     align-items: center;
+}
+.btn-google {
+    background-color: #DB4437;
+}
+.btn-google:hover {
+    background-color: #c23321;
+}
+.btn-facebook {
+    background-color: #1877F2;
+}
+.btn-facebook:hover {
+    background-color: #0f5bb5;
+}
+.social-separator {
+    text-align: center;
+    position: relative;
+    margin: 12px 0;
+    position: relative;
+    font-size: 14px;
+    color: #555;
+}
+.social-separator span {
+    background: transparent;
+    padding: 0 12px;
+    position: relative;
+    z-index: 5;
+}
+.social-separator:before,
+.social-separator:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 28%;
+    height: 1px;
+    background: #ccc;
+    z-index: 1;
+}
+
+.social-separator:before {
+    left: 0;
+}
+
+.social-separator:after {
+    right: 0;
 }
