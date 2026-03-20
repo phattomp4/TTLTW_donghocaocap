@@ -10,38 +10,18 @@ body {
     min-height: 100vh;
     margin: 0;
     overflow-x: hidden;
-    /* 1. Chỉ định đường dẫn đến ảnh nền của bạn */
     background-image: url('https://media.rolex.com/image/upload/q_auto:eco/f_auto/c_limit,w_1920/v1725888680/rolexcom/collection/configurator/config-launcher/2024/config-launcher-watches-submariner-m124060-0001_2403jva_002.jpg');
-    
-    /* 2. NGĂN CHẶN ảnh lặp lại */
     background-repeat: no-repeat;
-    
-    /* 3. ĐẢM BẢO ảnh luôn lấp đầy toàn bộ viewport */
     background-size: cover;
-    
-    /* 4. Đặt vị trí ảnh (để phần trung tâm của ảnh luôn được hiển thị) */
     background-position: center center;
-    
-    /* 5. Giữ ảnh cố định khi người dùng cuộn (tùy chọn) */
     background-attachment: fixed;
-    
-    /* Đảm bảo chiều cao tối thiểu là 100% viewport */
     min-height: 100vh;
 }
 .back-home{
-    /* 1. Đặt vị trí cố định theo màn hình */
-    position: fixed; 
-    
-    /* 2. Căn vào cạnh trên */
-    top: 0; 
-    
-    /* 3. Căn vào cạnh phải */
-    right: 0; 
-    
-    /* Tùy chọn: Thêm padding để không dính sát mép */
-    padding: 20px; 
-    
-    /* Tùy chọn: Đảm bảo nó luôn nằm trên các nội dung khác */
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 20px;
     z-index: 1000;
 }
 
@@ -54,7 +34,6 @@ body {
     border: 1px solid #ddd;
     border-radius: 5px;
     transition: all 0.3s;
-    /* FIX: Ngăn nút bị ngắt dòng hoặc co lại quá mức */
     white-space: nowrap;
 }
 
@@ -265,7 +244,7 @@ body {
 
 
 .back-home-button:hover {
-    color: #1B6E76; /* Màu xanh lục đậm khi hover */
+    color: #1B6E76;
     border-color: #1B6E76;
     background-color: #f4fcfc;
 }
@@ -274,9 +253,8 @@ body {
     margin-right: 5px;
 }
 
-/* 2. CONTAINER FORM VÀ CĂN CHỈNH */
 .login-container {
-    padding-top: 60px; /* Khoảng trống cho header cố định */
+    padding-top: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -293,10 +271,9 @@ body {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid #eee;
     background-color: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(8px); /* 8px là độ mờ */
+    backdrop-filter: blur(8px);
 }
 
-/* --- Tiêu đề Form --- */
 .login-title {
     text-align: center;
     color: #333;
@@ -305,7 +282,6 @@ body {
     font-weight: bold;
 }
 
-/* --- Nhóm Input --- */
 .input-group {
     margin-bottom: 20px;
 }
@@ -337,7 +313,6 @@ body {
     outline: none;
 }
 
-/* --- Tùy chọn và Quên mật khẩu --- */
 .options-group {
     display: flex;
     justify-content: space-between;
@@ -366,7 +341,6 @@ body {
     color: #0d4a50;
 }
 
-/* --- Nút Đăng Nhập --- */
 .login-button {
     width: 100%;
     background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43);
@@ -390,7 +364,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* --- Link Đăng ký --- */
 .register-link {
     text-align: center;
     margin-top: 25px;
@@ -399,7 +372,7 @@ body {
 }
 
 .register-link a {
-    color: #daa51e; /* Màu vàng đồng */
+    color: #daa51e;
     text-decoration: none;
     font-weight: bold;
 }
@@ -407,4 +380,67 @@ body {
 .register-link a:hover {
     text-decoration: underline;
     color: #d1ab4b;
+}
+
+/* --- Container chứa 2 nút mạng xã hội --- */
+.social-login {
+    display: flex;
+    flex-direction: column; /* Xếp dọc */
+    gap: 12px; /* Khoảng cách giữa các nút */
+    width: 100%;
+}
+
+/* --- Style chung của nút mạng xã hội, giống nút đăng nhập --- */
+/* Đảm bảo nút Google và Facebook giống nút Đăng nhập */
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* KHẮC PHỤC 100% LỖI NÚT GOOGLE VÀ FACEBOOK */
+.btn-social {
+    text-decoration: none !important;
+    color: white !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-social i {
+    font-size: 18px;
+    margin-right: 10px;
+    color: white !important;
+}
+
+/* --- Hover giống nút đăng nhập --- */
+.btn-social:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Làm tất cả nút có cùng kích thước */
+.login-button,
+.btn-social {
+    width: 100%;
+    padding: 12px;          /* Đồng bộ padding */
+    font-size: 17px;        /* Đồng bộ font */
+    border-radius: 5px;     /* Đồng bộ bo góc */
+    font-weight: bold;
+    box-sizing: border-box; /* Chống co giãn bất thường */
+}
+
+/* RESET CHO THẺ <a> */
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* KHẮC PHỤC 100% LỖI NÚT GOOGLE VÀ FACEBOOK */
+.btn-social {
+    text-decoration: none !important;
+    color: white !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
 }

@@ -42,7 +42,20 @@
             </div>
 
 
-                <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
+            <button type="submit" class="login-button">Đăng Nhập</button>
+
+            <div class="social-separator">
+                <span>Hoặc đăng nhập bằng</span>
+            </div>
+
+            <div class="social-login">
+                <a href="#" class="btn-social btn-google">
+                    <i class="fa-brands fa-google"></i> Google
+                </a>
+                <a href="#" class="btn-social btn-facebook">
+                    <i class="fa-brands fa-facebook-f"></i> Facebook
+                </a>
+            </div>
 
         </form>
 
