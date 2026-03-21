@@ -31,8 +31,8 @@ public class UserDAO {
 
                 if (BCrypt.checkpw(pass, dbPass)) {
                     User u = new User();
-                    u.setId(rs.getInt("UserID")); // Khớp UserID
-                    u.setUsername(rs.getString("Username")); // Khớp Username
+                    u.setId(rs.getInt("UserID"));
+                    u.setUsername(rs.getString("Username"));
                     u.setPassword(rs.getString("PasswordHash"));
                     u.setFullName(rs.getString("FullName"));
                     u.setEmail(rs.getString("Email"));
@@ -100,11 +100,11 @@ public class UserDAO {
             ps = conn.prepareStatement(query);
 
             ps.setString(1, a.getEmail());
-            ps.setString(2, a.getFullName()); // Đảm bảo hỗ trợ tiếng Việt
+            ps.setString(2, a.getFullName());
             ps.setString(3, a.getPhone());
             ps.setString(4, a.getGender());
             ps.setString(5, a.getAddress());
-            ps.setInt(6, a.getId()); // Điều kiện WHERE UserID = ...
+            ps.setInt(6, a.getId());
 
             int rowCount = ps.executeUpdate();
 
@@ -237,7 +237,7 @@ public class UserDAO {
     public void setDefaultAddress(int userId, int addressId) {
         try {
             conn = new DBContext().getConnection();
-            conn.setAutoCommit(false); // Bắt đầu Transaction
+            conn.setAutoCommit(false);
 
 
             PreparedStatement ps1 = conn.prepareStatement("UPDATE addresses SET IsDefault = 0 WHERE UserID = ?");
@@ -283,9 +283,7 @@ public class UserDAO {
         return list;
     }
 
-    // funtion forgetpass
 
-    //1. Reset Password
     public boolean resetPassword(String accountInfo, String newPassword) {
         String sql = "UPDATE users SET password = ?, reset_token = NULL, token_expiry = NULL " +
                 "WHERE email = ? OR phone = ?";
@@ -303,7 +301,6 @@ public class UserDAO {
         }
         return false;
     }
-    //2. verifyCode
     public boolean verifyCode(String accountInfo, String code) {
         String sql = "SELECT id FROM users WHERE (email = ? OR phone = ?) " +
                 "AND reset_token = ? AND token_expiry > NOW()";
@@ -321,7 +318,6 @@ public class UserDAO {
         }
         return false;
     }
-    //3. setResetCode
     public boolean setResetCode(String accountInfo, String code) {
         String sql = "UPDATE users SET reset_token = ?, token_expiry = DATE_ADD(NOW(), INTERVAL 5 MINUTE) " +
                 "WHERE email = ? OR phone = ?";
