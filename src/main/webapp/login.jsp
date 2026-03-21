@@ -20,7 +20,18 @@
     <div class="login-box">
         <h2 class="login-title">Đăng Nhập Tài Khoản</h2>
 
-        <p style="color: red; text-align: center; font-style: italic;">${requestScope.mess}</p>
+        <c:if test="${not empty sessionScope.mess_success}">
+            <p style="color: #2ecc71; text-align: center; font-weight: bold; margin-bottom: 15px;">
+                    ${sessionScope.mess_success}
+            </p>
+            <c:remove var="mess_success" scope="session" />
+        </c:if>
+
+        <c:if test="${not empty requestScope.mess}">
+            <p style="color: #e74c3c; text-align: center; font-style: italic; margin-bottom: 15px;">
+                    ${requestScope.mess}
+            </p>
+        </c:if>
 
         <form action="login" method="POST">
 
@@ -41,8 +52,7 @@
                 <a href="user/userpass.jsp" class="forgot-password">Quên mật khẩu?</a>
             </div>
 
-
-                <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
+            <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
 
         </form>
 
