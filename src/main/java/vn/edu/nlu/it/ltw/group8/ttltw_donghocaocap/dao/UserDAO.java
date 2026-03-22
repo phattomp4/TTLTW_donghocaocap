@@ -52,7 +52,6 @@ public class UserDAO {
     }
 
     public boolean signup(String user, String pass, String fullName, String email, String phone) {
-        // Sửa cột PasswordHash và CreatedAt cho đúng file SQL
         String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
         try {
             conn = new DBContext().getConnection();
@@ -260,7 +259,6 @@ public class UserDAO {
     }
 
     public boolean resetPassword(String accountInfo, String newPassword) {
-        // Sửa thành PasswordHash
         String sql = "UPDATE users SET PasswordHash = ?, ResetToken = NULL, TokenExpiry = NULL WHERE Email = ? OR Phone = ?";
         try {
             conn = new DBContext().getConnection();
@@ -296,7 +294,6 @@ public class UserDAO {
         User u = new User();
         u.setId(rs.getInt("UserID"));
         u.setUsername(rs.getString("Username"));
-        // Sửa thành PasswordHash
         u.setPassword(rs.getString("PasswordHash"));
         u.setFullName(rs.getString("FullName"));
         u.setEmail(rs.getString("Email"));
