@@ -189,7 +189,7 @@
                             <div class="Product ${isOut ? 'out-of-stock' : ''}">
 
                                 <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                    <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                                    <img src="${p.imageUrl}" alt="${p.name}">
 
                                     <c:if test="${isOut}">
                                         <span class="badge-out-of-stock">HẾT HÀNG</span>
@@ -270,7 +270,7 @@
                         <div class="Product ${isOut ? 'out-of-stock' : ''}">
 
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                                <img src="${p.imageUrl}" alt="${p.name}">
 
                                 <c:if test="${isOut}">
                                     <span class="badge-out-of-stock">HẾT HÀNG</span>
@@ -310,7 +310,7 @@
                         <div class="Product ${isOut ? 'out-of-stock' : ''}">
 
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                                <img src="${p.imageUrl}" alt="${p.name}">
 
                                 <c:if test="${isOut}">
                                     <span class="badge-out-of-stock">HẾT HÀNG</span>
@@ -350,7 +350,7 @@
                         <div class="Product ${isOut ? 'out-of-stock' : ''}">
 
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                                <img src="${p.imageUrl}" alt="${p.name}">
 
                                 <c:if test="${isOut}">
                                     <span class="badge-out-of-stock">HẾT HÀNG</span>

@@ -74,7 +74,7 @@
         <c:choose>
             <c:when test="${empty step || step == 1}">
                 <h2>Quên mật khẩu</h2>
-                <p style="color: #666; margin-bottom: 25px;">Nhập Email hoặc số điện thoại để nhận mã xác thực.</p>
+                <p style="color: #666; margin-bottom: 25px;">Nhập Email hoặc Số điện thoại để nhận mã xác thực.</p>
 
                 <c:if test="${not empty error}">
                     <div class="error-msg"><i class="fa fa-exclamation-circle"></i> ${error}</div>
@@ -134,7 +134,8 @@
                 </form>
             </c:when>
         </c:choose>
-        <a href="../login.jsp" class="back-link">
+    <%-- Fix lại lỗi quay lại trang đăng nhập--%>
+        <a href="${pageContext.request.contextPath}/login.jsp" class="back-link">
             <i class="fa fa-arrow-left"></i> Quay lại Đăng nhập
         </a>
     </div>
