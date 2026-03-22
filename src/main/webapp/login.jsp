@@ -52,7 +52,18 @@
                 <a href="user/userpass.jsp" class="forgot-password">Quên mật khẩu?</a>
             </div>
 
+
             <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
+
+            <div class="social-separator">
+                <span>Hoặc đăng nhập bằng</span>
+            </div>
+
+            <div class="social-login">
+                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/WebBanDongHo_war_exploded/login&response_type=code&client_id=1088549234572-pj2jekip8g464mt2k5ole8k9jf6p1ivg.apps.googleusercontent.com&approval_prompt=force" class="btn-social btn-google">
+                    <i class="fa-brands fa-google"></i> Google
+                </a>
+            </div>
 
         </form>
 

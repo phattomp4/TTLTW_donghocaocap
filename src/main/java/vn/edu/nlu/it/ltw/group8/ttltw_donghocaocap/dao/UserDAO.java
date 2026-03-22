@@ -24,10 +24,23 @@ public class UserDAO {
             ps.setString(3, account);
             rs = ps.executeQuery();
             if (rs.next()) {
-                // Sửa thành PasswordHash
                 String dbPass = rs.getString("PasswordHash");
+
                 if (BCrypt.checkpw(pass, dbPass)) {
-                    return mapUser(rs);
+                    User u = new User();
+                    u.setId(rs.getInt("UserID"));
+                    u.setUsername(rs.getString("Username"));
+                    u.setPassword(rs.getString("PasswordHash"));
+                    u.setFullName(rs.getString("FullName"));
+                    u.setEmail(rs.getString("Email"));
+
+                    u.setRole(rs.getString("Role"));
+
+                    u.setPhone(rs.getString("Phone"));
+                    u.setGender(rs.getString("Gender"));
+                    u.setAddress(rs.getString("Address"));
+
+                    return u;
                 }
             }
         } catch (Exception e) {

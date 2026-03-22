@@ -39,7 +39,6 @@ public class ProfileServlet extends HttpServlet {
         }
         List<UserAddress> listAddress = dao.getAddresses(acc.getId());
 
-        // Đẩy dữ liệu sang JSP
         request.setAttribute("listAddress", listAddress);
         request.getRequestDispatcher("user/profile.jsp").forward(request, response);
     }
@@ -60,7 +59,6 @@ public class ProfileServlet extends HttpServlet {
         UserDAO dao = new UserDAO();
 
         if ("updateInfo".equals(action)) {
-            // Lấy dữ liệu từ form
             String fullName = request.getParameter("fullname");
             String email = request.getParameter("email");
             String phone = request.getParameter("phone");

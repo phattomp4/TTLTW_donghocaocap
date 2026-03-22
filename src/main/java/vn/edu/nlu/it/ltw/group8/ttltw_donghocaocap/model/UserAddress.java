@@ -3,15 +3,14 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 public class UserAddress {
     private int id;
     private int uID;
-    private String name;    // Map với ReceiverName
-    private String phone;   // Map với Phone
-    private String address; // Map với Street
-    private String city;    // Map với City (Thêm vào cho đủ bộ)
+    private String name;
+    private String phone;
+    private String address;
+    private String city;
     private boolean isDefaultAddress;
 
     public UserAddress() {}
 
-    // Constructor 7 tham số (Khớp với Database của bạn)
     public UserAddress(int id, int uID, String name, String phone, String address, String city, boolean isDefault) {
         this.id = id;
         this.uID = uID;
@@ -70,11 +69,11 @@ public class UserAddress {
         this.city = city;
     }
 
-    public boolean isDefaultAddress() { // Getter mới
+    public boolean isDefaultAddress() {
         return isDefaultAddress;
     }
 
-    public void setDefaultAddress(boolean isDefaultAddress) { // Setter mới
+    public void setDefaultAddress(boolean isDefaultAddress) {
         this.isDefaultAddress = isDefaultAddress;
     }
 }
