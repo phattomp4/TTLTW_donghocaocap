@@ -33,9 +33,7 @@ public class UserDAO {
                     u.setPassword(rs.getString("PasswordHash"));
                     u.setFullName(rs.getString("FullName"));
                     u.setEmail(rs.getString("Email"));
-
                     u.setRole(rs.getString("Role"));
-
                     u.setPhone(rs.getString("Phone"));
                     u.setGender(rs.getString("Gender"));
                     u.setAddress(rs.getString("Address"));
@@ -43,6 +41,38 @@ public class UserDAO {
                     return u;
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
+    // lưu token vào DB khi chọn Remember me trong đăng nhập
+    public void updateRememberToken(String username, String token) {
+        String query = "UPDATE Users SET RememberToken = ? WHERE Username = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, token);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    // tìm user dựa vào token
+    public User getUserByToken(String token) {
+        String query = "SELECT * FROM Users WHERE RememberToken = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, token);
+            rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
