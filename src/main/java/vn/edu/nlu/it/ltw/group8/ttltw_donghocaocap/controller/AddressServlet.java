@@ -20,7 +20,6 @@ public class AddressServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User acc = (User) session.getAttribute("acc");
 
-        // Bắt buộc đăng nhập
         if (acc == null) {
             response.sendRedirect("login.jsp");
             return;

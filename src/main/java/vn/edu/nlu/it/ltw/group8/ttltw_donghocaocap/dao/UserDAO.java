@@ -24,10 +24,21 @@ public class UserDAO {
             ps.setString(3, account);
             rs = ps.executeQuery();
             if (rs.next()) {
-                // Sửa thành PasswordHash
                 String dbPass = rs.getString("PasswordHash");
+
                 if (BCrypt.checkpw(pass, dbPass)) {
-                    return mapUser(rs);
+                    User u = new User();
+                    u.setId(rs.getInt("UserID"));
+                    u.setUsername(rs.getString("Username"));
+                    u.setPassword(rs.getString("PasswordHash"));
+                    u.setFullName(rs.getString("FullName"));
+                    u.setEmail(rs.getString("Email"));
+                    u.setRole(rs.getString("Role"));
+                    u.setPhone(rs.getString("Phone"));
+                    u.setGender(rs.getString("Gender"));
+                    u.setAddress(rs.getString("Address"));
+
+                    return u;
                 }
             }
         } catch (Exception e) {
@@ -37,9 +48,40 @@ public class UserDAO {
         }
         return null;
     }
+    // lưu token vào DB khi chọn Remember me trong đăng nhập
+    public void updateRememberToken(String username, String token) {
+        String query = "UPDATE Users SET RememberToken = ? WHERE Username = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, token);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    // tìm user dựa vào token
+    public User getUserByToken(String token) {
+        String query = "SELECT * FROM Users WHERE RememberToken = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, token);
+            rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
 
     public boolean signup(String user, String pass, String fullName, String email, String phone) {
-        // Sửa cột PasswordHash và CreatedAt cho đúng file SQL
         String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
         try {
             conn = new DBContext().getConnection();
@@ -247,7 +289,6 @@ public class UserDAO {
     }
 
     public boolean resetPassword(String accountInfo, String newPassword) {
-        // Sửa thành PasswordHash
         String sql = "UPDATE users SET PasswordHash = ?, ResetToken = NULL, TokenExpiry = NULL WHERE Email = ? OR Phone = ?";
         try {
             conn = new DBContext().getConnection();
@@ -283,7 +324,6 @@ public class UserDAO {
         User u = new User();
         u.setId(rs.getInt("UserID"));
         u.setUsername(rs.getString("Username"));
-        // Sửa thành PasswordHash
         u.setPassword(rs.getString("PasswordHash"));
         u.setFullName(rs.getString("FullName"));
         u.setEmail(rs.getString("Email"));
