@@ -1,17 +1,51 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.apache.http.client.ClientProtocolException;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.constant.Iconstant;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Form;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 
 import java.io.IOException;
+@WebServlet("/google-login")
+public class GoogleLoginServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-public class GoogleLoginServlet {
+        String email = request.getParameter("email");
+        String name = request.getParameter("name");
 
+        UserDAO userDAO = new UserDAO();
+
+        User user = userDAO.getUserByEmail(email);
+
+        if (user == null) {
+
+            user = new User();
+            user.setEmail(email);
+            user.setFullName(name);
+
+            userDAO.insertGoogleUser(user);
+
+            user = userDAO.getUserByEmail(email);
+        }
+
+
+        HttpSession session = request.getSession();
+        session.setAttribute("currentUser", user);
+
+        response.getWriter().write("success");
+    }
     public static String getToken(String code) throws IOException {
 
         String response = Request.Post(Iconstant.GOOGLE_LINK_GET_TOKEN)
@@ -27,8 +61,7 @@ public class GoogleLoginServlet {
                 .execute()
                 .returnContent()
                 .asString();
-        System.out.println("GOOGLE TOKEN RESPONSE >>> " + response); // ⚠⚠ IN RA LOG
-
+        System.out.println("GOOGLE TOKEN RESPONSE >>> " + response);
         JsonObject jobj = new Gson().fromJson(response, JsonObject.class);
         return jobj.get("access_token").getAsString();
     }
