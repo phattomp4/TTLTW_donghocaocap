@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class EmailUtil {
     private static final String FROM_EMAIL = "sinhvo2801qt@gmail.com";
-    private static final String APP_PASSWORD = "qkntvaewngpeyoxq";
+    private static final String APP_PASSWORD = "juvo vfzb psgn rdhz";
 
     public static boolean sendOTP(String toEmail, String otp) {
 
@@ -34,7 +34,7 @@ public class EmailUtil {
             );
             message.setSubject("Mã xác thực đặt lại mật khẩu");
             message.setContent(
-                    "<h3>INOLA - Xác thực tài khoản</h3>" +
+                    "<h3> VVP - Xác thực tài khoản</h3>" +
                             "<h2>" + otp + "</h2>" +
                             "<p>Mã có hiệu lực trong 5 phút</p>",
                     "text/html; charset=UTF-8"
