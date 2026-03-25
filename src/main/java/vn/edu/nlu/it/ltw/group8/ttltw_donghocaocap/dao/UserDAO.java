@@ -80,8 +80,8 @@ public class UserDAO {
         }
         return null;
     }
-
     public boolean signup(String user, String pass, String fullName, String email, String phone) {
+        // Không cần check isValid ở đây vì Servlet đã check rồi, tránh lặp code và lỗi logic
         String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
         try {
             conn = new DBContext().getConnection();

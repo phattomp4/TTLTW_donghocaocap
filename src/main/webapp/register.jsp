@@ -74,32 +74,61 @@
     </div>
 </div>
 <script>
+    const VALIDATOR = {
+        email: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/,
+        phone: /^(0|84)(3|5|7|8|9)([0-9]{8})$/,
+        pass: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    };
 
     function checkDuplicate(type, value) {
         const msgTag = document.getElementById('msg-' + type);
-        if (!value.trim()) { msgTag.innerText = ""; return; }
-        fetch('checkDuplicate?type=' + type + '&value=' + value)
+        const inputTag = document.getElementById(type);
+
+        if (!value.trim()) {
+            clearStatus(msgTag, inputTag);
+            return;
+        }
+
+        if (type === 'email' && !VALIDATOR.email.test(value)) {
+            showUI(msgTag, inputTag, "✕ Email phải có đuôi hợp lệ (vd: .com, .vn)", false);
+            return;
+        }
+        if (type === 'phone' && !VALIDATOR.phone.test(value)) {
+            showUI(msgTag, inputTag, "✕ Số điện thoại không hợp lệ", false);
+            return;
+        }
+
+        fetch('checkDuplicate?type=' + type + '&value=' + encodeURIComponent(value))
             .then(res => res.text())
             .then(data => {
                 if (data.trim() !== "") {
-                    msgTag.innerText = "✕ " + data;
-                    msgTag.className = "ajax-msg error";
+                    showUI(msgTag, inputTag, "✕ " + data, false);
                 } else {
-                    msgTag.innerText = "✓ Hợp lệ";
-                    msgTag.className = "ajax-msg success";
+                    showUI(msgTag, inputTag, "✓ Hợp lệ", true);
                 }
-            });
+            })
+            .catch(() => showUI(msgTag, inputTag, "✕ Lỗi kết nối", false));
+    }
+
+    function showUI(msgTag, inputTag, text, isSuccess) {
+        msgTag.innerText = text;
+        msgTag.className = isSuccess ? "ajax-msg success" : "ajax-msg error";
+        inputTag.style.border = isSuccess ? "2px solid #2ecc71" : "2px solid #ff4757";
+    }
+
+    function clearStatus(msgTag, inputTag) {
+        msgTag.innerText = "";
+        inputTag.style.border = "1px solid #ddd";
     }
 
     function validatePass(pass) {
         const msg = document.getElementById('msg-pass');
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (pass.length > 0 && !regex.test(pass)) {
-            msg.innerText = "Cần Hoa, Thường, Số, Ký tự đặc biệt";
-            msg.className = "ajax-msg error";
-        } else if (pass.length >= 8) {
-            msg.innerText = "✓ Mật khẩu mạnh";
-            msg.className = "ajax-msg success";
+        const input = document.getElementById('pass');
+        if (!pass) { clearStatus(msg, input); return; }
+        if (!VALIDATOR.pass.test(pass)) {
+            showUI(msg, input, "✕ Mật khẩu quá yếu", false);
+        } else {
+            showUI(msg, input, "✓ Mật khẩu mạnh", true);
         }
         checkMatch();
     }
@@ -108,13 +137,10 @@
         const p1 = document.getElementById('pass').value;
         const p2 = document.getElementById('re_pass').value;
         const msg = document.getElementById('msg-repass');
-        if (p2 !== "" && p1 !== p2) {
-            msg.innerText = "Không khớp!";
-            msg.className = "ajax-msg error";
-        } else if (p2 !== "") {
-            msg.innerText = "✓ Khớp";
-            msg.className = "ajax-msg success";
-        }
+        const input = document.getElementById('re_pass');
+        if (!p2) return;
+        if (p1 !== p2) showUI(msg, input, "✕ Không khớp", false);
+        else showUI(msg, input, "✓ Khớp", true);
     }
 </script>
 </body>

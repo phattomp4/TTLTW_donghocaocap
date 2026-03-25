@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
 
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
     private static final String PHONE_REGEX = "^(0|84)(3|5|7|8|9)([0-9]{8})$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
 
@@ -25,15 +25,14 @@ public class RegisterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        String user = request.getParameter("user");
+        String user = (request.getParameter("user") != null) ? request.getParameter("user").trim() : "";
         String pass = request.getParameter("pass");
         String re_pass = request.getParameter("re_pass");
-        String fullName = request.getParameter("fullname");
-        String email = request.getParameter("email");
-        String phone = request.getParameter("phone");
+        String fullName = (request.getParameter("fullname") != null) ? request.getParameter("fullname").trim() : "";
+        String email = (request.getParameter("email") != null) ? request.getParameter("email").trim() : "";
+        String phone = (request.getParameter("phone") != null) ? request.getParameter("phone").trim() : "";
 
-        if (user == null || pass == null || email == null || phone == null ||
-                user.trim().isEmpty() || pass.isEmpty() || email.trim().isEmpty() || phone.trim().isEmpty()) {
+        if (user.isEmpty() || pass == null || pass.isEmpty() || email.isEmpty() || phone.isEmpty() || fullName.isEmpty()) {
             sendError(request, response, "Vui lòng nhập đầy đủ thông tin!", user, fullName, email, phone);
             return;
         }
@@ -74,7 +73,6 @@ public class RegisterServlet extends HttpServlet {
         }
 
         boolean success = dao.signup(user, pass, fullName, email, phone);
-
         if (success) {
             HttpSession session = request.getSession();
             session.setAttribute("mess_success", "Đăng ký thành công! Mời bạn đăng nhập.");
