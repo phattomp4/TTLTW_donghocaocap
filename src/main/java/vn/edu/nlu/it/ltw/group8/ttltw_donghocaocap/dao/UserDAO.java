@@ -48,7 +48,6 @@ public class UserDAO {
         }
         return null;
     }
-    // lưu token vào DB khi chọn Remember me trong đăng nhập
     public void updateRememberToken(String username, String token) {
         String query = "UPDATE Users SET RememberToken = ? WHERE Username = ?";
         try {
@@ -64,7 +63,6 @@ public class UserDAO {
         }
     }
 
-    // tìm user dựa vào token
     public User getUserByToken(String token) {
         String query = "SELECT * FROM Users WHERE RememberToken = ?";
         try {
@@ -352,6 +350,46 @@ public class UserDAO {
             if (ps != null) ps.close();
             if (conn != null) conn.close();
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public User getUserByEmail(String email){
+        User user = null;
+        String query = "SELECT * FROM users WHERE Email = ?";
+
+        try{
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, email);
+            ResultSet resultSet = ps.executeQuery();
+
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("id"));
+                user.setEmail(rs.getString("email"));
+                user.setFullName(rs.getString("name"));
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+    public void insertGoogleUser(User user) {
+        String query = "INSERT INTO Users (email, name, avatar, auth_provider) VALUES (?, ?, ?, 'GOOGLE')";
+
+        try {
+            conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+
+                ps.setString(1, user.getEmail());
+                ps.setString(2, user.getFullName());
+
+                ps.executeUpdate();
+
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

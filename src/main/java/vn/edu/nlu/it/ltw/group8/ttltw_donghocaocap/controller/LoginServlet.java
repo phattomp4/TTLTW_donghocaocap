@@ -49,7 +49,7 @@ public class LoginServlet extends HttpServlet {
                 String token = java.util.UUID.randomUUID().toString();
                 dao.updateRememberToken(user.getUsername(), token);
                 Cookie tokenCookie = new Cookie("remember_token", token);
-                int maxAge = 60 * 60 * 24 * 7; //Cookie lưu 7 ngày
+                int maxAge = 60 * 60 * 24 * 7;
                 tokenCookie.setMaxAge(maxAge);
                 response.addCookie(tokenCookie);
             }
@@ -67,17 +67,30 @@ public class LoginServlet extends HttpServlet {
             System.out.println(">>> THÔNG TIN TỪ GOOGLE: " + acc.getEmail() + " | " + acc.getName());
 
             if (acc != null) {
-                User user = new User();
-                user.setUsername(acc.getName());
+                UserDAO dao = new UserDAO();
+                String googleEmail = acc.getEmail();
 
-                 user.setFullName(acc.getName());
-                user.setEmail(acc.getEmail());
+                User existingUser = dao.checkEmailExist(googleEmail);
 
-                HttpSession session = request.getSession();
-                session.setAttribute("acc", user);
-                session.setMaxInactiveInterval(60 * 60);
+                if (existingUser != null) {
+                    request.setAttribute("mess", "Email này đã được đăng ký bằng tài khoản thông thường. Vui lòng đăng nhập bằng tên đăng nhập và mật khẩu!");
+                    request.setAttribute("username", existingUser.getUsername());
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
+                    return;
 
-                response.sendRedirect("home");
+                } else {
+                    User newUser = new User();
+                    String autoUsername = googleEmail.substring(0, googleEmail.indexOf("@"));
+
+                    dao.signup(autoUsername, "GOOGLE_LOGIN_NO_PASS", acc.getName(), googleEmail, "");
+
+                    newUser = dao.checkEmailExist(googleEmail);
+
+                    HttpSession session = request.getSession();
+                    session.setAttribute("acc", newUser);
+                    session.setMaxInactiveInterval(60 * 60);
+                    response.sendRedirect("home");
+                };
             } else {
                 request.setAttribute("mess", "Lỗi lấy thông tin từ Google!");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
