@@ -73,16 +73,16 @@ public class LoginServlet extends HttpServlet {
                 User existingUser = dao.checkEmailExist(googleEmail);
 
                 if (existingUser != null) {
-                    request.setAttribute("mess", "Email này đã được đăng ký bằng tài khoản thông thường. Vui lòng đăng nhập bằng tên đăng nhập và mật khẩu!");
-                    request.setAttribute("username", existingUser.getUsername());
-                    request.getRequestDispatcher("login.jsp").forward(request, response);
-                    return;
+                    HttpSession session = request.getSession();
+                    session.setAttribute("acc", existingUser);
+                    session.setMaxInactiveInterval(60 * 60);
+                    response.sendRedirect("home");
 
                 } else {
                     User newUser = new User();
                     String autoUsername = googleEmail.substring(0, googleEmail.indexOf("@"));
-
-                    dao.signup(autoUsername, "GOOGLE_LOGIN_NO_PASS", acc.getName(), googleEmail, "");
+                    String randomPassword = java.util.UUID.randomUUID().toString();
+                    dao.signup(autoUsername, randomPassword, acc.getName(), googleEmail, "");
 
                     newUser = dao.checkEmailExist(googleEmail);
 
