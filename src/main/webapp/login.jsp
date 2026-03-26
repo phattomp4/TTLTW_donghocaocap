@@ -7,6 +7,22 @@
     <title>Đăng nhập</title>
     <link rel="stylesheet" href="assets/css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .input-group { position: relative; }
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(5px);
+            cursor: pointer;
+            color: #000;
+            z-index: 10;
+        }
+        .input-group input[type="password"],
+        .input-group input[type="text"] {
+            padding-right: 45px;
+        }
+    </style>
 </head>
 <body>
 
@@ -43,6 +59,7 @@
             <div class="input-group">
                 <label for="password">Mật khẩu</label>
                 <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" value="${cookie.passC.value}" required>
+                <i class="fa-solid fa-eye toggle-password" id="toggleBtn"></i>
             </div>
 
             <div class="options-group">
@@ -51,7 +68,6 @@
                 </label>
                 <a href="user/userpass.jsp" class="forgot-password">Quên mật khẩu?</a>
             </div>
-
 
             <button type="submit" class="login-button" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43); color: #fff; border: none; cursor: pointer;">Đăng Nhập</button>
 
@@ -72,5 +88,18 @@
         </p>
     </div>
 </div>
+
+<script>
+    const toggleBtn = document.querySelector('#toggleBtn');
+    const password = document.querySelector('#password');
+
+    toggleBtn.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+
 </body>
 </html>

@@ -150,8 +150,7 @@ body {
     border: 1px solid rgba(255,255,255,0.4);
 }
 
-.input-group i {
-    color: #800080;
+.input-group toggleBtn {
     margin-right: 10px;
     font-size: 16px;
 }

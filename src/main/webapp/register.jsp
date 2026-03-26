@@ -7,6 +7,16 @@
     <title>Đăng ký tài khoản</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
+    <style>
+        .input-group { position: relative; }
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            cursor: pointer;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
 
@@ -58,6 +68,7 @@
                     <label for="pass">Mật khẩu</label>
                     <input type="password" id="pass" name="pass" placeholder="Tối thiểu 8 ký tự"
                            onkeyup="validatePass(this.value)" required>
+                    <i class="fa fa-eye toggle-password" onclick="toggleView('pass', this)"></i>
                     <small id="msg-pass" class="ajax-msg"></small>
                 </div>
 
@@ -65,6 +76,7 @@
                     <label for="re_pass">Xác nhận mật khẩu</label>
                     <input type="password" id="re_pass" name="re_pass" placeholder="Nhập lại mật khẩu"
                            onkeyup="checkMatch()" required>
+                    <i class="fa fa-eye toggle-password" onclick="toggleView('re_pass', this)"></i>
                     <small id="msg-repass" class="ajax-msg"></small>
                 </div>
 
@@ -79,6 +91,17 @@
         phone: /^(0|84)(3|5|7|8|9)([0-9]{8})$/,
         pass: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     };
+
+    function toggleView(id, btn) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            input.type = "password";
+            btn.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
 
     function checkDuplicate(type, value) {
         const msgTag = document.getElementById('msg-' + type);

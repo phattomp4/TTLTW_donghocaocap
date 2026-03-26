@@ -26,7 +26,7 @@
             <div class="link-product">
                 <div class="Product">
                     <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                        <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                        <img src="${p.imageUrl}" alt="${p.name}">
                     </a>
                     <br />
                     <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
