@@ -60,7 +60,7 @@
             </div>
 
             <div class="social-login">
-                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/WebBanDongHo_war_exploded/login&response_type=code&client_id=1088549234572-pj2jekip8g464mt2k5ole8k9jf6p1ivg.apps.googleusercontent.com&approval_prompt=force" class="btn-social btn-google">
+                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/TTLTW_donghocaocap_war_exploded/login&response_type=code&client_id=1019706270086-r01p0g06ev31mmkl51lg2joopf8dfthr.apps.googleusercontent.com&approval_prompt=force" class="btn-social btn-google">
                     <i class="fa-brands fa-google"></i> Google
                 </a>
             </div>
