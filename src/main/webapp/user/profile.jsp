@@ -168,9 +168,28 @@
                 <div id="addAddressForm" class="add-address-box" style="display:none;">
                     <form action="profile" method="POST">
                         <input type="hidden" name="action" value="addAddress">
-                        <input type="text" name="new_name" placeholder="Tên người nhận" required>
-                        <input type="text" name="new_phone" placeholder="Số điện thoại" required>
-                        <textarea name="new_address" placeholder="Địa chỉ cụ thể (Số nhà, Phường, Quận, TP)" required></textarea>
+
+                        <input type="text" name="new_name" placeholder="Tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <input type="text" name="new_phone" placeholder="Số điện thoại" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+
+                        <select id="province" name="province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="district" name="district" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="ward" name="ward" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" name="streetDetail" placeholder="Số nhà, Tên đường" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+
+                        <input type="hidden" id="provinceName" name="provinceName">
+                        <input type="hidden" id="districtName" name="districtName">
+                        <input type="hidden" id="wardName" name="wardName">
+
                         <div class="btn-row">
                             <button type="submit" class="btn-submit-addr">Hoàn thành</button>
                             <button type="button" class="btn-cancel-addr" onclick="document.getElementById('addAddressForm').style.display='none'">Hủy</button>
@@ -252,10 +271,8 @@
 
 <script>
     function openEditModal(id, name, phone, address) {
-        // 1. Hiển thị modal sửa
         document.getElementById('editAddressModal').style.display = 'block';
 
-        // 2. Điền dữ liệu cũ vào form
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_phone').value = phone;
@@ -264,5 +281,86 @@
 </script>
 
 <jsp:include page="../WEB-INF/tags/footer.jsp" />
+
+<script>
+    const host = "https://provinces.open-api.vn/api/";
+
+    var callAPI = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                let row = ' <option value="">Chọn Tỉnh/Thành phố</option>';
+                data.forEach(element => {
+                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                });
+                document.querySelector("#province").innerHTML = row;
+            });
+    }
+
+    var callApiDistrict = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                let row = ' <option value="">Chọn Quận/Huyện</option>';
+                data.districts.forEach(element => {
+                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                });
+                document.querySelector("#district").innerHTML = row;
+                document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            });
+    }
+
+    var callApiWard = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                let row = ' <option value="">Chọn Phường/Xã</option>';
+                data.wards.forEach(element => {
+                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                });
+                document.querySelector("#ward").innerHTML = row;
+            });
+    }
+
+    callAPI(host + "?depth=1");
+
+    document.querySelector("#province").addEventListener("change", function() {
+        let code = this.value;
+        if(code) {
+            callApiDistrict(host + "p/" + code + "?depth=2");
+        } else {
+            document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+        updateHiddenNames();
+    });
+
+    document.querySelector("#district").addEventListener("change", function() {
+        let code = this.value;
+        if(code) {
+            callApiWard(host + "d/" + code + "?depth=2");
+        } else {
+            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+        updateHiddenNames();
+    });
+
+    document.querySelector("#ward").addEventListener("change", function() {
+        updateHiddenNames();
+    });
+
+    function updateHiddenNames() {
+        const pSelect = document.querySelector("#province");
+        const dSelect = document.querySelector("#district");
+        const wSelect = document.querySelector("#ward");
+
+        if(pSelect.selectedIndex > 0)
+            document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].getAttribute('data-name');
+        if(dSelect.selectedIndex > 0)
+            document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].getAttribute('data-name');
+        if(wSelect.selectedIndex > 0)
+            document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].getAttribute('data-name');
+    }
+</script>
 </body>
 </html>
