@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+    private static final String USER_REGEX = "^[a-zA-Z0-9]{5,20}$";
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@gmail\\.com$";
     private static final String PHONE_REGEX = "^(0|84)(3|5|7|8|9)([0-9]{8})$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
 
@@ -37,8 +39,13 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
+        if (!Pattern.compile(USER_REGEX).matcher(user).matches()) {
+            sendError(request, response, "Tên đăng nhập phải từ 5-20 ký tự và không chứa ký tự đặc biệt!", user, fullName, email, phone);
+            return;
+        }
+
         if (!Pattern.compile(EMAIL_REGEX).matcher(email).matches()) {
-            sendError(request, response, "Định dạng Email không hợp lệ!", user, fullName, email, phone);
+            sendError(request, response, "Vui lòng sử dụng đúng định dạng Gmail (ví dụ: @gmail.com)!", user, fullName, email, phone);
             return;
         }
 
@@ -58,17 +65,12 @@ public class RegisterServlet extends HttpServlet {
         }
 
         UserDAO dao = new UserDAO();
-
         if (dao.checkUserExist(user) != null) {
             sendError(request, response, "Tên đăng nhập đã tồn tại!", user, fullName, email, phone);
             return;
         }
         if (dao.checkEmailExist(email) != null) {
             sendError(request, response, "Email này đã được sử dụng!", user, fullName, email, phone);
-            return;
-        }
-        if (dao.checkPhoneExist(phone) != null) {
-            sendError(request, response, "Số điện thoại này đã được sử dụng!", user, fullName, email, phone);
             return;
         }
 
