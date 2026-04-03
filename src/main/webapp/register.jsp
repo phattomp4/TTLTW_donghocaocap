@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
     <style>
-        .input-group { position: relative; }
+        .input-group { position: relative; margin-bottom: 15px; }
         .toggle-password {
             position: absolute;
             right: 15px;
@@ -16,6 +16,7 @@
             cursor: pointer;
             color: #666;
         }
+        .ajax-msg { font-size: 12px; display: block; margin-top: 4px; min-height: 15px; }
     </style>
 </head>
 <body>
@@ -38,7 +39,7 @@
             <div class="form-grid">
                 <div class="input-group">
                     <label for="user">Tên đăng nhập</label>
-                    <input type="text" id="user" name="user" value="${oldUser}" placeholder="Viết liền không dấu"
+                    <input type="text" id="user" name="user" value="${oldUser}" placeholder="Từ 5-20 ký tự"
                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')"
                            onblur="checkDuplicate('user', this.value)" required>
                     <small id="msg-user" class="ajax-msg"></small>
@@ -52,7 +53,7 @@
 
                 <div class="input-group">
                     <label for="email">Địa chỉ Email</label>
-                    <input type="email" id="email" name="email" value="${oldEmail}" placeholder="email@example.com"
+                    <input type="email" id="email" name="email" value="${oldEmail}" placeholder="email@gmail.com"
                            onblur="checkDuplicate('email', this.value)" required>
                     <small id="msg-email" class="ajax-msg"></small>
                 </div>
@@ -87,7 +88,8 @@
 </div>
 <script>
     const VALIDATOR = {
-        email: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/,
+        user: /^[a-zA-Z0-9]{5,20}$/,
+        email: /^[A-Za-z0-9._%+-]+@gmail\.com$/,
         phone: /^(0|84)(3|5|7|8|9)([0-9]{8})$/,
         pass: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     };
@@ -112,8 +114,12 @@
             return;
         }
 
+        if (type === 'user' && !VALIDATOR.user.test(value)) {
+            showUI(msgTag, inputTag, "✕ Tên đăng nhập từ 5-20 ký tự", false);
+            return;
+        }
         if (type === 'email' && !VALIDATOR.email.test(value)) {
-            showUI(msgTag, inputTag, "✕ Email phải có đuôi hợp lệ (vd: .com, .vn)", false);
+            showUI(msgTag, inputTag, "✕ Vui lòng dùng @gmail.com", false);
             return;
         }
         if (type === 'phone' && !VALIDATOR.phone.test(value)) {
@@ -135,7 +141,7 @@
 
     function showUI(msgTag, inputTag, text, isSuccess) {
         msgTag.innerText = text;
-        msgTag.className = isSuccess ? "ajax-msg success" : "ajax-msg error";
+        msgTag.style.color = isSuccess ? "#2ecc71" : "#ff4757";
         inputTag.style.border = isSuccess ? "2px solid #2ecc71" : "2px solid #ff4757";
     }
 
@@ -149,7 +155,7 @@
         const input = document.getElementById('pass');
         if (!pass) { clearStatus(msg, input); return; }
         if (!VALIDATOR.pass.test(pass)) {
-            showUI(msg, input, "✕ Mật khẩu quá yếu", false);
+            showUI(msg, input, "✕ Mật khẩu yếu", false);
         } else {
             showUI(msg, input, "✓ Mật khẩu mạnh", true);
         }

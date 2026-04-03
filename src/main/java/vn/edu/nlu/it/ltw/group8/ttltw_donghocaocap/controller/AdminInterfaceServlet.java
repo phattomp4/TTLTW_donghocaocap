@@ -29,9 +29,9 @@ public class AdminInterfaceServlet extends HttpServlet {
 
     private Cloudinary getCloudinary() {
         return new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", "dnrpxyuwo", // Thay bằng tên cloud của bạn
-                "api_key", "261138144329333", // Thay bằng API Key của bạn
-                "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4" // Thay bằng API Secret của bạn
+                "cloud_name", "dnrpxyuwo",
+                "api_key", "261138144329333",
+                "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4"
         ));
     }
     @Override
@@ -80,7 +80,7 @@ public class AdminInterfaceServlet extends HttpServlet {
                 }
 
                 dao.updateShopInfo(info);
-                request.getSession().setAttribute("shopInfo", info); // Cập nhật lại session
+                request.getSession().setAttribute("shopInfo", info);
             }
 
 

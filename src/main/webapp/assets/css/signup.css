@@ -14,7 +14,16 @@ body {
     background-position: center center;
     background-attachment: fixed;
 }
-
+.input-group { position: relative; margin-bottom: 15px; }
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 38px;
+    cursor: pointer;
+    color: #666;
+}
+.error-msg { color: #ff4757; font-size: 12px; margin-top: 4px; display: block; min-height: 15px; }
+.is-invalid { border: 2px solid #ff4757 !important; }
 * {
     margin: 0;
     padding: 0;
