@@ -4,6 +4,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 
 @WebServlet(name = "ProfileServlet", urlPatterns = {"/profile"})
+@MultipartConfig(maxFileSize = 1024 * 1024 * 5)
 public class ProfileServlet extends HttpServlet {
 
     private final Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -78,15 +80,20 @@ public class ProfileServlet extends HttpServlet {
         else if ("uploadAvatar".equals(action)) {
             Part filePart = request.getPart("avatarFile");
             if (filePart != null && filePart.getSize() > 0) {
+                try{
                 byte[] imageBytes = filePart.getInputStream().readAllBytes();
-                Map uploadResult = cloudinary.uploader().upload(imageBytes, ObjectUtils.emptyMap());
-                String avatarUrl = uploadResult.get("url").toString();
-
+                Map uploadResult = cloudinary.uploader().upload(imageBytes, ObjectUtils.asMap(
+                        "folder", "vvp_avatar"
+                ));
+                String avatarUrl = (String) uploadResult.get("secure_url");
                 dao.updateAvatar(acc.getId(), avatarUrl);
                 acc.setAvatar(avatarUrl);
                 session.setAttribute("acc", acc);
                 session.setAttribute("mess", "Cập nhật ảnh đại diện thành công!");
-            }
+            } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        }
         }
 
         else if("requestChangeContact".equals(action)){

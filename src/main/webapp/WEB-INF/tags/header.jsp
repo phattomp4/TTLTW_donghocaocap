@@ -240,7 +240,7 @@
                 <c:if test="${sessionScope.acc != null}">
                 <div class="profile-dropdown">
                     <button id="profile-btn" class="profile-avatar-btn">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar">
+                        <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="Avatar">
                     </button>
 
                     <div id="profile-menu" class="dropdown-menu">

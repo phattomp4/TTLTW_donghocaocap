@@ -17,7 +17,7 @@
 <div class="profile-container" style="margin-top: 5px;">
     <div class="profile-sidebar">
         <div class="user-brief">
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar-img" alt="Avatar">
+            <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="user-avatar-img" alt="Avatar">
             <div>
                 <strong>${sessionScope.acc.username}</strong>
             </div>

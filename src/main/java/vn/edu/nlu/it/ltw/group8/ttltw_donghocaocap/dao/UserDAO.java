@@ -37,6 +37,7 @@ public class UserDAO {
                     u.setPhone(rs.getString("Phone"));
                     u.setGender(rs.getString("Gender"));
                     u.setAddress(rs.getString("Address"));
+                    u.setAvatar(rs.getString("Avatar"));
 
                     return u;
                 }
@@ -326,6 +327,7 @@ public class UserDAO {
         u.setPhone(rs.getString("Phone"));
         u.setGender(rs.getString("Gender"));
         u.setAddress(rs.getString("Address"));
+        u.setAvatar(rs.getString("Avatar"));
         return u;
     }
 
