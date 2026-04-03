@@ -19,14 +19,11 @@ public class OrderDAO {
         try {
             conn = new DBContext().getConnection();
 
-            // Tắt chế độ tự động lưu (để quản lý Transaction)
             conn.setAutoCommit(false);
 
-            // Insert vào bảng Orders
             String sqlOrder = "INSERT INTO Orders (UserID, ShippingAddressID, OrderDate, TotalAmount, DiscountAmount, PaymentMethod, PaymentStatus, Status) "
                     + "VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)";
 
-            // RETURN_GENERATED_KEYS để lấy lại OrderID vừa tạo
             psOrder = conn.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             psOrder.setInt(1, user.getId());
             psOrder.setInt(2, addressId);
@@ -37,14 +34,12 @@ public class OrderDAO {
             psOrder.setString(7, "Processing");
             psOrder.executeUpdate();
 
-            // Lấy OrderID vừa tạo ra
             rs = psOrder.getGeneratedKeys();
             int orderId = 0;
             if (rs.next()) {
                 orderId = rs.getInt(1);
             }
 
-            // 3. Insert vào bảng OrderDetails và update Products
             String sqlDetail = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
             String sqlUpdateProduct = "UPDATE Products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ?";
 
@@ -52,12 +47,11 @@ public class OrderDAO {
             psUpdateProduct = conn.prepareStatement(sqlUpdateProduct);
 
             for (CartItem item : cart) {
-                // Thêm chi tiết đơn hàng
                 psDetail.setInt(1, orderId);
                 psDetail.setInt(2, item.getProduct().getId());
                 psDetail.setInt(3, item.getQuantity());
                 psDetail.setDouble(4, item.getProduct().getCurrentPrice());
-                psDetail.addBatch(); // Gom lệnh lại chạy 1 lần
+                psDetail.addBatch(); // gom lệnh lại chạy 1 lần
 
                 // Trừ tồn kho, tăng đã bán
                 psUpdateProduct.setInt(1, item.getQuantity());
@@ -65,12 +59,9 @@ public class OrderDAO {
                 psUpdateProduct.setInt(3, item.getProduct().getId());
                 psUpdateProduct.addBatch();
             }
-
-            // Chạy các lệnh đã Batch
             psDetail.executeBatch();
             psUpdateProduct.executeBatch();
 
-            // Chốt giao dịch commit
             conn.commit();
             return true;
 
@@ -83,7 +74,7 @@ public class OrderDAO {
             }
             return false;
         } finally {
-            // Đóng kết nối
+
             try {
                 if (rs != null) rs.close();
                 if (psOrder != null) psOrder.close();

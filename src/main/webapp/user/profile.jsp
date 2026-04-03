@@ -40,7 +40,22 @@
         </c:if>
 
         <div class="profile-body-grid">
+            <c:if test="${not empty sessionScope.error}">
+                <div class="error-message" style="color: red; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> ${sessionScope.error}</div>
+                <c:remove var="error" scope="session"/>
+            </c:if>
+
             <div class="info-column">
+                <div class="avatar-section" style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                    <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
+                         alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #1b6e76;">
+                    <form action="profile" method="POST" enctype="multipart/form-data" style="margin-top: 10px;">
+                        <input type="hidden" name="action" value="uploadAvatar">
+                        <input type="file" name="avatarFile" accept="image/*" required style="font-size: 13px;">
+                        <button type="submit" class="btn-save" style="padding: 5px 10px; font-size: 13px;">Cập nhật Ảnh</button>
+                    </form>
+                </div>
+
                 <form action="profile" method="POST">
                     <input type="hidden" name="action" value="updateInfo">
 
@@ -48,22 +63,10 @@
                         <label>Tên đăng nhập</label>
                         <input type="text" class="form-control" value="${sessionScope.acc.username}" disabled>
                     </div>
-
                     <div class="form-group">
                         <label>Họ và tên</label>
                         <input type="text" name="fullname" class="form-control" value="${sessionScope.acc.fullName}">
                     </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" value="${sessionScope.acc.email}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Số điện thoại</label>
-                        <input type="text" name="phone" class="form-control" value="${sessionScope.acc.phone}">
-                    </div>
-
                     <div class="form-group">
                         <label>Giới tính</label>
                         <div class="radio-group">
@@ -72,10 +75,87 @@
                             <label><input type="radio" name="gender" value="Khác" ${sessionScope.acc.gender == 'Khác' ? 'checked' : ''}> Khác</label>
                         </div>
                     </div>
+                    <button type="submit" class="btn-save">Lưu thay đổi cơ bản</button>
+                </form>
 
-                    <button type="submit" class="btn-save">Lưu thay đổi</button>
+                <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
+
+                <h4>Thông tin liên hệ</h4>
+                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex-grow: 1;">
+                        <label>Email hiện tại:</label>
+                        <input type="text" class="form-control" value="${sessionScope.acc.email}" disabled>
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <label>SĐT hiện tại:</label>
+                        <input type="text" class="form-control" value="${sessionScope.acc.phone}" disabled>
+                    </div>
+                </div>
+                <button type="button" class="btn-save" style="background-color: #f39c12;" onclick="document.getElementById('securityModal').style.display='block'">
+                    <i class="fa-solid fa-shield-halved"></i> Đổi Email / SĐT
+                </button>
+
+                <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
+
+                <h4 style="margin-top: 20px;">Đổi mật khẩu</h4>
+                <form action="profile" method="POST">
+                    <input type="hidden" name="action" value="changePassword">
+                    <div class="form-group">
+                        <label>Mật khẩu hiện tại</label>
+                        <input type="password" name="oldPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu mới</label>
+                        <input type="password" name="newPassword" class="form-control" required pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$" title="Tối thiểu 8 ký tự, gồm cả chữ và số">
+                    </div>
+                    <div class="form-group">
+                        <label>Xác nhận mật khẩu mới</label>
+                        <input type="password" name="confirmPassword" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn-save" style="background-color: #d0011b;">Cập nhật Mật khẩu</button>
                 </form>
             </div>
+
+            <div id="securityModal" class="add-address-box" style="display:none; margin-top: 20px; border: 2px solid #f39c12; background: #fffdfa;">
+                <h4 style="color: #f39c12;"><i class="fa-solid fa-lock"></i> Xác thực thay đổi liên hệ</h4>
+                <form action="profile" method="POST">
+                    <input type="hidden" name="action" value="requestChangeContact">
+                    <div class="form-group">
+                        <label>Mật khẩu hiện tại:</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email mới:</label>
+                        <input type="email" name="newEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại mới:</label>
+                        <input type="text" name="newPhone" class="form-control" required pattern="^(03|05|07|08|09)\d{8}$">
+                    </div>
+                    <div class="btn-row">
+                        <button type="submit" class="btn-submit-addr" style="background-color: #f39c12;">Nhận mã OTP</button>
+                        <button type="button" class="btn-cancel-addr" onclick="document.getElementById('securityModal').style.display='none'">Hủy</button>
+                    </div>
+                </form>
+            </div>
+
+            <c:if test="${sessionScope.showOtpModal}">
+                <div id="otpModal" class="add-address-box" style="margin-top: 20px; border: 2px solid #27ae60; background: #f4fbf7;">
+                    <h4 style="color: #27ae60;"><i class="fa-solid fa-key"></i> Nhập mã OTP</h4>
+                    <p style="font-size: 13px; color: #555;">Mã OTP đã được gửi đến: <b>${sessionScope.pendingEmail}</b></p>
+                    <form action="profile" method="POST">
+                        <input type="hidden" name="action" value="verifyContactOtp">
+                        <div class="form-group">
+                            <input type="text" name="otp" class="form-control" placeholder="Nhập mã 6 số" required maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 5px;">
+                        </div>
+                        <div class="btn-row">
+                            <button type="submit" class="btn-submit-addr" style="background-color: #27ae60;">Xác nhận OTP</button>
+                            <a href="profile" class="btn-cancel-addr" style="text-decoration: none; text-align: center;">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+                <c:remove var="showOtpModal" scope="session"/>
+            </c:if>
 
             <div class="address-column">
                 <div class="address-header">
