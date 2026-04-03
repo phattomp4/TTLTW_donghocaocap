@@ -10,7 +10,7 @@ public class User {
     private String phone;
     private String gender;
     private String address;
-
+    private String avatar;
 
     public User() {}
 
@@ -94,4 +94,8 @@ public class User {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public String getAvatar() { return avatar; }
+
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 }

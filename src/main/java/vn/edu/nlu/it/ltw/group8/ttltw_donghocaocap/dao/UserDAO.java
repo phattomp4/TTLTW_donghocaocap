@@ -129,16 +129,13 @@ public class UserDAO {
     }
 
     public void updateAccountProfile(User a) {
-        String query = "UPDATE users SET Email=?, FullName=?, Phone=?, Gender=?, Address=? WHERE UserID=?";
+        String query = "UPDATE users SET FullName=?, Gender=? WHERE UserID=?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
-            ps.setString(1, a.getEmail());
-            ps.setString(2, a.getFullName());
-            ps.setString(3, a.getPhone());
-            ps.setString(4, a.getGender());
-            ps.setString(5, a.getAddress());
-            ps.setInt(6, a.getId());
+            ps.setString(1, a.getFullName());
+            ps.setString(2, a.getGender());
+            ps.setInt(3, a.getId());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -392,4 +389,55 @@ public class UserDAO {
             e.printStackTrace();
         }
     }
+
+    // hàm cập nhật avatar
+    public void updateAvatar (int userId, String avatarUrl){
+        String query = "UPDATE Users SET avatar = ? WHERE UserID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, avatarUrl);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    // hàm cập nhật email và sdt sau khi xác thực OTP
+    public void updateContactInfo(int userId, String email, String phone) {
+        String query = "UPDATE users SET Email = ?, Phone = ? WHERE UserID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, email);
+            ps.setString(2, phone);
+            ps.setInt(3, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    // hàm đổi mật khẩu
+    public void updatePassword(int userId, String newPasswordHash) {
+        String query = "UPDATE users SET PasswordHash = ? WHERE UserID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, newPasswordHash);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+
 }
