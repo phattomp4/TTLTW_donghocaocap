@@ -80,20 +80,48 @@ public class UserDAO {
         return null;
     }
     public boolean signup(String user, String pass, String fullName, String email, String phone) {
-        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
+        // Role mặc định là 'user' và thực hiện một lệnh INSERT duy nhất vào bảng users
+        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'user', NOW(), ?)";
+        Connection conn = null;
+        PreparedStatement ps = null;
         try {
             conn = new DBContext().getConnection();
+            // Bước 1: Tắt AutoCommit để bắt đầu quản lý Transaction
+            conn.setAutoCommit(false);
             ps = conn.prepareStatement(query);
             ps.setString(1, user);
             ps.setString(2, BCrypt.hashpw(pass, BCrypt.gensalt(12)));
             ps.setString(3, email);
             ps.setString(4, fullName);
             ps.setString(5, phone);
-            return ps.executeUpdate() > 0;
+
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                // Bước 2: Commit khi lệnh INSERT thành công
+                conn.commit();
+                return true;
+            } else {
+                // Rollback nếu không có dòng nào được tác động
+                conn.rollback();
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                // Bước 3: Nếu xảy ra lỗi, thực hiện Rollback để đảm bảo toàn vẹn dữ liệu
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         } finally {
-            closeResources();
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }

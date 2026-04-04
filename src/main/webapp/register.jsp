@@ -4,7 +4,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký tài khoản</title>
+    <title>Đăng ký tài khoản - Luxury Watch</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
     <style>
@@ -16,7 +16,9 @@
             cursor: pointer;
             color: #666;
         }
-        .ajax-msg { font-size: 12px; display: block; margin-top: 4px; min-height: 15px; }
+        .error-msg { color: #ff4757; font-size: 12px; display: block; margin-top: 4px; min-height: 15px; }
+        .is-invalid { border: 2px solid #ff4757 !important; }
+        .login-button:disabled { background-color: #ccc !important; cursor: not-allowed; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -39,53 +41,62 @@
             <div class="form-grid">
                 <div class="input-group">
                     <label for="user">Tên đăng nhập</label>
-                    <input type="text" id="user" name="user" value="${oldUser}" placeholder="Từ 5-20 ký tự"
-                           oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')"
+                    <input type="text" id="user" name="user" value="${oldUser}"
+                           class="${not empty errors.user ? 'is-invalid' : ''}"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, ''); validateForm();"
                            onblur="checkDuplicate('user', this.value)" required>
-                    <small id="msg-user" class="ajax-msg"></small>
+                    <small id="msg-user" class="error-msg">${errors.user}</small>
                 </div>
 
                 <div class="input-group">
                     <label for="fullname">Họ và Tên</label>
-                    <input type="text" id="fullname" name="fullname" value="${oldFullName}" placeholder="Họ tên của bạn" required>
-                    <small class="ajax-msg"></small>
+                    <input type="text" id="fullname" name="fullname" value="${oldFullName}"
+                           oninput="validateForm()" required>
+                    <small class="error-msg">${errors.fullname}</small>
                 </div>
 
                 <div class="input-group">
                     <label for="email">Địa chỉ Email</label>
-                    <input type="email" id="email" name="email" value="${oldEmail}" placeholder="email@gmail.com"
-                           onblur="checkDuplicate('email', this.value)" required>
-                    <small id="msg-email" class="ajax-msg"></small>
+                    <input type="email" id="email" name="email" value="${oldEmail}"
+                           class="${not empty errors.email ? 'is-invalid' : ''}"
+                           onblur="checkDuplicate('email', this.value)"
+                           oninput="validateForm()" required>
+                    <small id="msg-email" class="error-msg">${errors.email}</small>
                 </div>
 
                 <div class="input-group">
                     <label for="phone">Số điện thoại</label>
-                    <input type="text" id="phone" name="phone" value="${oldPhone}" placeholder="Số điện thoại"
-                           onblur="checkDuplicate('phone', this.value)" required>
-                    <small id="msg-phone" class="ajax-msg"></small>
+                    <input type="text" id="phone" name="phone" value="${oldPhone}"
+                           class="${not empty errors.phone ? 'is-invalid' : ''}"
+                           onblur="checkDuplicate('phone', this.value)"
+                           oninput="validateForm()" required>
+                    <small id="msg-phone" class="error-msg">${errors.phone}</small>
                 </div>
 
                 <div class="input-group">
                     <label for="pass">Mật khẩu</label>
-                    <input type="password" id="pass" name="pass" placeholder="Tối thiểu 8 ký tự"
+                    <input type="password" id="pass" name="pass"
+                           class="${not empty errors.pass ? 'is-invalid' : ''}"
                            onkeyup="validatePass(this.value)" required>
                     <i class="fa fa-eye toggle-password" onclick="toggleView('pass', this)"></i>
-                    <small id="msg-pass" class="ajax-msg"></small>
+                    <small id="msg-pass" class="error-msg">${errors.pass}</small>
                 </div>
 
                 <div class="input-group">
                     <label for="re_pass">Xác nhận mật khẩu</label>
-                    <input type="password" id="re_pass" name="re_pass" placeholder="Nhập lại mật khẩu"
+                    <input type="password" id="re_pass" name="re_pass"
+                           class="${not empty errors.re_pass ? 'is-invalid' : ''}"
                            onkeyup="checkMatch()" required>
                     <i class="fa fa-eye toggle-password" onclick="toggleView('re_pass', this)"></i>
-                    <small id="msg-repass" class="ajax-msg"></small>
+                    <small id="msg-repass" class="error-msg">${errors.re_pass}</small>
                 </div>
 
-                <button type="submit" class="login-button">Đăng Ký</button>
+                <button type="submit" id="submitBtn" class="login-button">Đăng Ký</button>
             </div>
         </form>
     </div>
 </div>
+
 <script>
     const VALIDATOR = {
         user: /^[a-zA-Z0-9]{5,20}$/,
@@ -94,82 +105,72 @@
         pass: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     };
 
+    let validationState = { user: false, fullname: false, email: false, phone: false, pass: false, repass: false };
+    let ajaxPending = 0;
+
+    function validateForm() {
+        validationState.fullname = document.getElementById('fullname').value.trim().length > 0;
+        const btn = document.getElementById('submitBtn');
+        const allValid = Object.values(validationState).every(v => v === true);
+        btn.disabled = (ajaxPending > 0 || !allValid);
+    }
+
     function toggleView(id, btn) {
         const input = document.getElementById(id);
-        if (input.type === "password") {
-            input.type = "text";
-            btn.classList.replace("fa-eye", "fa-eye-slash");
-        } else {
-            input.type = "password";
-            btn.classList.replace("fa-eye-slash", "fa-eye");
-        }
+        input.type = (input.type === "password") ? "text" : "password";
+        btn.classList.toggle("fa-eye");
+        btn.classList.toggle("fa-eye-slash");
     }
 
     function checkDuplicate(type, value) {
         const msgTag = document.getElementById('msg-' + type);
         const inputTag = document.getElementById(type);
 
-        if (!value.trim()) {
-            clearStatus(msgTag, inputTag);
+        if (!value.trim() || !VALIDATOR[type].test(value)) {
+            showUI(msgTag, inputTag, "✕ Định dạng không hợp lệ", false, type);
             return;
         }
 
-        if (type === 'user' && !VALIDATOR.user.test(value)) {
-            showUI(msgTag, inputTag, "✕ Tên đăng nhập từ 5-20 ký tự", false);
-            return;
-        }
-        if (type === 'email' && !VALIDATOR.email.test(value)) {
-            showUI(msgTag, inputTag, "✕ Vui lòng dùng @gmail.com", false);
-            return;
-        }
-        if (type === 'phone' && !VALIDATOR.phone.test(value)) {
-            showUI(msgTag, inputTag, "✕ Số điện thoại không hợp lệ", false);
-            return;
-        }
+        ajaxPending++;
+        validateForm();
 
         fetch('checkDuplicate?type=' + type + '&value=' + encodeURIComponent(value))
             .then(res => res.text())
             .then(data => {
                 if (data.trim() !== "") {
-                    showUI(msgTag, inputTag, "✕ " + data, false);
+                    showUI(msgTag, inputTag, "✕ " + data, false, type);
                 } else {
-                    showUI(msgTag, inputTag, "✓ Hợp lệ", true);
+                    showUI(msgTag, inputTag, "✓ Hợp lệ", true, type);
                 }
             })
-            .catch(() => showUI(msgTag, inputTag, "✕ Lỗi kết nối", false));
+            .catch(() => showUI(msgTag, inputTag, "✕ Lỗi kết nối", false, type))
+            .finally(() => {
+                ajaxPending--;
+                validateForm();
+            });
     }
 
-    function showUI(msgTag, inputTag, text, isSuccess) {
+    function showUI(msgTag, inputTag, text, isSuccess, field) {
         msgTag.innerText = text;
         msgTag.style.color = isSuccess ? "#2ecc71" : "#ff4757";
         inputTag.style.border = isSuccess ? "2px solid #2ecc71" : "2px solid #ff4757";
-    }
-
-    function clearStatus(msgTag, inputTag) {
-        msgTag.innerText = "";
-        inputTag.style.border = "1px solid #ddd";
+        if(field) {
+            validationState[field] = isSuccess;
+            validateForm();
+        }
     }
 
     function validatePass(pass) {
-        const msg = document.getElementById('msg-pass');
-        const input = document.getElementById('pass');
-        if (!pass) { clearStatus(msg, input); return; }
-        if (!VALIDATOR.pass.test(pass)) {
-            showUI(msg, input, "✕ Mật khẩu yếu", false);
-        } else {
-            showUI(msg, input, "✓ Mật khẩu mạnh", true);
-        }
+        const isOk = VALIDATOR.pass.test(pass);
+        showUI(document.getElementById('msg-pass'), document.getElementById('pass'), isOk ? "✓ Mật khẩu mạnh" : "✕ Quá yếu", isOk, 'pass');
         checkMatch();
     }
 
     function checkMatch() {
         const p1 = document.getElementById('pass').value;
         const p2 = document.getElementById('re_pass').value;
-        const msg = document.getElementById('msg-repass');
-        const input = document.getElementById('re_pass');
-        if (!p2) return;
-        if (p1 !== p2) showUI(msg, input, "✕ Không khớp", false);
-        else showUI(msg, input, "✓ Khớp", true);
+        const isMatch = (p1 === p2 && p2.length > 0);
+        showUI(document.getElementById('msg-repass'), document.getElementById('re_pass'), isMatch ? "✓ Khớp" : "✕ Không khớp", isMatch, 'repass');
     }
 </script>
 </body>
