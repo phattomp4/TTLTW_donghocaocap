@@ -15,6 +15,10 @@ public class CheckoutAddressServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Rất quan trọng: Phải set UTF-8 để không bị lỗi font tiếng Việt khi lưu Tỉnh/Huyện/Xã
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         HttpSession session = request.getSession();
         User acc = (User) session.getAttribute("acc");
 
@@ -26,10 +30,16 @@ public class CheckoutAddressServlet extends HttpServlet {
         try {
             String name = request.getParameter("new_name");
             String phone = request.getParameter("new_phone");
-            String address = request.getParameter("new_address");
+
+            // Lấy 4 trường địa chỉ mới thay vì 1 trường new_address như cũ
+            String province = request.getParameter("provinceName");
+            String district = request.getParameter("districtName");
+            String ward = request.getParameter("wardName");
+            String streetDetail = request.getParameter("streetDetail");
 
             UserDAO dao = new UserDAO();
-            dao.addAddress(acc.getId(), name, phone, address);
+            // Truyền đủ 7 tham số vào hàm addAddress
+            dao.addAddress(acc.getId(), name, phone, province, district, ward, streetDetail);
 
             response.sendRedirect("checkout");
 

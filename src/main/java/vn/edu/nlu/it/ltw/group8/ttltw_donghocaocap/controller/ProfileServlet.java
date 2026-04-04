@@ -1,6 +1,5 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import jakarta.servlet.ServletException;
@@ -56,6 +55,8 @@ public class ProfileServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         HttpSession session = request.getSession();
         User acc = (User) session.getAttribute("acc");
 
@@ -80,20 +81,20 @@ public class ProfileServlet extends HttpServlet {
         else if ("uploadAvatar".equals(action)) {
             Part filePart = request.getPart("avatarFile");
             if (filePart != null && filePart.getSize() > 0) {
-                try{
-                byte[] imageBytes = filePart.getInputStream().readAllBytes();
-                Map uploadResult = cloudinary.uploader().upload(imageBytes, ObjectUtils.asMap(
-                        "folder", "vvp_avatar"
-                ));
-                String avatarUrl = (String) uploadResult.get("secure_url");
-                dao.updateAvatar(acc.getId(), avatarUrl);
-                acc.setAvatar(avatarUrl);
-                session.setAttribute("acc", acc);
-                session.setAttribute("mess", "Cập nhật ảnh đại diện thành công!");
-            } catch (Exception e) {
+                try {
+                    byte[] imageBytes = filePart.getInputStream().readAllBytes();
+                    Map uploadResult = cloudinary.uploader().upload(imageBytes, ObjectUtils.asMap(
+                            "folder", "vvp_avatar"
+                    ));
+                    String avatarUrl = (String) uploadResult.get("secure_url");
+                    dao.updateAvatar(acc.getId(), avatarUrl);
+                    acc.setAvatar(avatarUrl);
+                    session.setAttribute("acc", acc);
+                    session.setAttribute("mess", "Cập nhật ảnh đại diện thành công!");
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-        }
+            }
         }
 
         else if("requestChangeContact".equals(action)){
@@ -103,7 +104,7 @@ public class ProfileServlet extends HttpServlet {
 
             User dbUser = dao.getUserById(acc.getId());
             if(!BCrypt.checkpw(currentPassword, dbUser.getPassword())){
-                session.setAttribute("error", "Email đã được sử dụng bởi tài khoản khác!");
+                session.setAttribute("error", "Mật khẩu không chính xác!");
                 response.sendRedirect("profile");
                 return;
             }
@@ -172,10 +173,20 @@ public class ProfileServlet extends HttpServlet {
         else if ("addAddress".equals(action)) {
             String name = request.getParameter("new_name");
             String phone = request.getParameter("new_phone");
-            String addr = request.getParameter("new_address");
 
-            dao.addAddress(acc.getId(), name, phone, addr);
+            String province = request.getParameter("provinceName");
+            String district = request.getParameter("districtName");
+            String ward = request.getParameter("wardName");
+            String streetDetail = request.getParameter("streetDetail");
 
+            String phoneRegex = "^0(3|5|7|8|9)[0-9]{8}$";
+            if (phone == null || !phone.matches(phoneRegex)) {
+                session.setAttribute("error", "Số điện thoại không hợp lệ! Vui lòng nhập lại.");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            dao.addAddress(acc.getId(), name, phone, province, district, ward, streetDetail);
             session.setAttribute("mess", "Thêm địa chỉ mới thành công!");
         }
 
@@ -184,9 +195,14 @@ public class ProfileServlet extends HttpServlet {
                 int addrId = Integer.parseInt(request.getParameter("edit_id"));
                 String name = request.getParameter("edit_name");
                 String phone = request.getParameter("edit_phone");
-                String street = request.getParameter("edit_address");
 
-                dao.updateUserAddress(addrId, name, phone, street);
+                // Lấy 4 trường địa chỉ mới từ form sửa
+                String province = request.getParameter("provinceName");
+                String district = request.getParameter("districtName");
+                String ward = request.getParameter("wardName");
+                String streetDetail = request.getParameter("streetDetail");
+
+                dao.updateUserAddress(addrId, name, phone, province, district, ward, streetDetail);
                 session.setAttribute("mess", "Cập nhật địa chỉ thành công!");
             } catch (Exception e) {
                 e.printStackTrace();
