@@ -168,9 +168,30 @@
                 <div id="addAddressForm" class="add-address-box" style="display:none;">
                     <form action="profile" method="POST">
                         <input type="hidden" name="action" value="addAddress">
-                        <input type="text" name="new_name" placeholder="Tên người nhận" required>
-                        <input type="text" name="new_phone" placeholder="Số điện thoại" required>
-                        <textarea name="new_address" placeholder="Địa chỉ cụ thể (Số nhà, Phường, Quận, TP)" required></textarea>
+
+                        <input type="text" name="new_name" placeholder="Họ và tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <input type="text" name="new_phone" placeholder="Số điện thoại" required class="form-control"
+                               pattern="^0(3|5|7|8|9)[0-9]{8}$"
+                               title="Vui lòng nhập đúng số điện thoại Việt Nam (10 số, bắt đầu bằng 03, 05, 07, 08 hoặc 09)">
+
+                        <select id="province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="district" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="ward" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" name="streetDetail" placeholder="Số nhà, Tên đường" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+
+                        <input type="hidden" id="provinceName" name="provinceName">
+                        <input type="hidden" id="districtName" name="districtName">
+                        <input type="hidden" id="wardName" name="wardName">
+
                         <div class="btn-row">
                             <button type="submit" class="btn-submit-addr">Hoàn thành</button>
                             <button type="button" class="btn-cancel-addr" onclick="document.getElementById('addAddressForm').style.display='none'">Hủy</button>
@@ -211,7 +232,7 @@
                                 </div>
 
                                 <div class="addr-body" style="margin-top: 8px;">
-                                    <p style="color: #444; margin: 0;">${addr.address}</p>
+                                    <p style="color: #444; margin: 0;">${addr.streetDetail}, ${addr.ward}, ${addr.district}, ${addr.province}</p>
                                 </div>
 
                                 <div class="addr-footer" style="margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
@@ -223,12 +244,12 @@
                                         </a>
                                     </c:if>
                                     <a href="javascript:void(0)"
-                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.address}')"
+                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.streetDetail}, ${addr.ward}, ${addr.district}, ${addr.province}')"
                                        class="btn-edit-addr" style="font-size: 13px; color: #1b6e76; text-decoration: none;">
                                         <i class="fa-solid fa-pen"></i> Sửa
                                     </a>
 
-                                    <a href="profile?action=delete&id=${addr.id}"
+                                    <a href="address?action=delete&id=${addr.id}"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')"
                                        class="btn-delete-addr" style="font-size: 13px; color: #d0011b; text-decoration: none;">
                                         <i class="fa-solid fa-trash"></i> Xóa
@@ -252,10 +273,8 @@
 
 <script>
     function openEditModal(id, name, phone, address) {
-        // 1. Hiển thị modal sửa
         document.getElementById('editAddressModal').style.display = 'block';
 
-        // 2. Điền dữ liệu cũ vào form
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_phone').value = phone;
@@ -264,5 +283,92 @@
 </script>
 
 <jsp:include page="../WEB-INF/tags/footer.jsp" />
+
+<script>
+    const host = "https://provinces.open-api.vn/api/";
+
+    var callAPI = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                data.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
+                data.forEach(element => {
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
+                });
+                document.querySelector("#province").innerHTML = row;
+            });
+    }
+
+    var callApiDistrict = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                let districts = data.districts;
+                districts.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Quận/Huyện</option>';
+                districts.forEach(element => {
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
+                });
+                document.querySelector("#district").innerHTML = row;
+                document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            });
+    }
+
+    var callApiWard = (api) => {
+        return fetch(api)
+            .then((response) => response.json())
+            .then((data) => {
+                let wards = data.wards;
+                wards.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Phường/Xã</option>';
+                wards.forEach(element => {
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
+                });
+                document.querySelector("#ward").innerHTML = row;
+            });
+    }
+
+    callAPI(host + "?depth=1");
+
+    document.querySelector("#province").addEventListener("change", function() {
+        let code = this.value;
+        if(code) {
+            callApiDistrict(host + "p/" + code + "?depth=2");
+        } else {
+            document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+    });
+
+    document.querySelector("#district").addEventListener("change", function() {
+        let code = this.value;
+        if(code) {
+            callApiWard(host + "d/" + code + "?depth=2");
+        } else {
+            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+    });
+
+    document.querySelector("#addAddressForm form").addEventListener("submit", function(e) {
+        const pSelect = document.querySelector("#province");
+        const dSelect = document.querySelector("#district");
+        const wSelect = document.querySelector("#ward");
+
+        document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
+        document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
+        document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
+    });
+    document.querySelector("input[name='new_phone']").addEventListener("input", function (e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
+    });
+</script>
 </body>
 </html>

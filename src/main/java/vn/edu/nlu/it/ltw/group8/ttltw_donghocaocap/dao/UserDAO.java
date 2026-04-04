@@ -192,15 +192,18 @@ public class UserDAO {
         return list;
     }
 
-    public void addAddress(int userId, String name, String phone, String address) {
-        String query = "INSERT INTO addresses (UserID, ReceiverName, Phone, Street, IsDefault) VALUES (?,?,?,?,0)";
+    public void addAddress(int userId, String name, String phone, String province, String district, String ward, String streetDetail) {
+        String query = "INSERT INTO addresses (UserID, ReceiverName, Phone, Province, District, Ward, StreetDetail, IsDefault) VALUES (?,?,?,?,?,?,?,0)";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
             ps.setInt(1, userId);
             ps.setString(2, name);
             ps.setString(3, phone);
-            ps.setString(4, address);
+            ps.setString(4, province);
+            ps.setString(5, district);
+            ps.setString(6, ward);
+            ps.setString(7, streetDetail);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -223,15 +226,18 @@ public class UserDAO {
         }
     }
 
-    public void updateUserAddress(int addressId, String name, String phone, String street) {
-        String query = "UPDATE addresses SET ReceiverName=?, Phone=?, Street=? WHERE AddressID=?";
+    public void updateUserAddress(int addressId, String name, String phone, String province, String district, String ward, String streetDetail) {
+        String query = "UPDATE addresses SET ReceiverName=?, Phone=?, Province=?, District=?, Ward=?, StreetDetail=? WHERE AddressID=?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
             ps.setString(1, name);
             ps.setString(2, phone);
-            ps.setString(3, street);
-            ps.setInt(4, addressId);
+            ps.setString(3, province);
+            ps.setString(4, district);
+            ps.setString(5, ward);
+            ps.setString(6, streetDetail);
+            ps.setInt(7, addressId);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,7 +245,6 @@ public class UserDAO {
             closeResources();
         }
     }
-
     public UserAddress getAddressById(int addressId) {
         String query = "SELECT * FROM addresses WHERE AddressID = ?";
         try {
@@ -359,15 +364,18 @@ public class UserDAO {
     }
 
     private UserAddress mapAddress(ResultSet rs) throws SQLException {
-        return new UserAddress(
+        UserAddress userAddress = new UserAddress(
                 rs.getInt("AddressID"),
                 rs.getInt("UserID"),
                 rs.getString("ReceiverName"),
                 rs.getString("Phone"),
-                rs.getString("Street"),
-                rs.getString("City"),
+                rs.getString("Province"),
+                rs.getString("District"),
+                rs.getString("Ward"),
+                rs.getString("StreetDetail"),
                 rs.getBoolean("IsDefault")
         );
+        return userAddress;
     }
 
     private void closeResources() {
