@@ -65,6 +65,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         UserDAO dao = new UserDAO();
+
         if (dao.checkUserExist(user) != null) {
             sendError(request, response, "Tên đăng nhập đã tồn tại!", user, fullName, email, phone);
             return;
@@ -75,9 +76,10 @@ public class RegisterServlet extends HttpServlet {
         }
 
         boolean success = dao.signup(user, pass, fullName, email, phone);
+
         if (success) {
             HttpSession session = request.getSession();
-            session.setAttribute("mess_success", "Đăng ký thành công! Mời bạn đăng nhập.");
+            session.setAttribute("mess_success", "Đăng ký thành công mời bạn đăng nhập");
             response.sendRedirect("login.jsp");
         } else {
             sendError(request, response, "Lỗi hệ thống (DB), vui lòng thử lại sau!", user, fullName, email, phone);
