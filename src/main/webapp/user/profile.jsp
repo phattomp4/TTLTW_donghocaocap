@@ -95,8 +95,6 @@
                 </form>
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
-
-                <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
                 <h4>Thông tin liên hệ</h4>
 
                 <div class="input-with-icon">
@@ -128,7 +126,11 @@
 
                             <div class="form-group">
                                 <label>Mật khẩu hiện tại:</label>
-                                <input type="password" name="password" class="form-control" required>
+                                <div style="position: relative;">
+                                    <input type="password" id="emailOldPassword" name="password" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('emailOldPassword', this)"
+                                       style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
                                 <c:if test="${sessionScope.activeModal == 'emailOverlayModal' && not empty sessionScope.error}">
                                     <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
                                     <c:remove var="error" scope="session"/>
@@ -154,7 +156,11 @@
 
                             <div class="form-group">
                                 <label>Mật khẩu hiện tại:</label>
-                                <input type="password" name="password" class="form-control" required>
+                                <div style="position: relative;">
+                                    <input type="password" id="phoneOldPassword" name="password" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('phoneOldPassword', this)"
+                                       style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
                                 <c:if test="${sessionScope.activeModal == 'phoneOverlayModal' && not empty sessionScope.error}">
                                     <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
                                     <c:remove var="error" scope="session"/>
@@ -202,23 +208,54 @@
                 </c:if>
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
-                <h4 style="margin-top: 20px;">Đổi mật khẩu</h4>
-                <form action="profile" method="POST">
-                    <input type="hidden" name="action" value="changePassword">
-                    <div class="form-group">
-                        <label>Mật khẩu hiện tại</label>
-                        <input type="password" name="oldPassword" class="form-control" required>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <h4 style="margin: 0;">Đổi mật khẩu</h4>
+                    <button type="button" class="btn-add-address" onclick="openOverlayModal('passwordOverlayModal')" style="background-color: #d0011b; border-color: #d0011b;">
+                        <i class="fa-solid fa-lock"></i> Đổi Mật Khẩu Mới
+                    </button>
+                </div>
+
+                <div id="passwordOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid #d0011b;">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('passwordOverlayModal')"></i>
+                        <h4 style="color: #d0011b; margin-top: 0;"><i class="fa-solid fa-shield-halved"></i> Cập Nhật Mật Khẩu</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="changePassword">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="oldPasswordInput" name="oldPassword" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('oldPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <c:if test="${sessionScope.activeModal == 'passwordOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mật khẩu mới:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="newPasswordInput" name="newPassword" class="form-control" required placeholder="Tối thiểu 8 ký tự, gồm chữ và số" style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('newPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <span id="newPasswordError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu mới:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="confirmPasswordInput" name="confirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu mới" style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('confirmPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <span id="confirmPasswordError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+
+                            <button type="submit" id="btnSubmitPassword" class="btn-submit-addr" style="background-color: #d0011b; width: 100%;" disabled>Nhận mã OTP Xác Thực</button>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label>Mật khẩu mới</label>
-                        <input type="password" name="newPassword" class="form-control" required pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$" title="Tối thiểu 8 ký tự, gồm cả chữ và số">
-                    </div>
-                    <div class="form-group">
-                        <label>Xác nhận mật khẩu mới</label>
-                        <input type="password" name="confirmPassword" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn-save" style="background-color: #d0011b;">Cập nhật Mật khẩu</button>
-                </form>
+                </div>
             </div>
 
 
