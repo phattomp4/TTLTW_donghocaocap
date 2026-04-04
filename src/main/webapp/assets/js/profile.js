@@ -134,3 +134,62 @@ if (btnResendOtp) {
             });
     });
 }
+
+
+function togglePasswordVisibility(inputId, iconElement) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        iconElement.classList.remove("fa-eye");
+        iconElement.classList.add("fa-eye-slash");
+    } else {
+        input.type = "password";
+        iconElement.classList.remove("fa-eye-slash");
+        iconElement.classList.add("fa-eye");
+    }
+}
+
+const passRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+const oldPassInput = document.getElementById('oldPasswordInput');
+const newPassInput = document.getElementById('newPasswordInput');
+const confirmPassInput = document.getElementById('confirmPasswordInput');
+const btnSubmitPass = document.getElementById('btnSubmitPassword');
+
+function checkPasswordValidation() {
+    if (!oldPassInput || !newPassInput || !confirmPassInput) return;
+
+    let oldVal = oldPassInput.value;
+    let newVal = newPassInput.value;
+    let confirmVal = confirmPassInput.value;
+
+    let isNewValid = false;
+    let isConfirmValid = false;
+
+    let newErrSpan = document.getElementById('newPasswordError');
+    if (newVal.length === 0) {
+        newErrSpan.innerHTML = '';
+    } else if (!passRegex.test(newVal)) {
+        newErrSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Phải từ 8 ký tự, gồm cả chữ và số';
+    } else if (newVal === oldVal && oldVal !== '') {
+        newErrSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Mật khẩu mới không được trùng mật khẩu cũ!';
+    } else {
+        newErrSpan.innerHTML = '<span style="color: #27ae60;"><i class="fa-solid fa-circle-check"></i> Hợp lệ</span>';
+        isNewValid = true;
+    }
+
+    let confirmErrSpan = document.getElementById('confirmPasswordError');
+    if (confirmVal.length === 0) {
+        confirmErrSpan.innerHTML = '';
+    } else if (confirmVal !== newVal) {
+        confirmErrSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Mật khẩu xác nhận không khớp!';
+    } else {
+        confirmErrSpan.innerHTML = '<span style="color: #27ae60;"><i class="fa-solid fa-circle-check"></i> Khớp mật khẩu</span>';
+        isConfirmValid = true;
+    }
+
+    btnSubmitPass.disabled = !(oldVal.length > 0 && isNewValid && isConfirmValid);
+}
+
+if(oldPassInput) oldPassInput.addEventListener('input', checkPasswordValidation);
+if(newPassInput) newPassInput.addEventListener('input', checkPasswordValidation);
+if(confirmPassInput) confirmPassInput.addEventListener('input', checkPasswordValidation);

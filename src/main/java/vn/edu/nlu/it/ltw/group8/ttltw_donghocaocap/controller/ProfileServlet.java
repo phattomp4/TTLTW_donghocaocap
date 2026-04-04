@@ -218,6 +218,9 @@ public class ProfileServlet extends HttpServlet {
             } else if ("phone".equals(updateType)) {
                 EmailUtil.sendMail(acc.getEmail(), "[Giả lập SMS] Xác thực Số điện thoại",
                         "<h3>Xác thực thay đổi Số điện thoại</h3><p>Mã OTP mới của bạn là: <b style='color:blue; font-size:20px;'>" + plainOtp + "</b></p>");
+            } else if ("password".equals(updateType)) {
+                EmailUtil.sendMail(acc.getEmail(), "Mã OTP xác thực Đổi Mật Khẩu",
+                        "<h3>Xác thực Đổi Mật Khẩu VVP Store</h3><p>Mã OTP mới của bạn là: <b style='color:#d0011b; font-size:20px;'>" + plainOtp + "</b></p><p>Vui lòng không chia sẻ mã này.</p>");
             }
 
             response.getWriter().write("SUCCESS: Mã OTP mới đã được gửi!");
@@ -248,11 +251,19 @@ public class ProfileServlet extends HttpServlet {
                     EmailUtil.sendMail(oldEmail, "CẢNH BÁO BẢO MẬT: Thay đổi thông tin",
                             "<p>CẢNH BÁO: SĐT của tài khoản VVP Store của bạn vừa bị thay đổi. Nếu không phải bạn thực hiện, vui lòng liên hệ Admin ngay lập tức!</p>");
                     session.setAttribute("mess", "Cập nhật Số điện thoại thành công!");
+                } else if ("password".equals(updateType)) {
+                    String pendingPasswordHash = (String) session.getAttribute("pendingPassword");
+                    dao.updatePassword(acc.getId(), pendingPasswordHash);
+
+                    EmailUtil.sendMail(oldEmail, "CẢNH BÁO BẢO MẬT: Đổi Mật Khẩu Thành Công",
+                            "<p>CẢNH BÁO: Mật khẩu của tài khoản VVP Store của bạn vừa được cập nhật thành công. Nếu không phải bạn thực hiện, vui lòng liên hệ Admin ngay lập tức!</p>");
+                    session.setAttribute("mess", "Cập nhật Mật khẩu thành công!");
                 }
 
                 session.setAttribute("acc", acc);
 
                 session.removeAttribute("contactOtpHash");
+                session.removeAttribute("pendingPassword");
                 session.removeAttribute("otpRequestCount");
                 session.removeAttribute("otpFirstRequestTime");
                 session.removeAttribute("lastOtpRequestTime");
@@ -272,15 +283,51 @@ public class ProfileServlet extends HttpServlet {
             String confirmPass = request.getParameter("confirmPassword");
 
             User dbUser = dao.getUserById(acc.getId());
+
             if (!BCrypt.checkpw(oldPass, dbUser.getPassword())) {
-                session.setAttribute("error", "Mật khẩu hiện tại không đúng!");
-            } else if (!newPass.equals(confirmPass)) {
-                session.setAttribute("error", "Mật khẩu xác nhận không khớp!");
-            } else {
-                String newHash = BCrypt.hashpw(newPass, BCrypt.gensalt(12));
-                dao.updatePassword(acc.getId(), newHash);
-                session.setAttribute("mess", "Đổi mật khẩu thành công!");
+                session.setAttribute("error", "Mật khẩu hiện tại không chính xác!");
+                session.setAttribute("activeModal", "passwordOverlayModal");
+                response.sendRedirect("profile");
+                return;
             }
+
+            if (!newPass.equals(confirmPass)) {
+                session.setAttribute("error", "Mật khẩu xác nhận không khớp!");
+                session.setAttribute("activeModal", "passwordOverlayModal");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            if (BCrypt.checkpw(newPass, dbUser.getPassword())) {
+                session.setAttribute("error", "Mật khẩu mới không được trùng với mật khẩu hiện hành!");
+                session.setAttribute("activeModal", "passwordOverlayModal");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            if (!newPass.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,}$")) {
+                session.setAttribute("error", "Mật khẩu mới không đúng định dạng an toàn!");
+                session.setAttribute("activeModal", "passwordOverlayModal");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            session.setAttribute("otpFirstRequestTime", currentTime);
+            session.setAttribute("otpRequestCount", 1);
+            session.setAttribute("lastOtpRequestTime", currentTime);
+
+            String plainOtp = String.format("%06d", new Random().nextInt(999999));
+            String hashedOtp = BCrypt.hashpw(plainOtp, BCrypt.gensalt());
+            session.setAttribute("contactOtpHash", hashedOtp);
+
+            String newHash = BCrypt.hashpw(newPass, BCrypt.gensalt(12));
+            session.setAttribute("pendingPassword", newHash);
+            session.setAttribute("updateType", "password");
+
+            EmailUtil.sendMail(acc.getEmail(), "Mã OTP xác thực Đổi Mật Khẩu",
+                    "<h3>Xác thực Đổi Mật Khẩu VVP Store</h3><p>Mã OTP của bạn là: <b style='color:#d0011b; font-size:20px;'>" + plainOtp + "</b></p><p>Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>");
+            session.setAttribute("showOtpModal", true);
         }
 
         else if ("addAddress".equals(action)) {
