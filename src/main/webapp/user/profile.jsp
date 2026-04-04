@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/avatarProfile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
@@ -46,14 +48,27 @@
             </c:if>
 
             <div class="info-column">
-                <div class="avatar-section" style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-                    <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
-                         alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #1b6e76;">
-                    <form action="profile" method="POST" enctype="multipart/form-data" style="margin-top: 10px;">
-                        <input type="hidden" name="action" value="uploadAvatar">
-                        <input type="file" name="avatarFile" accept="image/*" required style="font-size: 13px;">
-                        <button type="submit" class="btn-save" style="padding: 5px 10px; font-size: 13px;">Cập nhật Ảnh</button>
-                    </form>
+                <div class="avatar-section" style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc;">
+                    <div class="avatar-wrapper" onclick="document.getElementById('avatarInput').click();">
+                        <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="Avatar">
+                        <div class="avatar-overlay"><i class="fa-solid fa-camera"></i> Đổi ảnh</div>
+                    </div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="cropperModal">
+                    <div class="cropper-container-box">
+                        <h4 style="color: #1b6e76; margin-top: 0;">Chỉnh sửa ảnh đại diện</h4>
+                        <div class="img-container">
+                            <img id="imageToCrop" src="" alt="Picture">
+                        </div>
+                        <div class="btn-row" style="justify-content: center; gap: 10px;">
+                            <button type="button" class="btn-save" onclick="zoomIn()" style="padding: 8px 15px;"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button type="button" class="btn-save" onclick="zoomOut()" style="padding: 8px 15px;"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button type="button" class="btn-cancel-addr" onclick="closeCropperModal()">Hủy</button>
+                            <button type="button" class="btn-submit-addr" id="btnUpload" onclick="uploadAvatar()">Cập nhật</button>
+                        </div>
+                    </div>
                 </div>
 
                 <form action="profile" method="POST">
@@ -271,104 +286,12 @@
     </div>
 </div>
 
-<script>
-    function openEditModal(id, name, phone, address) {
-        document.getElementById('editAddressModal').style.display = 'block';
-
-        document.getElementById('edit_id').value = id;
-        document.getElementById('edit_name').value = name;
-        document.getElementById('edit_phone').value = phone;
-        document.getElementById('edit_address').value = address;
-    }
-</script>
 
 <jsp:include page="../WEB-INF/tags/footer.jsp" />
 
-<script>
-    const host = "https://provinces.open-api.vn/api/";
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/addressesProfile.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/avatarProfile.js"></script>
 
-    var callAPI = (api) => {
-        return fetch(api)
-            .then((response) => response.json())
-            .then((data) => {
-                data.sort((a, b) => a.name.localeCompare(b.name));
-
-                let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
-                data.forEach(element => {
-                    row += `<option value="\${element.code}">\${element.name}</option>`;
-                });
-                document.querySelector("#province").innerHTML = row;
-            });
-    }
-
-    var callApiDistrict = (api) => {
-        return fetch(api)
-            .then((response) => response.json())
-            .then((data) => {
-                let districts = data.districts;
-                districts.sort((a, b) => a.name.localeCompare(b.name));
-
-                let row = '<option value="">Chọn Quận/Huyện</option>';
-                districts.forEach(element => {
-                    row += `<option value="\${element.code}">\${element.name}</option>`;
-                });
-                document.querySelector("#district").innerHTML = row;
-                document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-            });
-    }
-
-    var callApiWard = (api) => {
-        return fetch(api)
-            .then((response) => response.json())
-            .then((data) => {
-                let wards = data.wards;
-                wards.sort((a, b) => a.name.localeCompare(b.name));
-
-                let row = '<option value="">Chọn Phường/Xã</option>';
-                wards.forEach(element => {
-                    row += `<option value="\${element.code}">\${element.name}</option>`;
-                });
-                document.querySelector("#ward").innerHTML = row;
-            });
-    }
-
-    callAPI(host + "?depth=1");
-
-    document.querySelector("#province").addEventListener("change", function() {
-        let code = this.value;
-        if(code) {
-            callApiDistrict(host + "p/" + code + "?depth=2");
-        } else {
-            document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        }
-    });
-
-    document.querySelector("#district").addEventListener("change", function() {
-        let code = this.value;
-        if(code) {
-            callApiWard(host + "d/" + code + "?depth=2");
-        } else {
-            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        }
-    });
-
-    document.querySelector("#addAddressForm form").addEventListener("submit", function(e) {
-        const pSelect = document.querySelector("#province");
-        const dSelect = document.querySelector("#district");
-        const wSelect = document.querySelector("#ward");
-
-        document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
-        document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
-        document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
-    });
-    document.querySelector("input[name='new_phone']").addEventListener("input", function (e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
-
-        if (this.value.length > 10) {
-            this.value = this.value.slice(0, 10);
-        }
-    });
-</script>
 </body>
 </html>

@@ -419,7 +419,6 @@ public class UserDAO {
 
                 ps.setString(1, user.getEmail());
                 ps.setString(2, user.getFullName());
-
                 ps.executeUpdate();
 
 
