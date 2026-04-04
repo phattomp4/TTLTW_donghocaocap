@@ -15,7 +15,6 @@ var callAPI = (api) => {
         data.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
         data.forEach(element => {
-          // ĐÃ XÓA DẤU \
           row += `<option value="${element.code}">${element.name}</option>`;
         });
         document.querySelector("#province").innerHTML = row;
@@ -30,7 +29,6 @@ var callApiDistrict = (api) => {
         districts.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Quận/Huyện</option>';
         districts.forEach(element => {
-          // ĐÃ XÓA DẤU \
           row += `<option value="${element.code}">${element.name}</option>`;
         });
         document.querySelector("#district").innerHTML = row;
@@ -46,7 +44,6 @@ var callApiWard = (api) => {
         wards.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Phường/Xã</option>';
         wards.forEach(element => {
-          // ĐÃ XÓA DẤU \
           row += `<option value="${element.code}">${element.name}</option>`;
         });
         document.querySelector("#ward").innerHTML = row;
