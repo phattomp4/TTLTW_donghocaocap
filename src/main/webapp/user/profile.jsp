@@ -169,8 +169,10 @@
                     <form action="profile" method="POST">
                         <input type="hidden" name="action" value="addAddress">
 
-                        <input type="text" name="new_name" placeholder="Tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
-                        <input type="text" name="new_phone" placeholder="Số điện thoại" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <input type="text" name="new_name" placeholder="Họ và tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <input type="text" name="new_phone" placeholder="Số điện thoại" required class="form-control"
+                               pattern="^0(3|5|7|8|9)[0-9]{8}$"
+                               title="Vui lòng nhập đúng số điện thoại Việt Nam (10 số, bắt đầu bằng 03, 05, 07, 08 hoặc 09)">
 
                         <select id="province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
                             <option value="">Chọn Tỉnh/Thành phố</option>
@@ -359,6 +361,13 @@
         document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
         document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
         document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
+    });
+    document.querySelector("input[name='new_phone']").addEventListener("input", function (e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
     });
 </script>
 </body>

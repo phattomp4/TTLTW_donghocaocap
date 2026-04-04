@@ -174,14 +174,19 @@ public class ProfileServlet extends HttpServlet {
             String name = request.getParameter("new_name");
             String phone = request.getParameter("new_phone");
 
-            // Lấy 4 trường địa chỉ mới
             String province = request.getParameter("provinceName");
             String district = request.getParameter("districtName");
             String ward = request.getParameter("wardName");
             String streetDetail = request.getParameter("streetDetail");
 
-            dao.addAddress(acc.getId(), name, phone, province, district, ward, streetDetail);
+            String phoneRegex = "^0(3|5|7|8|9)[0-9]{8}$";
+            if (phone == null || !phone.matches(phoneRegex)) {
+                session.setAttribute("error", "Số điện thoại không hợp lệ! Vui lòng nhập lại.");
+                response.sendRedirect("profile");
+                return;
+            }
 
+            dao.addAddress(acc.getId(), name, phone, province, district, ward, streetDetail);
             session.setAttribute("mess", "Thêm địa chỉ mới thành công!");
         }
 
