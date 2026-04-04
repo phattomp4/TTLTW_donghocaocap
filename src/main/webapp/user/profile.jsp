@@ -172,15 +172,15 @@
                         <input type="text" name="new_name" placeholder="Tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
                         <input type="text" name="new_phone" placeholder="Số điện thoại" required class="form-control" style="width: 100%; margin-bottom: 10px;">
 
-                        <select id="province" name="province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <select id="province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
                             <option value="">Chọn Tỉnh/Thành phố</option>
                         </select>
 
-                        <select id="district" name="district" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <select id="district" required class="form-control" style="width: 100%; margin-bottom: 10px;">
                             <option value="">Chọn Quận/Huyện</option>
                         </select>
 
-                        <select id="ward" name="ward" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <select id="ward" required class="form-control" style="width: 100%; margin-bottom: 10px;">
                             <option value="">Chọn Phường/Xã</option>
                         </select>
 
@@ -230,7 +230,7 @@
                                 </div>
 
                                 <div class="addr-body" style="margin-top: 8px;">
-                                    <p style="color: #444; margin: 0;">${addr.address}</p>
+                                    <p style="color: #444; margin: 0;">${addr.streetDetail}, ${addr.ward}, ${addr.district}, ${addr.province}</p>
                                 </div>
 
                                 <div class="addr-footer" style="margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
@@ -242,12 +242,12 @@
                                         </a>
                                     </c:if>
                                     <a href="javascript:void(0)"
-                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.address}')"
+                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.streetDetail}, ${addr.ward}, ${addr.district}, ${addr.province}')"
                                        class="btn-edit-addr" style="font-size: 13px; color: #1b6e76; text-decoration: none;">
                                         <i class="fa-solid fa-pen"></i> Sửa
                                     </a>
 
-                                    <a href="profile?action=delete&id=${addr.id}"
+                                    <a href="address?action=delete&id=${addr.id}"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')"
                                        class="btn-delete-addr" style="font-size: 13px; color: #d0011b; text-decoration: none;">
                                         <i class="fa-solid fa-trash"></i> Xóa
@@ -289,9 +289,11 @@
         return fetch(api)
             .then((response) => response.json())
             .then((data) => {
-                let row = ' <option value="">Chọn Tỉnh/Thành phố</option>';
+                data.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
                 data.forEach(element => {
-                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
                 });
                 document.querySelector("#province").innerHTML = row;
             });
@@ -301,9 +303,12 @@
         return fetch(api)
             .then((response) => response.json())
             .then((data) => {
-                let row = ' <option value="">Chọn Quận/Huyện</option>';
-                data.districts.forEach(element => {
-                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                let districts = data.districts;
+                districts.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Quận/Huyện</option>';
+                districts.forEach(element => {
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
                 });
                 document.querySelector("#district").innerHTML = row;
                 document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
@@ -314,9 +319,12 @@
         return fetch(api)
             .then((response) => response.json())
             .then((data) => {
-                let row = ' <option value="">Chọn Phường/Xã</option>';
-                data.wards.forEach(element => {
-                    row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                let wards = data.wards;
+                wards.sort((a, b) => a.name.localeCompare(b.name));
+
+                let row = '<option value="">Chọn Phường/Xã</option>';
+                wards.forEach(element => {
+                    row += `<option value="\${element.code}">\${element.name}</option>`;
                 });
                 document.querySelector("#ward").innerHTML = row;
             });
@@ -332,7 +340,6 @@
             document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
             document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
         }
-        updateHiddenNames();
     });
 
     document.querySelector("#district").addEventListener("change", function() {
@@ -342,25 +349,17 @@
         } else {
             document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
         }
-        updateHiddenNames();
     });
 
-    document.querySelector("#ward").addEventListener("change", function() {
-        updateHiddenNames();
-    });
-
-    function updateHiddenNames() {
+    document.querySelector("#addAddressForm form").addEventListener("submit", function(e) {
         const pSelect = document.querySelector("#province");
         const dSelect = document.querySelector("#district");
         const wSelect = document.querySelector("#ward");
 
-        if(pSelect.selectedIndex > 0)
-            document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].getAttribute('data-name');
-        if(dSelect.selectedIndex > 0)
-            document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].getAttribute('data-name');
-        if(wSelect.selectedIndex > 0)
-            document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].getAttribute('data-name');
-    }
+        document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
+        document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
+        document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
+    });
 </script>
 </body>
 </html>
