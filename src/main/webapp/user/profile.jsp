@@ -41,11 +41,12 @@
             <div class="success-message"><i class="fa-solid fa-check-circle"></i> ${mess}</div>
         </c:if>
 
+        <c:if test="${not empty sessionScope.error && empty sessionScope.activeModal && empty sessionScope.showOtpModal}">
+            <div class="error-message" style="color: red; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> ${sessionScope.error}</div>
+            <c:remove var="error" scope="session"/>
+        </c:if>
+
         <div class="profile-body-grid">
-            <c:if test="${not empty sessionScope.error}">
-                <div class="error-message" style="color: red; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> ${sessionScope.error}</div>
-                <c:remove var="error" scope="session"/>
-            </c:if>
 
             <div class="info-column">
                 <div class="avatar-section" style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc;">
@@ -95,23 +96,112 @@
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
 
+                <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
                 <h4>Thông tin liên hệ</h4>
-                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
+
+                <div class="input-with-icon">
                     <div style="flex-grow: 1;">
                         <label>Email hiện tại:</label>
-                        <input type="text" class="form-control" value="${sessionScope.acc.email}" disabled>
+                        <input type="text" class="form-control" value="${sessionScope.acc.email}" disabled style="margin-bottom: 0;">
                     </div>
+                    <a href="javascript:void(0)" onclick="openOverlayModal('emailOverlayModal')" title="Đổi Email" style="color: rgb(27, 110, 118); font-size: 22px; margin-top: 25px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                </div>
+
+                <div class="input-with-icon">
                     <div style="flex-grow: 1;">
                         <label>SĐT hiện tại:</label>
-                        <input type="text" class="form-control" value="${sessionScope.acc.phone}" disabled>
+                        <input type="text" class="form-control" value="${sessionScope.acc.phone}" disabled style="margin-bottom: 0;">
+                    </div>
+                    <a href="javascript:void(0)" onclick="openOverlayModal('phoneOverlayModal')" title="Đổi Số điện thoại" style="color: rgb(27, 110, 118); font-size: 22px; margin-top: 25px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                </div>
+
+                <div id="emailOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('emailOverlayModal')"></i>
+                        <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-envelope"></i> Cập nhật Email</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="requestChangeEmail">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <input type="password" name="password" class="form-control" required>
+                                <c:if test="${sessionScope.activeModal == 'emailOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email mới:</label>
+                                <input type="email" id="newEmailInput" name="newEmail" class="form-control" required placeholder="Nhập địa chỉ email mới...">
+                                <span id="emailAjaxError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+                            <button type="submit" id="btnSubmitEmail" class="btn-submit-addr" style="background-color: rgb(27, 110, 118); width: 100%;" disabled>Nhận mã OTP qua Email</button>
+                        </form>
                     </div>
                 </div>
-                <button type="button" class="btn-save" style="background-color: #f39c12;" onclick="document.getElementById('securityModal').style.display='block'">
-                    <i class="fa-solid fa-shield-halved"></i> Đổi Email / SĐT
-                </button>
+
+                <div id="phoneOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('phoneOverlayModal')"></i>
+                        <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-phone"></i> Cập nhật Số điện thoại</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="requestChangePhone">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <input type="password" name="password" class="form-control" required>
+                                <c:if test="${sessionScope.activeModal == 'phoneOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Số điện thoại mới:</label>
+                                <input type="text" id="newPhoneInput" name="newPhone" class="form-control" required placeholder="Nhập số điện thoại mới...">
+                                <span id="phoneAjaxError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+                            <button type="submit" id="btnSubmitPhone" class="btn-submit-addr" style="background-color: rgb(27, 110, 118); width: 100%;" disabled>Nhận mã OTP xác thực</button>
+                        </form>
+                    </div>
+                </div>
+
+                <c:if test="${sessionScope.showOtpModal}">
+                    <div id="otpOverlayModal" class="overlay-modal" style="display: flex;">
+                        <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                            <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-key"></i> Xác thực OTP</h4>
+                            <p style="font-size: 13px; color: #555;">Mã OTP đã được gửi đến: <b style="color: #d0011b;">
+                                    ${sessionScope.updateType == 'email' ? sessionScope.pendingEmail : sessionScope.acc.email}
+                            </b></p>
+                            <form action="profile" method="POST">
+                                <input type="hidden" name="action" value="verifyContactOtp">
+                                <div class="form-group">
+                                    <input type="text" name="otp" class="form-control" placeholder="Nhập mã 6 số" required maxlength="6" style="text-align: center; font-size: 22px; font-weight: bold;">
+                                    <c:if test="${not empty sessionScope.error}">
+                                        <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block; text-align: center;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                        <c:remove var="error" scope="session"/>
+                                    </c:if>
+                                </div>
+
+                                <div style="text-align: center; margin-bottom: 15px;">
+                                    <button type="button" id="btnResendOtp" style="background: none; border: none; color: #999; cursor: not-allowed; font-size: 13px; text-decoration: underline;" disabled>Gửi lại mã (60s)</button>
+                                    <span id="resendMessage" style="display: block; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+
+                                <button type="submit" class="btn-submit-addr" style="background-color: #27ae60; width: 100%; margin-bottom: 10px;">Xác nhận</button>
+                                <a href="profile" style="display: block; text-align: center; color: #888; text-decoration: underline; font-size: 13px;">Hủy</a>
+                            </form>
+                        </div>
+                    </div>
+                    <c:remove var="showOtpModal" scope="session"/>
+                </c:if>
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
-
                 <h4 style="margin-top: 20px;">Đổi mật khẩu</h4>
                 <form action="profile" method="POST">
                     <input type="hidden" name="action" value="changePassword">
@@ -131,46 +221,6 @@
                 </form>
             </div>
 
-            <div id="securityModal" class="add-address-box" style="display:none; margin-top: 20px; border: 2px solid #f39c12; background: #fffdfa;">
-                <h4 style="color: #f39c12;"><i class="fa-solid fa-lock"></i> Xác thực thay đổi liên hệ</h4>
-                <form action="profile" method="POST">
-                    <input type="hidden" name="action" value="requestChangeContact">
-                    <div class="form-group">
-                        <label>Mật khẩu hiện tại:</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email mới:</label>
-                        <input type="email" name="newEmail" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Số điện thoại mới:</label>
-                        <input type="text" name="newPhone" class="form-control" required pattern="^(03|05|07|08|09)\d{8}$">
-                    </div>
-                    <div class="btn-row">
-                        <button type="submit" class="btn-submit-addr" style="background-color: #f39c12;">Nhận mã OTP</button>
-                        <button type="button" class="btn-cancel-addr" onclick="document.getElementById('securityModal').style.display='none'">Hủy</button>
-                    </div>
-                </form>
-            </div>
-
-            <c:if test="${sessionScope.showOtpModal}">
-                <div id="otpModal" class="add-address-box" style="margin-top: 20px; border: 2px solid #27ae60; background: #f4fbf7;">
-                    <h4 style="color: #27ae60;"><i class="fa-solid fa-key"></i> Nhập mã OTP</h4>
-                    <p style="font-size: 13px; color: #555;">Mã OTP đã được gửi đến: <b>${sessionScope.pendingEmail}</b></p>
-                    <form action="profile" method="POST">
-                        <input type="hidden" name="action" value="verifyContactOtp">
-                        <div class="form-group">
-                            <input type="text" name="otp" class="form-control" placeholder="Nhập mã 6 số" required maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 5px;">
-                        </div>
-                        <div class="btn-row">
-                            <button type="submit" class="btn-submit-addr" style="background-color: #27ae60;">Xác nhận OTP</button>
-                            <a href="profile" class="btn-cancel-addr" style="text-decoration: none; text-align: center;">Hủy</a>
-                        </div>
-                    </form>
-                </div>
-                <c:remove var="showOtpModal" scope="session"/>
-            </c:if>
 
             <div class="address-column">
                 <div class="address-header">
@@ -289,9 +339,16 @@
 
 <jsp:include page="../WEB-INF/tags/footer.jsp" />
 
+<script>
+    const contextPath = '${pageContext.request.contextPath}';
+    const activeModalFromJava = '${sessionScope.activeModal}';
+</script>
+<c:remove var="activeModal" scope="session"/>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/addressesProfile.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/avatarProfile.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/profile.js"></script>
 
 </body>
 </html>

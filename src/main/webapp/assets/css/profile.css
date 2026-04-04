@@ -10,7 +10,6 @@ body { background-color: #f5f5f5; }
     min-height: 600px;
 }
 
-/* SIDEBAR */
 .profile-sidebar {
     width: 250px;
     border-right: 1px solid #efefef;
@@ -22,18 +21,15 @@ body { background-color: #f5f5f5; }
 .sidebar-menu a:hover, .sidebar-menu a.active { color: #1b6e76; font-weight: 500; }
 .sidebar-menu i { width: 25px; text-align: center; }
 
-/* CONTENT */
 .profile-content { flex: 1; padding: 30px; }
 .profile-header { border-bottom: 1px solid #efefef; padding-bottom: 20px; margin-bottom: 30px; }
 .profile-header h2 { margin: 0 0 5px 0; font-size: 20px; font-weight: 500; }
 .profile-header p { margin: 0; color: #555; font-size: 14px; }
 
-/* LAYOUT 2 CỘT: INFO & ADDRESS */
 .profile-body-grid { display: flex; gap: 40px; }
 .info-column { flex: 3; border-right: 1px solid #efefef; padding-right: 30px; }
 .address-column { flex: 2; }
 
-/* FORM STYLE */
 .form-group { margin-bottom: 25px; display: flex; align-items: center; }
 .form-group label { width: 120px; color: #555; font-size: 14px; text-align: right; margin-right: 20px; }
 .form-control { flex: 1; height: 40px; padding: 0 15px; border: 1px solid #e0e0e0; border-radius: 2px; outline: none; transition: 0.2s; }
@@ -43,18 +39,15 @@ body { background-color: #f5f5f5; }
 .btn-save { background: #1b6e76; color: #fff; border: none; height: 40px; padding: 0 25px; border-radius: 2px; cursor: pointer; margin-left: 140px; }
 .btn-save:hover { opacity: 80 }
 
-/* ADDRESS SECTION */
 .address-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .address-header h3 { font-size: 16px; margin: 0; }
 .btn-add-address { background: #333; color: #fff; border: none; padding: 8px 12px; font-size: 12px; border-radius: 2px; cursor: pointer; }
 
-/* Form thêm địa chỉ */
 .add-address-box { background: #fdfdfd; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
 .add-address-box input, .add-address-box textarea { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 2px; }
 .btn-submit-addr { background: #1b6e76; color: white; border: none; padding: 5px 15px; cursor: pointer; }
 .btn-cancel-addr { background: #eee; border: none; padding: 5px 15px; cursor: pointer; margin-left: 5px; }
 
-/* Address Cards */
 .address-card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 4px; position: relative; }
 .addr-header { font-weight: bold; font-size: 14px; margin-bottom: 5px; display: flex; justify-content: space-between; }
 .addr-body p { color: #666; font-size: 13px; margin: 0; line-height: 1.4; }
@@ -62,7 +55,6 @@ body { background-color: #f5f5f5; }
 .badge-default { border: 1px solid #d0011b; color: #d0011b; font-size: 11px; padding: 1px 4px; }
 .btn-edit-addr { font-size: 12px; color: #007bff; text-decoration: none; }
 
-/* Mobile Responsive */
 @media (max-width: 900px) {
     .profile-body-grid { flex-direction: column; }
     .info-column { border-right: none; padding-right: 0; border-bottom: 1px solid #efefef; padding-bottom: 30px; margin-bottom: 30px; }
@@ -72,3 +64,26 @@ body { background-color: #f5f5f5; }
     .profile-sidebar { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .sidebar-menu a span { display: none; }
 }
+
+
+.overlay-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); z-index: 9999; display: none;
+    justify-content: center; align-items: center; backdrop-filter: blur(2px);
+}
+.overlay-modal-content {
+    background: #fff; padding: 25px 30px; border-radius: 12px;
+    width: 90%; max-width: 420px; position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.close-modal-btn {
+    position: absolute; top: 12px; right: 15px; font-size: 20px;
+    cursor: pointer; color: #888; transition: 0.2s;
+}
+.close-modal-btn:hover { color: #d0011b; }
+.input-with-icon { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }

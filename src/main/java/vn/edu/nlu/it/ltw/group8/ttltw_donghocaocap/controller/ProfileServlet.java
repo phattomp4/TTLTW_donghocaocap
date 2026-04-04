@@ -97,58 +97,171 @@ public class ProfileServlet extends HttpServlet {
             }
         }
 
-        else if("requestChangeContact".equals(action)){
+        else if ("requestChangeEmail".equals(action)) {
             String currentPassword = request.getParameter("password");
             String newEmail = request.getParameter("newEmail");
-            String newPhone = request.getParameter("newPhone");
 
             User dbUser = dao.getUserById(acc.getId());
-            if(!BCrypt.checkpw(currentPassword, dbUser.getPassword())){
-                session.setAttribute("error", "Mật khẩu không chính xác!");
+
+            if (!BCrypt.checkpw(currentPassword, dbUser.getPassword())) {
+                session.setAttribute("error", "Mật khẩu hiện tại không chính xác!");
+                session.setAttribute("activeModal", "emailOverlayModal");
                 response.sendRedirect("profile");
                 return;
             }
 
-            if(!newEmail.equals(dbUser.getEmail()) && dao.checkEmailExist(newEmail) !=null){
-                session.setAttribute("error", "Email đã được sử dụng bởi tài khoản khác!");
+            if (newEmail.equals(dbUser.getEmail())) {
+                session.setAttribute("error", "Email mới không được trùng với Email hiện tại!");
+                session.setAttribute("activeModal", "emailOverlayModal");
                 response.sendRedirect("profile");
                 return;
             }
 
-            String otp = String.format("%6d", new Random().nextInt(999999));
-            session.setAttribute("contactOtp", otp);
+            if (dao.checkEmailExist(newEmail) != null) {
+                session.setAttribute("error", "Email này đã được đăng ký cho một tài khoản khác!");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            session.setAttribute("otpFirstRequestTime", currentTime);
+            session.setAttribute("otpRequestCount", 1);
+            session.setAttribute("lastOtpRequestTime", currentTime);
+
+            String plainOtp = String.format("%06d", new Random().nextInt(999999));
+            String hashedOtp = BCrypt.hashpw(plainOtp, BCrypt.gensalt());
+            session.setAttribute("contactOtpHash", hashedOtp);
+
             session.setAttribute("pendingEmail", newEmail);
-            session.setAttribute("pendingPhone", newPhone);
+            session.setAttribute("updateType", "email");
 
-            EmailUtil.sendMail(newEmail, "Mã OTP xác thực thay đổi thông tin của bạn là: " + otp);
-            session.setAttribute("mess", "Mã OTP đã được gửi đến " + newEmail);
+            EmailUtil.sendMail(newEmail, "Mã OTP xác thực thay đổi Email",
+                    "<h3>Xác thực thay đổi Email VVP Store</h3><p>Mã OTP của bạn là: <b style='color:red; font-size:20px;'>" + plainOtp + "</b></p><p>Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>");
             session.setAttribute("showOtpModal", true);
         }
 
-        else if("verifyContactOtp".equals(action)){
-            String inputOtp = request.getParameter("otp");
-            String sessionOtp = (String) session.getAttribute("contactOtp");
+        else if ("requestChangePhone".equals(action)) {
+            String currentPassword = request.getParameter("password");
+            String newPhone = request.getParameter("newPhone");
 
-            if (sessionOtp != null && sessionOtp.equals(inputOtp)) {
+            User dbUser = dao.getUserById(acc.getId());
+
+            if (!BCrypt.checkpw(currentPassword, dbUser.getPassword())) {
+                session.setAttribute("error", "Mật khẩu hiện tại không chính xác!");
+                session.setAttribute("activeModal", "phoneOverlayModal");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            if (newPhone.equals(dbUser.getPhone())) {
+                session.setAttribute("error", "Số điện thoại mới không được trùng với Số điện thoại hiện hành!");
+                session.setAttribute("activeModal", "phoneOverlayModal");
+                response.sendRedirect("profile");
+                return;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            session.setAttribute("otpFirstRequestTime", currentTime);
+            session.setAttribute("otpRequestCount", 1);
+            session.setAttribute("lastOtpRequestTime", currentTime);
+
+            String plainOtp = String.format("%06d", new Random().nextInt(999999));
+            String hashedOtp = BCrypt.hashpw(plainOtp, BCrypt.gensalt());
+            session.setAttribute("contactOtpHash", hashedOtp);
+
+            session.setAttribute("pendingPhone", newPhone);
+            session.setAttribute("updateType", "phone");
+
+            EmailUtil.sendMail(acc.getEmail(), "[Giả lập SMS] Xác thực Số điện thoại",
+                    "<h3>Xác thực thay đổi Số điện thoại</h3><p>Mã OTP của bạn là: <b style='color:blue; font-size:20px;'>" + plainOtp + "</b></p>");
+            session.setAttribute("showOtpModal", true);
+        }
+
+        else if ("resendOtp".equals(action)) {
+            response.setContentType("text/plain;charset=UTF-8");
+            long currentTime = System.currentTimeMillis();
+
+            Long firstRequestTime = (Long) session.getAttribute("otpFirstRequestTime");
+            Integer requestCount = (Integer) session.getAttribute("otpRequestCount");
+            Long lastRequestTime = (Long) session.getAttribute("lastOtpRequestTime");
+
+            if (firstRequestTime != null && (currentTime - firstRequestTime) > 10 * 60 * 1000) {
+                requestCount = 0;
+                firstRequestTime = currentTime;
+            }
+            if (requestCount == null) requestCount = 0;
+
+            if (requestCount >= 3) {
+                response.getWriter().write("ERROR: Bạn đã yêu cầu gửi lại quá 3 lần. Vui lòng thử lại sau 10 phút để tránh bị khóa.");
+                return;
+            }
+
+            if (lastRequestTime != null && (currentTime - lastRequestTime) < 60000) {
+                long wait = 60 - (currentTime - lastRequestTime) / 1000;
+                response.getWriter().write("ERROR: Vui lòng đợi " + wait + " giây trước khi yêu cầu mã mới.");
+                return;
+            }
+
+            String plainOtp = String.format("%06d", new Random().nextInt(999999));
+            String hashedOtp = BCrypt.hashpw(plainOtp, BCrypt.gensalt());
+
+            session.setAttribute("contactOtpHash", hashedOtp);
+            session.setAttribute("lastOtpRequestTime", currentTime);
+            session.setAttribute("otpRequestCount", requestCount + 1);
+            session.setAttribute("otpFirstRequestTime", firstRequestTime);
+
+            String updateType = (String) session.getAttribute("updateType");
+            if ("email".equals(updateType)) {
                 String pendingEmail = (String) session.getAttribute("pendingEmail");
-                String pendingPhone = (String) session.getAttribute("pendingPhone");
+                EmailUtil.sendMail(pendingEmail, "Mã OTP xác thực thay đổi Email",
+                        "<h3>Xác thực thay đổi Email VVP Store</h3><p>Mã OTP mới của bạn là: <b style='color:red; font-size:20px;'>" + plainOtp + "</b></p><p>Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>");
+            } else if ("phone".equals(updateType)) {
+                EmailUtil.sendMail(acc.getEmail(), "[Giả lập SMS] Xác thực Số điện thoại",
+                        "<h3>Xác thực thay đổi Số điện thoại</h3><p>Mã OTP mới của bạn là: <b style='color:blue; font-size:20px;'>" + plainOtp + "</b></p>");
+            }
+
+            response.getWriter().write("SUCCESS: Mã OTP mới đã được gửi!");
+            return;
+        }
+
+        else if ("verifyContactOtp".equals(action)) {
+            String inputOtp = request.getParameter("otp");
+            String sessionOtpHash = (String) session.getAttribute("contactOtpHash");
+            String updateType = (String) session.getAttribute("updateType");
+
+            if (sessionOtpHash != null && BCrypt.checkpw(inputOtp, sessionOtpHash)) {
                 String oldEmail = acc.getEmail();
 
-                dao.updateContactInfo(acc.getId(), pendingEmail, pendingPhone);
-                acc.setEmail(pendingEmail);
-                acc.setPhone(pendingPhone);
+                if ("email".equals(updateType)) {
+                    String pendingEmail = (String) session.getAttribute("pendingEmail");
+                    dao.updateContactInfo(acc.getId(), pendingEmail, acc.getPhone());
+                    acc.setEmail(pendingEmail);
+
+                    EmailUtil.sendMail(oldEmail, "CẢNH BÁO BẢO MẬT: Thay đổi thông tin",
+                            "<p>CẢNH BÁO: Email của tài khoản VVP Store của bạn vừa bị thay đổi. Nếu không phải bạn thực hiện, vui lòng liên hệ Admin ngay lập tức!</p>");
+                    session.setAttribute("mess", "Cập nhật Email thành công!");
+                } else if ("phone".equals(updateType)) {
+                    String pendingPhone = (String) session.getAttribute("pendingPhone");
+                    dao.updateContactInfo(acc.getId(), acc.getEmail(), pendingPhone);
+                    acc.setPhone(pendingPhone);
+
+                    EmailUtil.sendMail(oldEmail, "CẢNH BÁO BẢO MẬT: Thay đổi thông tin",
+                            "<p>CẢNH BÁO: SĐT của tài khoản VVP Store của bạn vừa bị thay đổi. Nếu không phải bạn thực hiện, vui lòng liên hệ Admin ngay lập tức!</p>");
+                    session.setAttribute("mess", "Cập nhật Số điện thoại thành công!");
+                }
+
                 session.setAttribute("acc", acc);
 
-                EmailUtil.sendMail(oldEmail, "CẢNH BÁO: Email tài khoản VVP Store của bạn vừa được đổi thành " + pendingEmail + ". Nếu không phải bạn thực hiện, vui lòng liên hệ Admin ngay lập tức!");
-
-                session.removeAttribute("contactOtp");
+                session.removeAttribute("contactOtpHash");
+                session.removeAttribute("otpRequestCount");
+                session.removeAttribute("otpFirstRequestTime");
+                session.removeAttribute("lastOtpRequestTime");
                 session.removeAttribute("pendingEmail");
                 session.removeAttribute("pendingPhone");
-                session.removeAttribute("showOtpModal");
+                session.removeAttribute("updateType");
 
-                session.setAttribute("mess", "Cập nhật Email/SĐT thành công!");
             } else {
-                session.setAttribute("error", "Mã OTP không chính xác!");
+                session.setAttribute("error", "Mã OTP không chính xác hoặc đã bị hủy!");
                 session.setAttribute("showOtpModal", true);
             }
         }
@@ -196,7 +309,6 @@ public class ProfileServlet extends HttpServlet {
                 String name = request.getParameter("edit_name");
                 String phone = request.getParameter("edit_phone");
 
-                // Lấy 4 trường địa chỉ mới từ form sửa
                 String province = request.getParameter("provinceName");
                 String district = request.getParameter("districtName");
                 String ward = request.getParameter("wardName");

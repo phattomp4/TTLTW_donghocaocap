@@ -50,7 +50,7 @@ public class EmailUtil {
         }
     }
 
-    public static boolean sendMail(String to, String subject) {
+    public static boolean sendMail(String to, String subject, String content) {
         boolean isSent = false;
 
         Properties props = new Properties();
@@ -70,8 +70,10 @@ public class EmailUtil {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(FROM_EMAIL, "VVP Store - Hệ thống Đồng Hồ Cao Cấp"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+
             message.setSubject(subject);
 
+            message.setContent(content, "text/html; charset=UTF-8");
 
             Transport.send(message);
             isSent = true;
