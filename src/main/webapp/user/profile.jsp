@@ -305,9 +305,28 @@
                     <h4 style="margin-top: 0; color: #1b6e76;">Cập nhật địa chỉ</h4>
                     <form action="profile" method="POST">
                         <input type="hidden" name="action" value="editAddress">
-                        <input type="hidden" id="edit_id" name="edit_id"> <input type="text" id="edit_name" name="edit_name" placeholder="Tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
-                        <input type="text" id="edit_phone" name="edit_phone" placeholder="Số điện thoại" required class="form-control" style="width: 100%; margin-bottom: 10px;">
-                        <textarea id="edit_address" name="edit_address" placeholder="Địa chỉ cụ thể" required class="form-control" style="width: 100%; margin-bottom: 10px;"></textarea>
+                        <input type="hidden" id="edit_id" name="edit_id">
+
+                        <input type="text" id="edit_name" name="edit_name" placeholder="Tên người nhận" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                        <input type="text" id="edit_phone" name="edit_phone" placeholder="Số điện thoại" required class="form-control" style="width: 100%; margin-bottom: 10px;" pattern="^0(3|5|7|8|9)[0-9]{8}$" title="Vui lòng nhập đúng số điện thoại Việt Nam">
+
+                        <select id="edit_province" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="edit_district" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="edit_ward" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" id="edit_streetDetail" name="streetDetail" placeholder="Số nhà, Tên đường" required class="form-control" style="width: 100%; margin-bottom: 10px;">
+
+                        <input type="hidden" id="edit_provinceName" name="provinceName">
+                        <input type="hidden" id="edit_districtName" name="districtName">
+                        <input type="hidden" id="edit_wardName" name="wardName">
 
                         <div class="btn-row">
                             <button type="submit" class="btn-submit-addr">Lưu thay đổi</button>
@@ -346,7 +365,7 @@
                                         </a>
                                     </c:if>
                                     <a href="javascript:void(0)"
-                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.streetDetail}, ${addr.ward}, ${addr.district}, ${addr.province}')"
+                                       onclick="openEditModal('${addr.id}', '${addr.name}', '${addr.phone}', '${addr.streetDetail}', '${addr.ward}', '${addr.district}', '${addr.province}')"
                                        class="btn-edit-addr" style="font-size: 13px; color: #1b6e76; text-decoration: none;">
                                         <i class="fa-solid fa-pen"></i> Sửa
                                     </a>
