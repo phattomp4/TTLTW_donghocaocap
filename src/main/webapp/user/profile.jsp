@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/avatarProfile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
@@ -39,21 +41,35 @@
             <div class="success-message"><i class="fa-solid fa-check-circle"></i> ${mess}</div>
         </c:if>
 
+        <c:if test="${not empty sessionScope.error && empty sessionScope.activeModal && empty sessionScope.showOtpModal}">
+            <div class="error-message" style="color: red; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> ${sessionScope.error}</div>
+            <c:remove var="error" scope="session"/>
+        </c:if>
+
         <div class="profile-body-grid">
-            <c:if test="${not empty sessionScope.error}">
-                <div class="error-message" style="color: red; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> ${sessionScope.error}</div>
-                <c:remove var="error" scope="session"/>
-            </c:if>
 
             <div class="info-column">
-                <div class="avatar-section" style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-                    <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
-                         alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #1b6e76;">
-                    <form action="profile" method="POST" enctype="multipart/form-data" style="margin-top: 10px;">
-                        <input type="hidden" name="action" value="uploadAvatar">
-                        <input type="file" name="avatarFile" accept="image/*" required style="font-size: 13px;">
-                        <button type="submit" class="btn-save" style="padding: 5px 10px; font-size: 13px;">Cập nhật Ảnh</button>
-                    </form>
+                <div class="avatar-section" style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc;">
+                    <div class="avatar-wrapper" onclick="document.getElementById('avatarInput').click();">
+                        <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="Avatar">
+                        <div class="avatar-overlay"><i class="fa-solid fa-camera"></i> Đổi ảnh</div>
+                    </div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="cropperModal">
+                    <div class="cropper-container-box">
+                        <h4 style="color: #1b6e76; margin-top: 0;">Chỉnh sửa ảnh đại diện</h4>
+                        <div class="img-container">
+                            <img id="imageToCrop" src="" alt="Picture">
+                        </div>
+                        <div class="btn-row" style="justify-content: center; gap: 10px;">
+                            <button type="button" class="btn-save" onclick="zoomIn()" style="padding: 8px 15px;"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button type="button" class="btn-save" onclick="zoomOut()" style="padding: 8px 15px;"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button type="button" class="btn-cancel-addr" onclick="closeCropperModal()">Hủy</button>
+                            <button type="button" class="btn-submit-addr" id="btnUpload" onclick="uploadAvatar()">Cập nhật</button>
+                        </div>
+                    </div>
                 </div>
 
                 <form action="profile" method="POST">
@@ -79,83 +95,169 @@
                 </form>
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
-
                 <h4>Thông tin liên hệ</h4>
-                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
+
+                <div class="input-with-icon">
                     <div style="flex-grow: 1;">
                         <label>Email hiện tại:</label>
-                        <input type="text" class="form-control" value="${sessionScope.acc.email}" disabled>
+                        <input type="text" class="form-control" value="${sessionScope.acc.email}" disabled style="margin-bottom: 0;">
                     </div>
+                    <a href="javascript:void(0)" onclick="openOverlayModal('emailOverlayModal')" title="Đổi Email" style="color: rgb(27, 110, 118); font-size: 22px; margin-top: 25px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                </div>
+
+                <div class="input-with-icon">
                     <div style="flex-grow: 1;">
                         <label>SĐT hiện tại:</label>
-                        <input type="text" class="form-control" value="${sessionScope.acc.phone}" disabled>
+                        <input type="text" class="form-control" value="${sessionScope.acc.phone}" disabled style="margin-bottom: 0;">
+                    </div>
+                    <a href="javascript:void(0)" onclick="openOverlayModal('phoneOverlayModal')" title="Đổi Số điện thoại" style="color: rgb(27, 110, 118); font-size: 22px; margin-top: 25px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                </div>
+
+                <div id="emailOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('emailOverlayModal')"></i>
+                        <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-envelope"></i> Cập nhật Email</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="requestChangeEmail">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="emailOldPassword" name="password" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('emailOldPassword', this)"
+                                       style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <c:if test="${sessionScope.activeModal == 'emailOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email mới:</label>
+                                <input type="email" id="newEmailInput" name="newEmail" class="form-control" required placeholder="Nhập địa chỉ email mới...">
+                                <span id="emailAjaxError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+                            <button type="submit" id="btnSubmitEmail" class="btn-submit-addr" style="background-color: rgb(27, 110, 118); width: 100%;" disabled>Nhận mã OTP qua Email</button>
+                        </form>
                     </div>
                 </div>
-                <button type="button" class="btn-save" style="background-color: #f39c12;" onclick="document.getElementById('securityModal').style.display='block'">
-                    <i class="fa-solid fa-shield-halved"></i> Đổi Email / SĐT
-                </button>
+
+                <div id="phoneOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('phoneOverlayModal')"></i>
+                        <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-phone"></i> Cập nhật Số điện thoại</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="requestChangePhone">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="phoneOldPassword" name="password" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('phoneOldPassword', this)"
+                                       style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <c:if test="${sessionScope.activeModal == 'phoneOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Số điện thoại mới:</label>
+                                <input type="text" id="newPhoneInput" name="newPhone" class="form-control" required placeholder="Nhập số điện thoại mới...">
+                                <span id="phoneAjaxError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+                            <button type="submit" id="btnSubmitPhone" class="btn-submit-addr" style="background-color: rgb(27, 110, 118); width: 100%;" disabled>Nhận mã OTP xác thực</button>
+                        </form>
+                    </div>
+                </div>
+
+                <c:if test="${sessionScope.showOtpModal}">
+                    <div id="otpOverlayModal" class="overlay-modal" style="display: flex;">
+                        <div class="overlay-modal-content" style="border-top: 5px solid rgb(27, 110, 118);">
+                            <h4 style="color: rgb(27, 110, 118); margin-top: 0;"><i class="fa-solid fa-key"></i> Xác thực OTP</h4>
+                            <p style="font-size: 13px; color: #555;">Mã OTP đã được gửi đến: <b style="color: #d0011b;">
+                                    ${sessionScope.updateType == 'email' ? sessionScope.pendingEmail : sessionScope.acc.email}
+                            </b></p>
+                            <form action="profile" method="POST">
+                                <input type="hidden" name="action" value="verifyContactOtp">
+                                <div class="form-group">
+                                    <input type="text" name="otp" class="form-control" placeholder="Nhập mã 6 số" required maxlength="6" style="text-align: center; font-size: 22px; font-weight: bold;">
+                                    <c:if test="${not empty sessionScope.error}">
+                                        <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block; text-align: center;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                        <c:remove var="error" scope="session"/>
+                                    </c:if>
+                                </div>
+
+                                <div style="text-align: center; margin-bottom: 15px;">
+                                    <button type="button" id="btnResendOtp" style="background: none; border: none; color: #999; cursor: not-allowed; font-size: 13px; text-decoration: underline;" disabled>Gửi lại mã (60s)</button>
+                                    <span id="resendMessage" style="display: block; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+
+                                <button type="submit" class="btn-submit-addr" style="background-color: #27ae60; width: 100%; margin-bottom: 10px;">Xác nhận</button>
+                                <a href="profile" style="display: block; text-align: center; color: #888; text-decoration: underline; font-size: 13px;">Hủy</a>
+                            </form>
+                        </div>
+                    </div>
+                    <c:remove var="showOtpModal" scope="session"/>
+                </c:if>
 
                 <hr style="margin: 30px 0; border-top: 1px dashed #ccc;">
-
-                <h4 style="margin-top: 20px;">Đổi mật khẩu</h4>
-                <form action="profile" method="POST">
-                    <input type="hidden" name="action" value="changePassword">
-                    <div class="form-group">
-                        <label>Mật khẩu hiện tại</label>
-                        <input type="password" name="oldPassword" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Mật khẩu mới</label>
-                        <input type="password" name="newPassword" class="form-control" required pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$" title="Tối thiểu 8 ký tự, gồm cả chữ và số">
-                    </div>
-                    <div class="form-group">
-                        <label>Xác nhận mật khẩu mới</label>
-                        <input type="password" name="confirmPassword" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn-save" style="background-color: #d0011b;">Cập nhật Mật khẩu</button>
-                </form>
-            </div>
-
-            <div id="securityModal" class="add-address-box" style="display:none; margin-top: 20px; border: 2px solid #f39c12; background: #fffdfa;">
-                <h4 style="color: #f39c12;"><i class="fa-solid fa-lock"></i> Xác thực thay đổi liên hệ</h4>
-                <form action="profile" method="POST">
-                    <input type="hidden" name="action" value="requestChangeContact">
-                    <div class="form-group">
-                        <label>Mật khẩu hiện tại:</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email mới:</label>
-                        <input type="email" name="newEmail" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Số điện thoại mới:</label>
-                        <input type="text" name="newPhone" class="form-control" required pattern="^(03|05|07|08|09)\d{8}$">
-                    </div>
-                    <div class="btn-row">
-                        <button type="submit" class="btn-submit-addr" style="background-color: #f39c12;">Nhận mã OTP</button>
-                        <button type="button" class="btn-cancel-addr" onclick="document.getElementById('securityModal').style.display='none'">Hủy</button>
-                    </div>
-                </form>
-            </div>
-
-            <c:if test="${sessionScope.showOtpModal}">
-                <div id="otpModal" class="add-address-box" style="margin-top: 20px; border: 2px solid #27ae60; background: #f4fbf7;">
-                    <h4 style="color: #27ae60;"><i class="fa-solid fa-key"></i> Nhập mã OTP</h4>
-                    <p style="font-size: 13px; color: #555;">Mã OTP đã được gửi đến: <b>${sessionScope.pendingEmail}</b></p>
-                    <form action="profile" method="POST">
-                        <input type="hidden" name="action" value="verifyContactOtp">
-                        <div class="form-group">
-                            <input type="text" name="otp" class="form-control" placeholder="Nhập mã 6 số" required maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 5px;">
-                        </div>
-                        <div class="btn-row">
-                            <button type="submit" class="btn-submit-addr" style="background-color: #27ae60;">Xác nhận OTP</button>
-                            <a href="profile" class="btn-cancel-addr" style="text-decoration: none; text-align: center;">Hủy</a>
-                        </div>
-                    </form>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <h4 style="margin: 0;">Đổi mật khẩu</h4>
+                    <button type="button" class="btn-add-address" onclick="openOverlayModal('passwordOverlayModal')" style="background-color: #d0011b; border-color: #d0011b;">
+                        <i class="fa-solid fa-lock"></i> Đổi Mật Khẩu Mới
+                    </button>
                 </div>
-                <c:remove var="showOtpModal" scope="session"/>
-            </c:if>
+
+                <div id="passwordOverlayModal" class="overlay-modal">
+                    <div class="overlay-modal-content" style="border-top: 5px solid #d0011b;">
+                        <i class="fa-solid fa-xmark close-modal-btn" onclick="closeOverlayModal('passwordOverlayModal')"></i>
+                        <h4 style="color: #d0011b; margin-top: 0;"><i class="fa-solid fa-shield-halved"></i> Cập Nhật Mật Khẩu</h4>
+                        <form action="profile" method="POST">
+                            <input type="hidden" name="action" value="changePassword">
+
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="oldPasswordInput" name="oldPassword" class="form-control" required style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('oldPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <c:if test="${sessionScope.activeModal == 'passwordOverlayModal' && not empty sessionScope.error}">
+                                    <span style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"><i class="fa-solid fa-circle-exclamation"></i> ${sessionScope.error}</span>
+                                    <c:remove var="error" scope="session"/>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mật khẩu mới:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="newPasswordInput" name="newPassword" class="form-control" required placeholder="Tối thiểu 8 ký tự, gồm chữ và số" style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('newPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <span id="newPasswordError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu mới:</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="confirmPasswordInput" name="confirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu mới" style="padding-right: 40px; margin-bottom: 0;">
+                                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('confirmPasswordInput', this)" style="position: absolute; right: 15px; top: 12px; cursor: pointer; color: #888;"></i>
+                                </div>
+                                <span id="confirmPasswordError" style="color: #d0011b; font-size: 13px; margin-top: 5px; display: block;"></span>
+                            </div>
+
+                            <button type="submit" id="btnSubmitPassword" class="btn-submit-addr" style="background-color: #d0011b; width: 100%;" disabled>Nhận mã OTP Xác Thực</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="address-column">
                 <div class="address-header">
@@ -290,163 +392,19 @@
     </div>
 </div>
 
+
+<jsp:include page="../WEB-INF/tags/footer.jsp" />
+
 <script>
-    const host = "https://provinces.open-api.vn/api/";
-
-
-    var callAPI = (api) => {
-        return fetch(api).then((response) => response.json()).then((data) => {
-            data.sort((a, b) => a.name.localeCompare(b.name));
-            let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
-            data.forEach(element => { row += `<option value="\${element.code}">\${element.name}</option>`; });
-            document.querySelector("#province").innerHTML = row;
-        });
-    }
-
-    var callApiDistrict = (api) => {
-        return fetch(api).then((response) => response.json()).then((data) => {
-            let districts = data.districts;
-            districts.sort((a, b) => a.name.localeCompare(b.name));
-            let row = '<option value="">Chọn Quận/Huyện</option>';
-            districts.forEach(element => { row += `<option value="\${element.code}">\${element.name}</option>`; });
-            document.querySelector("#district").innerHTML = row;
-            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        });
-    }
-
-    var callApiWard = (api) => {
-        return fetch(api).then((response) => response.json()).then((data) => {
-            let wards = data.wards;
-            wards.sort((a, b) => a.name.localeCompare(b.name));
-            let row = '<option value="">Chọn Phường/Xã</option>';
-            wards.forEach(element => { row += `<option value="\${element.code}">\${element.name}</option>`; });
-            document.querySelector("#ward").innerHTML = row;
-        });
-    }
-
-    callAPI(host + "?depth=1");
-
-    document.querySelector("#province").addEventListener("change", function() {
-        let code = this.value;
-        if(code) callApiDistrict(host + "p/" + code + "?depth=2");
-        else {
-            document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-            document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        }
-    });
-
-    document.querySelector("#district").addEventListener("change", function() {
-        let code = this.value;
-        if(code) callApiWard(host + "d/" + code + "?depth=2");
-        else document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-    });
-
-    document.querySelector("#addAddressForm form").addEventListener("submit", function() {
-        const pSelect = document.querySelector("#province");
-        const dSelect = document.querySelector("#district");
-        const wSelect = document.querySelector("#ward");
-        document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
-        document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
-        document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
-    });
-
-
-
-    async function openEditModal(id, name, phone, streetDetail, wardName, districtName, provinceName) {
-        document.getElementById('editAddressModal').style.display = 'block';
-
-        document.getElementById('edit_id').value = id;
-        document.getElementById('edit_name').value = name;
-        document.getElementById('edit_phone').value = phone;
-        document.getElementById('edit_streetDetail').value = streetDetail;
-
-        let pSelect = document.querySelector("#edit_province");
-        let dSelect = document.querySelector("#edit_district");
-        let wSelect = document.querySelector("#edit_ward");
-
-        let pRes = await fetch(host + "?depth=1");
-        let provinces = await pRes.json();
-        pSelect.innerHTML = '<option value="">Chọn Tỉnh/Thành phố</option>';
-        let matchedProvCode = "";
-
-        provinces.sort((a, b) => a.name.localeCompare(b.name)).forEach(p => {
-            pSelect.innerHTML += `<option value="\${p.code}">\${p.name}</option>`;
-            if(p.name === provinceName) matchedProvCode = p.code;
-        });
-
-        if (matchedProvCode) {
-            pSelect.value = matchedProvCode;
-            let dRes = await fetch(host + "p/" + matchedProvCode + "?depth=2");
-            let dData = await dRes.json();
-            dSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-            let matchedDistCode = "";
-
-            dData.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
-                dSelect.innerHTML += `<option value="\${d.code}">\${d.name}</option>`;
-                if(d.name === districtName) matchedDistCode = d.code;
-            });
-
-            if (matchedDistCode) {
-                dSelect.value = matchedDistCode;
-                let wRes = await fetch(host + "d/" + matchedDistCode + "?depth=2");
-                let wData = await wRes.json();
-                wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-
-                wData.wards.sort((a, b) => a.name.localeCompare(b.name)).forEach(w => {
-                    wSelect.innerHTML += `<option value="\${w.code}">\${w.name}</option>`;
-                    if(w.name === wardName) wSelect.value = w.code;
-                });
-            }
-        }
-    }
-
-    document.querySelector("#edit_province").addEventListener("change", async function() {
-        let code = this.value;
-        let dSelect = document.querySelector("#edit_district");
-        let wSelect = document.querySelector("#edit_ward");
-        dSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-        wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-
-        if(code) {
-            let res = await fetch(host + "p/" + code + "?depth=2");
-            let data = await res.json();
-            data.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
-                dSelect.innerHTML += `<option value="\${d.code}">\${d.name}</option>`;
-            });
-        }
-    });
-
-    document.querySelector("#edit_district").addEventListener("change", async function() {
-        let code = this.value;
-        let wSelect = document.querySelector("#edit_ward");
-        wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-
-        if(code) {
-            let res = await fetch(host + "d/" + code + "?depth=2");
-            let data = await res.json();
-            data.wards.sort((a, b) => a.name.localeCompare(b.name)).forEach(w => {
-                wSelect.innerHTML += `<option value="\${w.code}">\${w.name}</option>`;
-            });
-        }
-    });
-
-    document.querySelector("#editAddressModal form").addEventListener("submit", function(e) {
-        const pSelect = document.querySelector("#edit_province");
-        const dSelect = document.querySelector("#edit_district");
-        const wSelect = document.querySelector("#edit_ward");
-
-        document.querySelector("#edit_provinceName").value = pSelect.options[pSelect.selectedIndex].text;
-        document.querySelector("#edit_districtName").value = dSelect.options[dSelect.selectedIndex].text;
-        document.querySelector("#edit_wardName").value = wSelect.options[wSelect.selectedIndex].text;
-    });
-
-
-    document.querySelectorAll("input[name='new_phone'], input[name='edit_phone']").forEach(input => {
-        input.addEventListener("input", function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
-            if (this.value.length > 10) this.value = this.value.slice(0, 10);
-        });
-    });
+    const contextPath = '${pageContext.request.contextPath}';
+    const activeModalFromJava = '${sessionScope.activeModal}';
 </script>
+<c:remove var="activeModal" scope="session"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/addressesProfile.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/avatarProfile.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/profile.js"></script>
+
 </body>
 </html>
