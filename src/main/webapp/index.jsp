@@ -255,7 +255,7 @@
 
 
     <div class="button-bst-container">
-        <button id="tab-featured" class="active">Tất cả</button> <!-- đặt tab nổi bật làm mặc định -->
+        <button id="tab-featured" class="active">Tất cả</button>
         <button id="tab-men">Đồng hồ nam</button>
         <button id="tab-women">Đồng hồ nữ</button>
     </div>

@@ -56,8 +56,7 @@ public class ProductDAO {
 
     public List<Product> getMenProducts() {
         List<Product> list = new ArrayList<>();
-        // Dùng LIKE '%Nam%' để tìm sản phẩm có chứa chữ Nam
-        String query = "SELECT * FROM Products WHERE Name LIKE '%Nam%' ORDER BY CreatedAt DESC";
+        String query = "SELECT * FROM Products WHERE Name LIKE '%Nam%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ORDER BY CreatedAt DESC";
 
         try {
             conn = new DBContext().getConnection();
@@ -75,8 +74,7 @@ public class ProductDAO {
 
     public List<Product> getWomenProducts() {
         List<Product> list = new ArrayList<>();
-
-        String query = "SELECT * FROM Products WHERE Name LIKE '%Nữ%' ORDER BY CreatedAt DESC";
+        String query = "SELECT * FROM Products WHERE Name LIKE '%Nữ%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ORDER BY CreatedAt DESC";
 
         try {
             conn = new DBContext().getConnection();
@@ -94,7 +92,6 @@ public class ProductDAO {
 
     public List<Product> getLuxuryProducts() {
         List<Product> list = new ArrayList<>();
-
         String query = "SELECT * FROM Products WHERE IsLuxury = 1 ORDER BY CreatedAt DESC";
 
         try {
@@ -208,7 +205,7 @@ public class ProductDAO {
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
-            String searchPattern = "%" + keyword + "%"; // Thêm % để tìm kiếm gần đúng
+            String searchPattern = "%" + keyword + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
             rs = ps.executeQuery();
@@ -229,10 +226,10 @@ public class ProductDAO {
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
-            ps.setString(1, "%" + brandName + "%"); // Tìm gần đúng
+            ps.setString(1, "%" + brandName + "%");
             rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapProduct(rs)); // Giả sử bạn có hàm mapProduct để đỡ viết lại code set thuộc tính
+                list.add(mapProduct(rs));
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
@@ -282,6 +279,113 @@ public class ProductDAO {
                 if (conn != null) conn.close();
             } catch (SQLException e) { e.printStackTrace(); }
         }
+    }
+
+    public Map<String, String> getAllBrandsWithLogo() {
+        Map<String, String> brandMap = new java.util.LinkedHashMap<>();
+        String query = "SELECT Name, LogoURL FROM Brands ORDER BY Name ASC";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+            while(rs.next()) {
+                brandMap.put(rs.getString("Name"), rs.getString("LogoURL"));
+            }
+        } catch(Exception e) { e.printStackTrace(); }
+        return brandMap;
+    }
+
+    // dùng bộ lọc động để nối câu query các lựa chọn
+    public List<Product> filterProducts(String[] types, String priceRange, String[] brands, String[] genders, String collection) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT DISTINCT p.* FROM Products p ");
+
+        if (brands != null && brands.length > 0) {
+            query.append("JOIN Brands b ON p.BrandID = b.BrandID ");
+        }
+        query.append("WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (types != null && types.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < types.length; i++) {
+                String type = types[i];
+
+                if ("Đồng hồ".equalsIgnoreCase(type)) {
+                    query.append("(p.Name LIKE '%Đồng hồ%' AND p.Name NOT LIKE '%Dây%' AND p.Name NOT LIKE '%Hộp%')");
+                }
+                else if ("Phụ kiện".equalsIgnoreCase(type)) {
+                    query.append("(p.Name LIKE '%Dây%' OR p.Name LIKE '%Hộp%')");
+                }
+                else {
+                    query.append("p.Name LIKE ?");
+                    params.add("%" + type + "%");
+                }
+
+                if (i < types.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        if (priceRange != null && !priceRange.isEmpty()) {
+            switch (priceRange) {
+                case "under1": query.append("AND p.CurrentPrice < 1000000 "); break;
+                case "1to3": query.append("AND p.CurrentPrice BETWEEN 1000000 AND 3000000 "); break;
+                case "3to6": query.append("AND p.CurrentPrice BETWEEN 3000000 AND 6000000 "); break;
+                case "6to9": query.append("AND p.CurrentPrice BETWEEN 6000000 AND 9000000 "); break;
+                case "9to15": query.append("AND p.CurrentPrice BETWEEN 9000000 AND 15000000 "); break;
+                case "over15": query.append("AND p.CurrentPrice > 15000000 "); break;
+            }
+        }
+
+        if (brands != null && brands.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < brands.length; i++) {
+                query.append("b.Name LIKE ?");
+                params.add("%" + brands[i] + "%");
+                if (i < brands.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        if (genders != null && genders.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < genders.length; i++) {
+                if ("Unisex".equalsIgnoreCase(genders[i])) {
+                    query.append("(p.Name LIKE '%Nam%' OR p.Name LIKE '%Nữ%')");
+                } else {
+                    query.append("p.Name LIKE ?");
+                    params.add("%" + genders[i] + "%");
+                }
+                if (i < genders.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        String orderBy = "ORDER BY p.CreatedAt DESC";
+
+        if (collection != null && !collection.isEmpty()) {
+            if ("luxury".equals(collection)) {
+                query.append("AND p.IsLuxury = 1 ");
+            } else if ("banchay".equals(collection)) {
+                orderBy = "ORDER BY p.SoldQuantity DESC ";
+            }
+        }
+
+        query.append(orderBy);
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
 }
 
