@@ -108,7 +108,7 @@
         <nav class="main-nav">
             <ul>
                 <li class="nav-item-has-dropdown">
-                    <a href="category?type=search&keyword=" class="link-yellow">Đồng hồ<i class="fa-solid fa-chevron-down"></i></a>
+                    <a href="category?type=dongho" class="link-yellow">Đồng hồ<i class="fa-solid fa-chevron-down"></i></a>
                     <div class="megamenu megamenu-dongho" style="width: 900px; padding: 25px;">
                         <div style="display: grid; grid-template-columns: 1fr 2.5fr 1fr; gap: 40px;">
 

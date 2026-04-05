@@ -34,7 +34,6 @@ public class GoogleLoginServlet extends HttpServlet {
             user = new User();
             user.setEmail(email);
             user.setFullName(name);
-
             userDAO.insertGoogleUser(user);
 
 
