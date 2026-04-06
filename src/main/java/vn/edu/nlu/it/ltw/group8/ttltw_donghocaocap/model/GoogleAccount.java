@@ -4,6 +4,9 @@ public class GoogleAccount {
     private String  id, email, name, first_name, given_name, family_name, picture;
     private boolean verified_email;
 
+    public GoogleAccount() {
+    }
+
     public GoogleAccount(String id, String email, String name, String first_name, String given_name, String family_name, String picture, boolean verified_email) {
         this.id = id;
         this.email = email;

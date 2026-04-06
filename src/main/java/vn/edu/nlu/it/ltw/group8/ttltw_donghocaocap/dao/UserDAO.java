@@ -390,39 +390,57 @@ public class UserDAO {
 
     public User getUserByEmail(String email){
         User user = null;
-        String query = "SELECT * FROM users WHERE Email = ?";
-
-        try{
+        String query = "SELECT * FROM Users WHERE Email = ?";
+        try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
             ps.setString(1, email);
-            ResultSet resultSet = ps.executeQuery();
-
-            if (rs.next()) {
-                user = new User();
-                user.setId(rs.getInt("id"));
-                user.setEmail(rs.getString("email"));
-                user.setFullName(rs.getString("name"));
-
-            }
+            rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // đóng kết nối để không bị tràn RAM
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         return user;
     }
+
     public void insertGoogleUser(User user) {
-        String query = "INSERT INTO Users (email, name, avatar, auth_provider) VALUES (?, ?, ?, 'GOOGLE')";
+        // tự động cắt chuỗi email làm Username
+        String email = user.getEmail();
+        String autoUsername = email.substring(0, email.indexOf("@"));
 
-        try {
-            conn = new DBContext().getConnection();
-            PreparedStatement ps = conn.prepareStatement(query);
+        // tạo một mật khẩu ngẫu nhiên (bằng UUID) và mã hóa nó bằng BCrypt
+        String randomPass = java.util.UUID.randomUUID().toString();
+        String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(randomPass, org.mindrot.jbcrypt.BCrypt.gensalt(12));
 
-                ps.setString(1, user.getEmail());
-                ps.setString(2, user.getFullName());
-                ps.executeUpdate();
+        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Avatar) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
 
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setString(1, autoUsername);
+            ps.setString(2, hashedPassword);
+            ps.setString(3, email);
+            ps.setString(4, user.getFullName());
+            ps.setString(5, user.getAvatar());
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println(">>> Đăng ký thành công tài khoản Google cho: " + email);
+            }
 
         } catch (Exception e) {
+            System.out.println(">>> LỖI KHI INSERT GOOGLE USER:");
             e.printStackTrace();
         }
     }
