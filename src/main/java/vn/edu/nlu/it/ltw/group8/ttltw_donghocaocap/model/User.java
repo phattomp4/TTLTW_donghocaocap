@@ -2,7 +2,6 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 
 import java.io.Serializable;
 
-//Serializable ảm bảo toàn vẹn dữ liệu
 public class User  implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
