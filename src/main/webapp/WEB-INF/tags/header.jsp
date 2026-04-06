@@ -177,9 +177,9 @@
 
                                 <c:forEach items="${menuAccessories}" var="cat">
                                     <li style="margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
-                                        <a href="${pageContext.request.contextPath}/category?type=search&keyword=${cat.name}"
+                                        <a href="${pageContext.request.contextPath}/category?type=accessories&name=${cat.name}"
                                            style="color: #333; text-decoration: none; font-size: 14px; display: block;">
-                                             ${cat.name}
+                                                ${cat.name}
                                         </a>
                                     </li>
                                 </c:forEach>

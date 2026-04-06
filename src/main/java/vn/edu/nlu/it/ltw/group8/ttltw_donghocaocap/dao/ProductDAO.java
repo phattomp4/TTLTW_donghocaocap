@@ -296,7 +296,7 @@ public class ProductDAO {
     }
 
     // dùng bộ lọc động để nối câu query các lựa chọn
-    public List<Product> filterProducts(String[] types, String priceRange, String[] brands, String[] genders, String collection) {
+    public List<Product> filterProducts(String[] types, String priceRange, String[] brands, String[] genders, String collection, int limit, int offset) {
         List<Product> list = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT DISTINCT p.* FROM Products p ");
 
@@ -362,7 +362,7 @@ public class ProductDAO {
             query.append(") ");
         }
 
-        String orderBy = "ORDER BY p.CreatedAt DESC";
+        String orderBy = "ORDER BY p.CreatedAt DESC ";
 
         if (collection != null && !collection.isEmpty()) {
             if ("luxury".equals(collection)) {
@@ -373,6 +373,10 @@ public class ProductDAO {
         }
 
         query.append(orderBy);
+
+        query.append("LIMIT ? OFFSET ? ");
+        params.add(limit);
+        params.add(offset);
 
         try {
             conn = new DBContext().getConnection();
@@ -386,6 +390,89 @@ public class ProductDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
+    }
+
+    // đếm tổng số lượng sản phẩm sau khi lọc
+    public int getTotalFilteredProducts(String[] types, String priceRange, String[] brands, String[] genders, String collection) {
+
+        StringBuilder query = new StringBuilder("SELECT COUNT(DISTINCT p.ProductID) FROM Products p ");
+
+        if (brands != null && brands.length > 0) {
+            query.append("JOIN Brands b ON p.BrandID = b.BrandID ");
+        }
+        query.append("WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (types != null && types.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < types.length; i++) {
+                String type = types[i];
+                if ("Đồng hồ".equalsIgnoreCase(type)) {
+                    query.append("(p.Name LIKE '%Đồng hồ%' AND p.Name NOT LIKE '%Dây%' AND p.Name NOT LIKE '%Hộp%')");
+                } else if ("Phụ kiện".equalsIgnoreCase(type)) {
+                    query.append("(p.Name LIKE '%Dây%' OR p.Name LIKE '%Hộp%')");
+                } else {
+                    query.append("p.Name LIKE ?");
+                    params.add("%" + type + "%");
+                }
+                if (i < types.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        if (priceRange != null && !priceRange.isEmpty()) {
+            switch (priceRange) {
+                case "under1": query.append("AND p.CurrentPrice < 1000000 "); break;
+                case "1to3": query.append("AND p.CurrentPrice BETWEEN 1000000 AND 3000000 "); break;
+                case "3to6": query.append("AND p.CurrentPrice BETWEEN 3000000 AND 6000000 "); break;
+                case "6to9": query.append("AND p.CurrentPrice BETWEEN 6000000 AND 9000000 "); break;
+                case "9to15": query.append("AND p.CurrentPrice BETWEEN 9000000 AND 15000000 "); break;
+                case "over15": query.append("AND p.CurrentPrice > 15000000 "); break;
+            }
+        }
+
+        if (brands != null && brands.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < brands.length; i++) {
+                query.append("b.Name LIKE ?");
+                params.add("%" + brands[i] + "%");
+                if (i < brands.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        if (genders != null && genders.length > 0) {
+            query.append("AND (");
+            for (int i = 0; i < genders.length; i++) {
+                if ("Unisex".equalsIgnoreCase(genders[i])) {
+                    query.append("(p.Name LIKE '%Nam%' OR p.Name LIKE '%Nữ%')");
+                } else {
+                    query.append("p.Name LIKE ?");
+                    params.add("%" + genders[i] + "%");
+                }
+                if (i < genders.length - 1) query.append(" OR ");
+            }
+            query.append(") ");
+        }
+
+        if (collection != null && !collection.isEmpty()) {
+            if ("luxury".equals(collection)) {
+                query.append("AND p.IsLuxury = 1 ");
+            }
+        }
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
     }
 }
 
