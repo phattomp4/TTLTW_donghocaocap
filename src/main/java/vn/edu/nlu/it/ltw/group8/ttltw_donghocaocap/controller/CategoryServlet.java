@@ -130,9 +130,18 @@ public class CategoryServlet extends HttpServlet {
                 } else if ("nu".equals(legacyType)) {
                     gendersList.add("Nữ");
                     typesList.add("Đồng hồ");
-                } else if ("accessories".equals(legacyType)) {
-                    typesList.add("Phụ kiện");
-                    request.setAttribute("isAccessoryOnly", true);
+                } else if ("accessories".equals(legacyType) || "Dây".equalsIgnoreCase(legacyType) || "Hộp".equalsIgnoreCase(legacyType)) {
+                    String nameCheck = (legacyName != null) ? legacyName.toLowerCase() : "";
+
+                    if ("Dây".equalsIgnoreCase(legacyType) || nameCheck.contains("dây") || nameCheck.contains("day")) {
+                        typesList.add("Dây");
+                    }
+                    else if ("Hộp".equalsIgnoreCase(legacyType) || nameCheck.contains("hộp") || nameCheck.contains("hop")) {
+                        typesList.add("Hộp");
+                    }
+                    else {
+                        typesList.add("Phụ kiện");
+                    }
                 }
                 else if ("dongho".equals(legacyType)) {
                     typesList.add("Đồng hồ");
@@ -160,12 +169,41 @@ public class CategoryServlet extends HttpServlet {
         }
 
         Map<String, String> mapBrands = dao.getAllBrandsWithLogo();
-        List<Product> list = dao.filterProducts(
+
+        int page = 1;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (Exception e) {
+                page = 1; // nếu user cố tình nhập chữ cái vào URL thì đưa về trang 1
+            }
+        }
+        int limit = 16;
+        int offset = (page - 1) * limit;
+
+        // gọi hàm đếm tổng số sản phẩm để tính số trang
+        int totalProducts = dao.getTotalFilteredProducts(
                 typesList.isEmpty() ? null : typesList.toArray(new String[0]),
                 priceFilter,
                 brandsList.isEmpty() ? null : brandsList.toArray(new String[0]),
                 gendersList.isEmpty() ? null : gendersList.toArray(new String[0]),
                 collectionFilter
+        );
+
+        int endPage = totalProducts / limit;
+        if (totalProducts % limit != 0) {
+            endPage++;
+        }
+
+        List<Product> list = dao.filterProducts(
+                typesList.isEmpty() ? null : typesList.toArray(new String[0]),
+                priceFilter,
+                brandsList.isEmpty() ? null : brandsList.toArray(new String[0]),
+                gendersList.isEmpty() ? null : gendersList.toArray(new String[0]),
+                collectionFilter,
+                limit,
+                offset
         );
 
         request.setAttribute("selectedTypes", String.join(",", typesList));
@@ -175,9 +213,15 @@ public class CategoryServlet extends HttpServlet {
         request.setAttribute("selectedCollection", collectionFilter);
         request.setAttribute("isAccessoryOnly", isAccessoryOnly);
         request.setAttribute("mapBrands", mapBrands);
+
         request.setAttribute("listProduct", list);
         request.setAttribute("pageTitle", title);
 
+        request.setAttribute("tag", page);
+        request.setAttribute("endP", endPage);
+        System.out.println("DEBUG: totalProducts = " + totalProducts);
+        System.out.println("DEBUG: endPage = " + endPage);
+        System.out.println("DEBUG: currentTag = " + page);
         request.getRequestDispatcher("product-list.jsp").forward(request, response);
     }
 }
