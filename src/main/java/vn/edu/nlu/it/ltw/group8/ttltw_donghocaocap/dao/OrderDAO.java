@@ -213,24 +213,31 @@ public class OrderDAO {
         return null;
     }
 
-    public void updateOrderStatus(int orderId, String status) {
-        String query = "UPDATE orders SET Status = ? WHERE OrderID = ?";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
-            ps.setString(1, status);
-            ps.setInt(2, orderId);
-            ps.executeUpdate();
+    public void updateOrderStatus(int orderId, String newStatus, String note) {
+        String updateOrder = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
+        String insertLog = "INSERT INTO OrderLogs (OrderID, Status, Note) VALUES (?, ?, ?)";
+
+        try (Connection conn = new DBContext().getConnection()) {
+            conn.setAutoCommit(false);
+
+            // 1. Cập nhật bảng Order
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateOrder)) {
+                psUpdate.setString(1, newStatus);
+                psUpdate.setInt(2, orderId);
+                psUpdate.executeUpdate();
+            }
+
+            // 2. Ghi Log
+            try (PreparedStatement psLog = conn.prepareStatement(insertLog)) {
+                psLog.setInt(1, orderId);
+                psLog.setString(2, newStatus);
+                psLog.setString(3, note);
+                psLog.executeUpdate();
+            }
+
+            conn.commit();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) { e.printStackTrace(); }
         }
     }
     public boolean requestCancelOrderSafe(int orderId, int userId) {
@@ -307,5 +314,31 @@ public class OrderDAO {
         }
         return list;
     }
+
+    public List<OrderLog> getOrderLog(int orderId){
+        List<OrderLog> list = new ArrayList<>();
+        String sql = "SELECT * FROM OrderLogs WHERE OrderID = ? ORDER BY CreatedAt DESC";
+        try (Connection conn = new DBContext().getConnection()){
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, orderId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                while(resultSet.next()){
+                    OrderLog orderLog = new OrderLog();
+                    orderLog.setOrderId(resultSet.getInt("OrderID"));
+                    orderLog.setStatus(resultSet.getString("Status"));
+                    orderLog.setNote(resultSet.getString("Note"));
+                    orderLog.setCreatedAt(resultSet.getTimestamp("CreatedAt"));
+                    list.add(orderLog);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+
 
 }

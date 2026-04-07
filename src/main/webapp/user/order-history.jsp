@@ -46,12 +46,26 @@
             text-transform: uppercase;
         }
 
-        .status-pending { background: #fff3cd; color: #856404; } /* Chờ xử lý */
-        .status-processing { background: #cce5ff; color: #004085; } /* Đang chuẩn bị hàng */
-        .status-shipping { background: #d1ecf1; color: #0c5460; } /* Đang giao */
-        .status-completed { background: #d4edda; color: #155724; } /* Thành công */
-        .status-cancelled { background: #f8d7da; color: #721c24; } /* Đã hủy */
-
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-shipping {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
         .btn-view {
             padding: 6px 15px;
             border: 1px solid #1b6e76;
@@ -69,18 +83,26 @@
             display: flex;
             margin-bottom: 20px;
             border-bottom: 2px solid #ddd;
+            width: 100%;
         }
+
         .order-tabs a {
-            padding: 10px 20px;
+            flex: 1;
+            text-align: center;
+            padding: 12px 5px;
             text-decoration: none;
             color: #555;
             font-weight: bold;
             border-bottom: 3px solid transparent;
             transition: 0.3s;
+            font-size: 14px;
         }
+
         .order-tabs a:hover {
             color: #1b6e76;
+            background-color: #f9f9f9;
         }
+
         .order-tabs a.active {
             color: #1b6e76;
             border-bottom: 3px solid #1b6e76;
