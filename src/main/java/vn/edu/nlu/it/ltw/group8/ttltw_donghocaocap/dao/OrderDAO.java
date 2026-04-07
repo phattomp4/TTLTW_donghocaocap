@@ -51,9 +51,8 @@ public class OrderDAO {
                 psDetail.setInt(2, item.getProduct().getId());
                 psDetail.setInt(3, item.getQuantity());
                 psDetail.setDouble(4, item.getProduct().getCurrentPrice());
-                psDetail.addBatch(); // gom lệnh lại chạy 1 lần
+                psDetail.addBatch();
 
-                // Trừ tồn kho, tăng đã bán
                 psUpdateProduct.setInt(1, item.getQuantity());
                 psUpdateProduct.setInt(2, item.getQuantity());
                 psUpdateProduct.setInt(3, item.getProduct().getId());
@@ -87,7 +86,6 @@ public class OrderDAO {
         }
     }
 
-    // Lấy danh sách đơn hàng của 1 User
     public List<Order> getOrdersByUserId(int userId) {
         List<Order> list = new ArrayList<>();
         Connection conn = null;
@@ -116,8 +114,7 @@ public class OrderDAO {
         return list;
     }
 
-    // Lấy chi tiết sản phẩm của 1 đơn hàng
-        // Lấy số lượng SP trước
+
     public int countProductsInOrder(int orderId) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -135,7 +132,6 @@ public class OrderDAO {
         return 0;
     }
 
-       // Lấy danh sách chi tiết đơn hàng
     public List<OrderDetail> getOrderDetails(int orderId) {
         List<OrderDetail> list = new ArrayList<>();
         String query = "SELECT od.*, p.Name, " +
@@ -188,7 +184,6 @@ public class OrderDAO {
     }
 
 
-    // lấy thông tin 1 đơn hàng theo ID
     public Order getOrderById(int orderId) {
         String query = "SELECT * FROM orders WHERE OrderID = ?";
         Connection conn = null;
@@ -218,7 +213,6 @@ public class OrderDAO {
         return null;
     }
 
-    // Cập nhật trạng thái đơn hàng
     public void updateOrderStatus(int orderId, String status) {
         String query = "UPDATE orders SET Status = ? WHERE OrderID = ?";
         Connection conn = null;
@@ -238,6 +232,80 @@ public class OrderDAO {
                 if (conn != null) conn.close();
             } catch (SQLException e) { e.printStackTrace(); }
         }
+    }
+    public boolean requestCancelOrderSafe(int orderId, int userId) {
+        String sql = "UPDATE Orders SET Status = 'Request Cancel' " +
+                "WHERE OrderID = ? AND UserID = ? AND Status IN ('Pending', 'Processing')";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int countOrdersByStatus(int userId, String status) {
+        String sql = "SELECT COUNT(*) FROM Orders WHERE UserID = ?";
+        if (status != null && !status.equals("all")) {
+            sql += " AND Status = ?";
+        }
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            if (status != null && !status.equals("all")) {
+                ps.setString(2, status);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Order> getOrdersWithPagination(int userId, String status, int offset, int limit) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM Orders WHERE UserID = ?";
+
+        if (status != null && !status.equals("all")) {
+            sql += " AND Status = ?";
+        }
+        sql += " ORDER BY OrderDate DESC LIMIT ? OFFSET ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, userId);
+
+            if (status != null && !status.equals("all")) {
+                ps.setString(paramIndex++, status);
+            }
+
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order();
+                    o.setOrderId(rs.getInt("OrderID"));
+                    o.setUserId(rs.getInt("UserID"));
+                    o.setOrderDate(rs.getTimestamp("OrderDate"));
+                    o.setTotalAmount(rs.getDouble("TotalAmount"));
+                    o.setStatus(rs.getString("Status"));
+                    o.setPaymentMethod(rs.getString("PaymentMethod"));
+                    o.setPaymentStatus(rs.getString("PaymentStatus"));
+                    list.add(o);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
 }

@@ -25,31 +25,43 @@ public class OrderHistoryServlet extends HttpServlet {
             return;
         }
 
-        // Lấy danh sách đơn hàng
         OrderDAO dao = new OrderDAO();
-        List<Order> listOrders = dao.getOrdersByUserId(acc.getId());
 
-        // hủy đơn
+        String status = request.getParameter("status");
+        if (status == null || status.isEmpty()) status = "all";
+
+        int page = 1;
+        int limit = 5;
+        if (request.getParameter("page") != null) {
+            try {
+                page = Integer.parseInt(request.getParameter("page"));
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        int offset = (page - 1) * limit;
+
         String action = request.getParameter("action");
         if ("requestCancel".equals(action)) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
-                Order order = dao.getOrderById(orderId);
-
-                // Chỉ hủy đơn của chính mình và đúng trạng thái mới cho hủy
-                if (order != null && order.getUserId() == acc.getId()) {
-                    if ("Pending".equals(order.getStatus()) || "Processing".equals(order.getStatus())) {
-                        dao.updateOrderStatus(orderId, "Request Cancel");
-                    }
-                }
+                dao.requestCancelOrderSafe(orderId, acc.getId());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            // Load lại trang để thấy trạng thái mới
-            response.sendRedirect("order-history");
+            response.sendRedirect("order-history?status=" + status + "&page=" + page);
             return;
         }
+
+        List<Order> listOrders = dao.getOrdersWithPagination(acc.getId(), status, offset, limit);
+        int totalOrders = dao.countOrdersByStatus(acc.getId(), status);
+        int totalPages = (int) Math.ceil((double) totalOrders / limit);
+
         request.setAttribute("listOrders", listOrders);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("currentStatus", status);
+
         request.getRequestDispatcher("user/order-history.jsp").forward(request, response);
     }
 }
