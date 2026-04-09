@@ -2,10 +2,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.UserAddress;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -33,7 +30,6 @@ public class OrderDetailServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             UserDAO userDAO = new UserDAO();
 
-            // Lấy thông tin đơn hàng
             Order order = orderDAO.getOrderById(orderId);
 
             if (order == null || order.getUserId() != acc.getId()) {
@@ -41,14 +37,16 @@ public class OrderDetailServlet extends HttpServlet {
                 return;
             }
 
-            // Lấy địa chỉ giao hàng
             UserAddress address = userDAO.getAddressById(order.getShippingAddressId());
 
-            // Lấy danh sách sản phẩm
             List<OrderDetail> details = orderDAO.getOrderDetails(orderId);
+
+            List<OrderLog> logs = orderDAO.getOrderLog(orderId);
+
             request.setAttribute("order", order);
             request.setAttribute("address", address);
             request.setAttribute("details", details);
+            request.setAttribute("logs", logs);
 
             request.getRequestDispatcher("user/order-detail.jsp").forward(request, response);
 

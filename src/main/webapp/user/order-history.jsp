@@ -46,13 +46,26 @@
             text-transform: uppercase;
         }
 
-        /* Màu sắc cho từng trạng thái */
-        .status-pending { background: #fff3cd; color: #856404; } /* Chờ xử lý */
-        .status-processing { background: #cce5ff; color: #004085; } /* Đang chuẩn bị hàng */
-        .status-shipping { background: #d1ecf1; color: #0c5460; } /* Đang giao */
-        .status-completed { background: #d4edda; color: #155724; } /* Thành công */
-        .status-cancelled { background: #f8d7da; color: #721c24; } /* Đã hủy */
-
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-shipping {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
         .btn-view {
             padding: 6px 15px;
             border: 1px solid #1b6e76;
@@ -66,6 +79,53 @@
             background: #1b6e76;
             color: #fff;
         }
+        .order-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            width: 100%;
+        }
+
+        .order-tabs a {
+            flex: 1;
+            text-align: center;
+            padding: 12px 5px;
+            text-decoration: none;
+            color: #555;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .order-tabs a:hover {
+            color: #1b6e76;
+            background-color: #f9f9f9;
+        }
+
+        .order-tabs a.active {
+            color: #1b6e76;
+            border-bottom: 3px solid #1b6e76;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: #333;
+            border-radius: 4px;
+        }
+        .pagination a.active, .pagination a:hover {
+            background: #1b6e76;
+            color: white;
+            border-color: #1b6e76;
+        }
     </style>
 </head>
 <body>
@@ -74,7 +134,14 @@
 
 <div class="order-container">
     <h2 style="border-left: 5px solid #1b6e76; padding-left: 10px;">Lịch sử đơn hàng</h2>
-
+    <div class="order-tabs">
+        <a href="order-history?status=all" class="${currentStatus == 'all' ? 'active' : ''}">Tất cả</a>
+        <a href="order-history?status=Pending" class="${currentStatus == 'Pending' ? 'active' : ''}">Chờ xác nhận</a>
+        <a href="order-history?status=Processing" class="${currentStatus == 'Processing' ? 'active' : ''}">Đang chuẩn bị</a>
+        <a href="order-history?status=Shipping" class="${currentStatus == 'Shipping' ? 'active' : ''}">Đang giao</a>
+        <a href="order-history?status=Completed" class="${currentStatus == 'Completed' ? 'active' : ''}">Đã giao</a>
+        <a href="order-history?status=Cancelled" class="${currentStatus == 'Cancelled' ? 'active' : ''}">Đã hủy</a>
+    </div>
     <c:if test="${empty listOrders}">
         <div style="text-align: center; padding: 50px; color: #777;">
             <i class="fa-solid fa-box-open" style="font-size: 50px; margin-bottom: 15px;"></i>
@@ -126,7 +193,7 @@
                     </td>
                     <td>
                         <c:if test="${o.status == 'Pending' || o.status == 'Processing'}">
-                            <a href="order-history?action=requestCancel&id=${o.orderId}"
+                            <a href="order-history?action=requestCancel&id=${o.orderId}&status=${currentStatus}&page=${currentPage}"
                                class="btn-view"
                                style="margin-right: 5px; text-decoration: none;"
                                onclick="return confirm('Bạn có chắc muốn yêu cầu hủy đơn này?');">
@@ -146,8 +213,18 @@
             </c:forEach>
             </tbody>
         </table>
-    </c:if>
-</div>
+        <c:if test="${totalPages > 1}">
+            <div class="pagination">
+                <c:forEach begin="1" end="${totalPages}" var="i">
+                    <a href="order-history?status=${currentStatus}&page=${i}"
+                       class="${i == currentPage ? 'active' : ''}">
+                            ${i}
+                    </a>
+                </c:forEach>
+            </div>
+        </c:if>
+
+    </c:if> </div>
 
 <jsp:include page="../WEB-INF/tags/footer.jsp" />
 
