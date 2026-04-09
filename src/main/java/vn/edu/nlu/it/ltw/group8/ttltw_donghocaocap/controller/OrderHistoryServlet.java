@@ -45,7 +45,15 @@ public class OrderHistoryServlet extends HttpServlet {
         if ("requestCancel".equals(action)) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
-                dao.requestCancelOrderSafe(orderId, acc.getId());
+                Order order = dao.getOrderById(orderId);
+
+                if (order != null && order.getUserId() == acc.getId()) {
+                    if ("Pending".equals(order.getStatus())) {
+                        dao.updateOrderStatus(orderId, "Cancelled", "Khách hàng tự hủy đơn");
+                    } else if ("Processing".equals(order.getStatus())) {
+                        dao.updateOrderStatus(orderId, "Request Cancel", "Khách hàng gửi yêu cầu hủy đơn");
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
