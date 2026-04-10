@@ -1,6 +1,5 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
-
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +10,6 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.constant.Iconstant;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller.GoogleLoginServlet;
 
 import java.io.IOException;
 
@@ -27,6 +25,7 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String u = request.getParameter("username");
@@ -40,14 +39,20 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("mess", "Sai tên đăng nhập hoặc mật khẩu!");
             request.setAttribute("username", u);
             request.getRequestDispatcher("login.jsp").forward(request, response);
-        } else {
+        }
+        else if (!"Active".equals(user.getStatus())) {
+            request.setAttribute("mess", "Tài khoản chưa kích hoạt! Vui lòng kiểm tra email.");
+            request.setAttribute("username", u);
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
+        else {
             HttpSession session = request.getSession();
             session.setAttribute("acc", user);
             session.setMaxInactiveInterval(60 * 60);
 
-            if("ON".equals(r)){
+            if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
-                dao.updateRememberToken(user.getUsername(), token);
+                dao.updateRememberToken(user.getUsername(), token); //
                 Cookie tokenCookie = new Cookie("remember_token", token);
                 int maxAge = 60 * 60 * 24 * 7;
                 tokenCookie.setMaxAge(maxAge);
@@ -56,6 +61,7 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect("home");
         }
     }
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         String code = request.getParameter("code");
@@ -64,8 +70,6 @@ public class LoginServlet extends HttpServlet {
             String accessToken = GoogleLoginServlet.getToken(code);
             GoogleAccount acc = GoogleLoginServlet.getUserInfo(accessToken);
 
-            System.out.println(">>> THÔNG TIN TỪ GOOGLE: " + acc.getEmail() + " | " + acc.getName());
-
             if (acc != null) {
                 UserDAO dao = new UserDAO();
                 String googleEmail = acc.getEmail();
@@ -73,36 +77,39 @@ public class LoginServlet extends HttpServlet {
                 User existingUser = dao.checkEmailExist(googleEmail);
 
                 if (existingUser != null) {
+                    if (!"Active".equals(existingUser.getStatus())) {
+                        dao.activateAccount(existingUser.getVerificationToken());
+                        existingUser = dao.checkEmailExist(googleEmail);
+                    }
+
                     HttpSession session = request.getSession();
                     session.setAttribute("acc", existingUser);
                     session.setMaxInactiveInterval(60 * 60);
                     response.sendRedirect("home");
 
                 } else {
-                    User newUser = new User();
                     String autoUsername = googleEmail.substring(0, googleEmail.indexOf("@"));
                     String randomPassword = java.util.UUID.randomUUID().toString();
-                    dao.signup(autoUsername, randomPassword, acc.getName(), googleEmail, "");
 
-                    newUser = dao.checkEmailExist(googleEmail);
+                    String googleToken = "GOOGLE_" + java.util.UUID.randomUUID().toString();
+                    dao.signup(autoUsername, randomPassword, acc.getName(), googleEmail, "", googleToken);
+                    dao.activateAccount(googleToken);
 
+                    User newUser = dao.checkEmailExist(googleEmail);
                     HttpSession session = request.getSession();
                     session.setAttribute("acc", newUser);
                     session.setMaxInactiveInterval(60 * 60);
                     response.sendRedirect("home");
-                };
+                }
             } else {
                 request.setAttribute("mess", "Lỗi lấy thông tin từ Google!");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
-            System.out.println("Lỗi khi đăng nhập bằng Google: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("mess", "Đã xảy ra lỗi đăng nhập Google!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
-
-
 }

@@ -7,19 +7,6 @@
     <title>Đăng ký tài khoản - Luxury Watch</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
-    <style>
-        .input-group { position: relative; margin-bottom: 15px; }
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 38px;
-            cursor: pointer;
-            color: #666;
-        }
-        .error-msg { color: #ff4757; font-size: 12px; display: block; margin-top: 4px; min-height: 15px; }
-        .is-invalid { border: 2px solid #ff4757 !important; }
-        .login-button:disabled { background-color: #ccc !important; cursor: not-allowed; opacity: 0.7; }
-    </style>
 </head>
 <body>
 
@@ -34,7 +21,15 @@
         <h2 class="login-title">Đăng ký tài khoản</h2>
 
         <c:if test="${not empty requestScope.mess}">
-            <p style="color: #ff6b6b; font-size: 14px; text-align: center; margin-bottom: 10px;">${requestScope.mess}</p>
+            <p style="color: #ff6b6b; font-size: 14px; text-align: center; margin-bottom: 10px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> ${requestScope.mess}
+            </p>
+        </c:if>
+
+        <c:if test="${not empty requestScope.mess_info}">
+            <div class="info-box">
+                <i class="fa-solid fa-circle-info"></i> ${requestScope.mess_info}
+            </div>
         </c:if>
 
         <form action="register" method="POST" id="registerForm">
