@@ -220,14 +220,14 @@ public class OrderDAO {
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
 
-            // 1. Cập nhật bảng Order
+
             try (PreparedStatement psUpdate = conn.prepareStatement(updateOrder)) {
                 psUpdate.setString(1, newStatus);
                 psUpdate.setInt(2, orderId);
                 psUpdate.executeUpdate();
             }
 
-            // 2. Ghi Log
+
             try (PreparedStatement psLog = conn.prepareStatement(insertLog)) {
                 psLog.setInt(1, orderId);
                 psLog.setString(2, newStatus);

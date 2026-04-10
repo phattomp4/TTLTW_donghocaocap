@@ -11,14 +11,13 @@
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; margin: 0; background: #f4f6f9; }
-        /* CSS cho ô tìm kiếm */
         .search-box {
             display: flex;
             background: white;
             border: 1px solid #ddd;
             border-radius: 5px;
             overflow: hidden;
-            margin-right: 20px; /* Cách nút Thêm mới một chút */
+            margin-right: 20px;
         }
         .search-box input {
             border: none;
@@ -34,38 +33,43 @@
             cursor: pointer;
         }
         .search-box button:hover { background: #d0011b; }
-        /* --- SIDEBAR (Giống Dashboard) --- */
-        /* Sidebar */
+
         .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; }
         .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; }
         .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 25px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
 
-        /* --- CONTENT --- */
         .content { margin-left: 250px; padding: 30px; width: 100%; }
 
-        /* Header & Button */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-add { background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .btn-add:hover { background: #218838; transform: translateY(-2px); }
 
-        /* Table Style */
         .table-container { background: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #343a40; color: white; text-transform: uppercase; font-size: 14px; }
         tr:hover { background-color: #f9f9f9; }
 
-        /* Product Image */
         .prod-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
 
-        /* Actions Buttons */
-        .btn-action { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-right: 5px; display: inline-block; border: none; cursor: pointer; }
+        .btn-action { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-right: 5px; display: inline-block; border: none; cursor: pointer; transition: 0.2s;}
         .btn-edit { background: #e0f3ff; color: #007bff; }
         .btn-edit:hover { background: #007bff; color: white; }
         .btn-delete { background: #ffe6e6; color: #dc3545; }
         .btn-delete:hover { background: #dc3545; color: white; }
+
+        .btn-feature { background: #fff8e1; color: #ffc107; border: 1px solid #ffe082; }
+        .btn-feature:hover { background: #ffc107; color: white; }
+        .btn-feature.active { background: #ffc107; color: white; box-shadow: inset 0 3px 5px rgba(0,0,0,0.125); border-color: #ffb300; }
+
+        .toast-msg {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0;
+        }
+        .toast-msg.show { visibility: visible; opacity: 1; }
+        .toast-msg.success { background-color: #28a745; }
+        .toast-msg.error { background-color: #dc3545; }
     </style>
 </head>
 <body>
@@ -106,7 +110,7 @@
                 <th>Giá bán</th>
                 <th>Kho</th>
                 <th>Đã bán</th>
-                <th style="text-align: center;">Hành động</th>
+                <th style="text-align: center; width: 180px;">Hành động</th>
             </tr>
             </thead>
             <tbody>
@@ -123,12 +127,9 @@
                     <td><b>#${p.id}</b></td>
                     <td>
                         <c:choose>
-                            <%-- Trường hợp 1: Link ảnh là đường dẫn tuyệt đối (bắt đầu bằng http) --%>
                             <c:when test="${p.imageUrl.startsWith('http')}">
                                 <img src="${p.imageUrl}" class="prod-img" onerror="this.src='https://via.placeholder.com/60'">
                             </c:when>
-
-                            <%-- Trường hợp 2: Link ảnh là file upload trong server (bắt đầu bằng assets) --%>
                             <c:otherwise>
                                 <img src="${pageContext.request.contextPath}/${p.imageUrl}" class="prod-img" onerror="this.src='https://via.placeholder.com/60'">
                             </c:otherwise>
@@ -141,11 +142,9 @@
                                style="color: #333; text-decoration: none; transition: 0.2s;"
                                onmouseover="this.style.color='#d0011b'"
                                onmouseout="this.style.color='#333'">
-
                                     ${p.name} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
                             </a>
                         </div>
-
                         <div style="font-size: 12px; color: #777;">
                             Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/>
                         </div>
@@ -165,7 +164,16 @@
                         </c:choose>
                     </td>
                     <td>${p.soldQuantity}</td>
-                    <td style="text-align: center;">
+
+                    <td style="text-align: center; white-space: nowrap;">
+
+                        <button type="button" class="btn-action btn-feature ${p.isFeatured == 1 ? 'active' : ''}"
+                                id="btn-feature-${p.id}"
+                                onclick="toggleFeatured(${p.id}, ${p.isFeatured == 1 ? 0 : 1})"
+                                title="${p.isFeatured == 1 ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
+                            <i class="${p.isFeatured == 1 ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                        </button>
+
                         <a href="product-form?id=${p.id}" class="btn-action btn-edit" title="Sửa">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
@@ -184,6 +192,60 @@
         </table>
     </div>
 </div>
+
+<div id="toastBox" class="toast-msg">Thông báo...</div>
+
+<script>
+    function toggleFeatured(productId, newStatus) {
+        fetch('product-action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'pid=' + productId + '&featured=' + newStatus
+        })
+            .then(response => response.text())
+            .then(data => {
+                if (data.trim() === 'success') {
+                    const btn = document.getElementById('btn-feature-' + productId);
+                    const icon = btn.querySelector('i');
+
+                    if (newStatus === 1) {
+                        btn.classList.add('active');
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        btn.title = 'Bỏ Nổi Bật';
+                        btn.setAttribute('onclick', 'toggleFeatured(' + productId + ', 0)');
+                        showToast('Đã thêm vào danh sách Nổi Bật!', 'success');
+                    } else {
+                        btn.classList.remove('active');
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        btn.title = 'Đánh dấu Nổi Bật';
+                        btn.setAttribute('onclick', 'toggleFeatured(' + productId + ', 1)');
+                        showToast('Đã xóa khỏi danh sách Nổi Bật.', 'success');
+                    }
+                } else {
+                    showToast('Có lỗi xảy ra khi cập nhật!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Lỗi kết nối Server!', 'error');
+            });
+    }
+
+
+    function showToast(message, type) {
+        const toast = document.getElementById("toastBox");
+        toast.innerText = message;
+        toast.className = "toast-msg show " + type;
+
+        setTimeout(function(){
+            toast.className = toast.className.replace("show", "");
+        }, 3000);
+    }
+</script>
 
 </body>
 </html>

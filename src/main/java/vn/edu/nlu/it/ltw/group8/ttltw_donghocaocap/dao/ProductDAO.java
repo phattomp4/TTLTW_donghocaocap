@@ -36,23 +36,6 @@ public class ProductDAO {
         );
     }
 
-    public List<Product> getFeaturedProducts() {
-        List<Product> list = new ArrayList<>();
-
-        String query = "SELECT * FROM Products ORDER BY CreatedAt DESC";
-
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapResultSetToProduct(rs));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
     public List<Product> getMenProducts() {
         List<Product> list = new ArrayList<>();
@@ -473,6 +456,70 @@ public class ProductDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
+    }
+
+    // lấy danh sách Nổi Bật
+    public List<Product> getFeaturedProducts(int limit) {
+        List<Product> list = new ArrayList<>();
+        String query = "SELECT * FROM Products ORDER BY IsFeatured DESC, Score DESC LIMIT ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs)); // Dùng hàm map có sẵn của bạn
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    // cập nhật trạng thái Nổi bật
+    public boolean updateIsFeatured(int productId, int isFeatured) {
+        String query = "UPDATE Products SET IsFeatured = ? WHERE ProductID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, isFeatured);
+            ps.setInt(2, productId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // lấy danh sách bán chạy trong 3 tháng gần nhất
+    public List<Product> getBestSellersLast3Months(int limit) {
+        List<Product> list = new ArrayList<>();
+        String query = "SELECT p.*, SUM(od.Quantity) as TotalSold " +
+                "FROM Products p " +
+                "JOIN OrderDetails od ON p.ProductID = od.ProductID " +
+                "JOIN Orders o ON od.OrderID = o.OrderID " +
+                "WHERE o.OrderDate >= DATE_SUB(NOW(), INTERVAL 3 MONTH) " +
+                "AND o.Status = 'Delivered' " + // chỉ tính các đơn đã giao thành công
+                "GROUP BY p.ProductID " +
+                "ORDER BY TotalSold DESC " +
+                "LIMIT ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // hàm cộng điểm cho sản phẩm
+    public void incrementProductScore(int productId, int scoreValue) {
+        String query = "UPDATE Products SET Score = Score + ? WHERE ProductID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, scoreValue);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }
 

@@ -20,7 +20,7 @@ public class DetailServlet extends HttpServlet {
 
             ProductDAO dao = new ProductDAO();
             Product p = dao.getProductById(pid);
-
+            dao.incrementProductScore(pid, 1);
             if(p != null) {
                 request.setAttribute("p", p);
                 request.getRequestDispatcher("detail.jsp").forward(request, response);
