@@ -169,6 +169,7 @@
                     <td style="color: #d0011b; font-weight: bold;">
                         <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
                     </td>
+
                     <td>
                         <c:choose>
                             <c:when test="${o.status == 'Pending'}">
@@ -191,20 +192,28 @@
                             </c:otherwise>
                         </c:choose>
                     </td>
+
                     <td>
-                        <c:if test="${o.status == 'Pending' || o.status == 'Processing'}">
+                        <c:if test="${o.status == 'Pending'}">
                             <a href="order-history?action=requestCancel&id=${o.orderId}&status=${currentStatus}&page=${currentPage}"
-                               class="btn-view"
-                               style="margin-right: 5px; text-decoration: none;"
-                               onclick="return confirm('Bạn có chắc muốn yêu cầu hủy đơn này?');">
+                               class="btn-view" style="margin-right: 5px; color: #d0011b; border-color: #d0011b;"
+                               onclick="return confirm('Bạn có chắc muốn hủy đơn này?');">
                                 Hủy đơn
                             </a>
                         </c:if>
 
+                        <c:if test="${o.status == 'Processing'}">
+                            <a href="order-history?action=requestCancel&id=${o.orderId}&status=${currentStatus}&page=${currentPage}"
+                               class="btn-view" style="margin-right: 5px; color: #e67e22; border-color: #e67e22;"
+                               onclick="return confirm('Đơn hàng đang soạn. Bạn có muốn gửi yêu cầu hủy đến shop không?');">
+                                Yêu cầu hủy
+                            </a>
+                        </c:if>
+
                         <c:if test="${o.status == 'Request Cancel'}">
-        <span style="color: #e67e22; font-size: 13px; font-weight: bold; margin-right: 5px;">
-            <i class="fa-regular fa-clock"></i> Đang chờ duyệt hủy
-        </span>
+                            <span style="color: #e67e22; font-size: 13px; font-weight: bold; margin-right: 5px;">
+                                <i class="fa-regular fa-clock"></i> Đang chờ duyệt hủy
+                            </span>
                         </c:if>
 
                         <a href="order-detail?id=${o.orderId}" class="btn-view">Chi tiết</a>
