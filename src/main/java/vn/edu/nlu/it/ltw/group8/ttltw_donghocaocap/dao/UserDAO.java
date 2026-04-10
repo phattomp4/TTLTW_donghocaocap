@@ -384,6 +384,8 @@ public class UserDAO {
         u.setStatus(rs.getString("Status"));
         u.setVerificationToken(rs.getString("VerificationToken"));
         u.setVerificationExpiry(rs.getTimestamp("VerificationExpiry"));
+        u.setFailedAttempts(rs.getInt("FailedAttempts"));
+        u.setLockExpiry(rs.getTimestamp("LockExpiry"));
         return u;
     }
 
@@ -424,7 +426,6 @@ public class UserDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // đóng kết nối để không bị tràn RAM
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
@@ -516,6 +517,49 @@ public class UserDAO {
         } finally {
             closeResources();
         }
+    }
+    public User getUserByAccount(String account) {
+        String query = "SELECT * FROM users WHERE Username = ? OR Email = ? OR Phone = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, account);
+            ps.setString(2, account);
+            ps.setString(3, account);
+            rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs); //
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { closeResources(); }
+        return null;
+    }
+
+    public void handleFailedLogin(int userId, int currentFailed) {
+        String query;
+        int nextFailed = currentFailed + 1;
+        if (nextFailed >= 5) {
+            query = "UPDATE users SET FailedAttempts = ?, LockExpiry = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE UserID = ?";
+        } else {
+            query = "UPDATE users SET FailedAttempts = ? WHERE UserID = ?";
+        }
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, nextFailed);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { closeResources(); }
+    }
+
+    public void resetFailedAttempts(int userId) {
+        String query = "UPDATE users SET FailedAttempts = 0, LockExpiry = NULL WHERE UserID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { closeResources(); }
     }
 
 
