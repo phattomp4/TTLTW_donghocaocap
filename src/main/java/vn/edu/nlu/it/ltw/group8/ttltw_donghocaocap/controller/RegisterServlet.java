@@ -4,8 +4,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
-
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.EmailUtil;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
@@ -43,22 +45,18 @@ public class RegisterServlet extends HttpServlet {
             sendError(request, response, "Tên đăng nhập phải từ 5-20 ký tự và không chứa ký tự đặc biệt!", user, fullName, email, phone);
             return;
         }
-
         if (!Pattern.compile(EMAIL_REGEX).matcher(email).matches()) {
             sendError(request, response, "Vui lòng sử dụng đúng định dạng Gmail (ví dụ: @gmail.com)!", user, fullName, email, phone);
             return;
         }
-
         if (!Pattern.compile(PHONE_REGEX).matcher(phone).matches()) {
             sendError(request, response, "Số điện thoại không hợp lệ!", user, fullName, email, phone);
             return;
         }
-
         if (!Pattern.compile(PASSWORD_REGEX).matcher(pass).matches()) {
             sendError(request, response, "Mật khẩu tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!", user, fullName, email, phone);
             return;
         }
-
         if (!pass.equals(re_pass)) {
             sendError(request, response, "Mật khẩu xác nhận không khớp!", user, fullName, email, phone);
             return;
@@ -66,20 +64,38 @@ public class RegisterServlet extends HttpServlet {
 
         UserDAO dao = new UserDAO();
 
+        User existingUser = dao.getUserByEmail(email);
+        if (existingUser != null) {
+            if ("Active".equals(existingUser.getStatus())) {
+                sendError(request, response, "Email đã tồn tại, vui lòng đăng nhập!", user, fullName, email, phone);
+                return;
+            } else {
+                String newToken = UUID.randomUUID().toString();
+                dao.refreshVerificationToken(email, newToken);
+                EmailUtil.sendActivationEmail(email, newToken);
+                request.setAttribute("mess_info", "Email này đã đăng ký nhưng chưa kích hoạt. Một link mới đã được gửi lại!");
+                request.setAttribute("oldUser", user);
+                request.setAttribute("oldFullName", fullName);
+                request.setAttribute("oldEmail", email);
+                request.setAttribute("oldPhone", phone);
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+        }
+
+
         if (dao.checkUserExist(user) != null) {
             sendError(request, response, "Tên đăng nhập đã tồn tại!", user, fullName, email, phone);
             return;
         }
-        if (dao.checkEmailExist(email) != null) {
-            sendError(request, response, "Email này đã được sử dụng!", user, fullName, email, phone);
-            return;
-        }
 
-        boolean success = dao.signup(user, pass, fullName, email, phone);
+        String token = UUID.randomUUID().toString();
+        boolean success = dao.signup(user, pass, fullName, email, phone, token);
 
         if (success) {
+            EmailUtil.sendActivationEmail(email, token);
             HttpSession session = request.getSession();
-            session.setAttribute("mess_success", "Đăng ký thành công mời bạn đăng nhập");
+            session.setAttribute("mess_success", "Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.");
             response.sendRedirect("login.jsp");
         } else {
             sendError(request, response, "Lỗi hệ thống (DB), vui lòng thử lại sau!", user, fullName, email, phone);

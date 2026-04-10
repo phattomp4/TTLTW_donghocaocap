@@ -86,4 +86,20 @@ public class EmailUtil {
 
         return isSent;
     }
+    public static boolean sendActivationEmail(String toEmail, String token) {
+        String activationLink = "http://localhost:8080/TTLTW_donghocaocap_war_exploded/verify?token=" + token;
+
+        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px;'>" +
+                "<h2 style='color: #1b6e76; text-align: center;'>Chào mừng bạn đến với Luxury Watch!</h2>" +
+                "<p>Cảm ơn bạn đã đăng ký thành viên. Để bắt đầu trải nghiệm dịch vụ, vui lòng kích hoạt tài khoản của bạn bằng cách nhấn vào nút bên dưới:</p>" +
+                "<div style='text-align: center; margin: 30px 0;'>" +
+                "<a href='" + activationLink + "' style='background-color: #1b6e76; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>KÍCH HOẠT TÀI KHOẢN</a>" +
+                "</div>" +
+                "<p style='color: #666; font-size: 13px;'>Link này có hiệu lực trong vòng 24 giờ. Nếu bạn không thực hiện đăng ký, vui lòng bỏ qua email này.</p>" +
+                "<hr style='border: 0; border-top: 1px solid #eee;'>" +
+                "<p style='text-align: center; font-size: 12px; color: #999;'>© 2026 Luxury Watch Store - Hệ thống Đồng Hồ Cao Cấp</p>" +
+                "</div>";
+
+        return sendMail(toEmail, "Kích hoạt tài khoản thành viên Luxury Watch", content);
+    }
 }
