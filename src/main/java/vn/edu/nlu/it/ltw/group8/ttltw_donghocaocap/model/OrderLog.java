@@ -7,8 +7,7 @@ public class OrderLog {
     private String status;
     private String note;
     private Timestamp createdAt;
-
-    // Constructors, Getters, Setters
+    
     public OrderLog() {}
     public OrderLog(int logId, int orderId, String status, String note, Timestamp createdAt) {
         this.logId = logId;
