@@ -75,7 +75,9 @@
             </div>
 
             <div class="social-login">
-                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080/WebBanDongHo_war_exploded/google-login&response_type=code&client_id=1019706270086-r01p0g06ev31mmkl51lg2joopf8dfthr.apps.googleusercontent.com&approval_prompt=force" class="btn-social btn-google">
+                <%-- Sử dụng JSTL để tự động tạo link redirect--%>
+                <c:url var="googleRedirect" value="/google-login" />
+                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:8080${googleRedirect}&response_type=code&client_id=1019706270086-r01p0g06ev31mmkl51lg2joopf8dfthr.apps.googleusercontent.com&approval_prompt=force" class="btn-social btn-google">
                     <i class="fa-brands fa-google"></i> Google
                 </a>
             </div>
