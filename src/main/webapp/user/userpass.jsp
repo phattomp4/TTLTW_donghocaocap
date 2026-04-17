@@ -7,6 +7,7 @@
     <title>Khôi phục mật khẩu</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/forgot_password.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         .auth-card {
@@ -34,26 +35,47 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
-        .code-input-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 25px 0;
+        .success-msg {
+            color: #52c41a;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
-        .code-box {
-            width: 45px;
-            height: 50px;
+        .otp-input-large {
+            width: 100%;
             text-align: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
+            letter-spacing: 15px;
+            padding: 10px;
             border: 2px solid #dddddd;
             border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .code-box:focus {
-            border-color: #0e3e43;
-            box-shadow: 0 0 8px rgba(128, 0, 128, 0.2);
+            margin: 20px 0;
             outline: none;
+        }
+        .otp-input-large:focus {
+            border-color: #0e3e43;
+        }
+        #timer-box {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        #timer {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+        .resend-link {
+            background: none;
+            border: none;
+            color: #0e3e43;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
         }
         .back-link {
             display: inline-block;
@@ -61,9 +83,6 @@
             color: #666666;
             text-decoration: none;
             font-size: 14px;
-        }
-        .back-link:hover {
-            color: #0e3e43;
         }
     </style>
 </head>
@@ -79,6 +98,7 @@
                 <c:if test="${not empty error}">
                     <div class="error-msg"><i class="fa fa-exclamation-circle"></i> ${error}</div>
                 </c:if>
+
                 <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
                     <input type="hidden" name="action" value="send_code">
                     <div class="input_group">
@@ -91,22 +111,30 @@
 
             <c:when test="${step == 2}">
                 <h2>Xác nhận mã</h2>
-                <p style="color: #666;">Mã xác minh đã được gửi đến: <br><strong>${sessionScope.resetAccount}</strong>
-                </p>
+                <p style="color: #666;">Mã xác minh đã được gửi đến: <br><strong>${sessionScope.resetAccount}</strong></p>
 
                 <c:if test="${not empty error}">
                     <div class="error-msg">${error}</div>
                 </c:if>
+                <c:if test="${not empty success}">
+                    <div class="success-msg">${success}</div>
+                </c:if>
 
-                <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
+                <form action="${pageContext.request.contextPath}/forgotPassword" method="post" id="otpForm">
                     <input type="hidden" name="action" value="verify_code">
-                    <div class="code-input-group">
-                        <c:forEach var="i" begin="1" end="6">
-                            <input type="number" name="digit" maxlength="1" class="code-box" required
-                                   oninput="moveNext(this)">
-                        </c:forEach>
+                    <input type="text" name="otp" id="otpInput" class="otp-input-large"
+                           placeholder="••••••" maxlength="6" required autocomplete="off">
+
+                    <div id="timer-box">
+                        Mã hết hạn sau: <span id="timer">02:00</span>
                     </div>
-                    <button type="submit" class="btn_login" style="width: 100%;">TIẾP THEO</button>
+
+                    <button type="submit" id="submitBtn" class="login-button" style="width: 100%;">TIẾP THEO</button>
+                </form>
+                <form action="${pageContext.request.contextPath}/forgotPassword" method="post" id="resendForm">
+                    <input type="hidden" name="action" value="send_code">
+                    <input type="hidden" name="account_info" value="${sessionScope.resetAccount}">
+                    <button type="submit" id="resendBtn" class="resend-link">Chưa nhận được mã? Gửi lại</button>
                 </form>
             </c:when>
 
@@ -126,35 +154,53 @@
                     </div>
                     <div class="input_group" style="margin-top: 15px;">
                         <i class="fa fa-shield-alt"></i>
-                        <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu" required
-                               minlength="8">
+                        <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu" required minlength="8">
                     </div>
-                    <button type="submit" class="btn_login" style="width: 100%; margin-top: 20px;">ĐẶT LẠI MẬT KHẨU
-                    </button>
+                    <button type="submit" class="login-button" style="width: 100%; margin-top: 20px;">ĐẶT LẠI MẬT KHẨU</button>
                 </form>
             </c:when>
         </c:choose>
-    <%-- Fix lại lỗi quay lại trang đăng nhập--%>
+
         <a href="${pageContext.request.contextPath}/login.jsp" class="back-link">
             <i class="fa fa-arrow-left"></i> Quay lại Đăng nhập
         </a>
     </div>
 </div>
 
-
 <script>
-    function moveNext(el) {
-        if (el.value.length === 1 && el.nextElementSibling) {
-            el.nextElementSibling.focus();
-        }
-    }
-    document.querySelectorAll('.code-box').forEach((box, idx, all) => {
-        box.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !box.value && idx > 0) {
-                all[idx - 1].focus();
+    const otpInput = document.getElementById('otpInput');
+    const timerDisplay = document.getElementById('timer');
+    const resendBtn = document.getElementById('resendBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (otpInput) {
+        otpInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value !== "" && parseInt(this.value) <= 0) {
+                this.value = "";
             }
         });
-    });
+
+        // 2. Bộ đếm ngược thời gian (120 giây = 2 phút)
+        let duration = 120;
+        const countdown = setInterval(function () {
+            let minutes = Math.floor(duration / 60);
+            let seconds = duration % 60;
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            timerDisplay.textContent = minutes + ":" + seconds;
+
+            if (--duration < 0) {
+                clearInterval(countdown);
+                timerDisplay.textContent = "Hết hạn";
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                resendBtn.style.display = "inline-block";
+            }
+        }, 1000);
+    }
 </script>
 </body>
 </html>
