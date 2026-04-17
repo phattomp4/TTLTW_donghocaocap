@@ -67,7 +67,25 @@
         </div>
     </div>
 
-    <h2 style="border-bottom: 2px solid #333; padding-bottom: 10px;">Quản lý đơn hàng</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+        <h2 style="margin: 0; border: none; padding: 0;">Quản lý đơn hàng</h2>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="statusFilter" style="font-weight: bold; color: #555;">
+                <i class="fa-solid fa-filter"></i> Lọc trạng thái:
+            </label>
+            <select id="statusFilter" onchange="filterOrders()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; outline: none; cursor: pointer;">
+                <option value="all">Tất cả đơn hàng</option>
+                <option value="Pending">Chờ duyệt</option>
+                <option value="Processing">Đang chuẩn bị</option>
+                <option value="Shipping">Đang giao</option>
+                <option value="Completed">Hoàn thành</option>
+                <option value="Cancelled">Hủy đơn</option>
+                <option value="Request Cancel">Yêu cầu hủy</option>
+            </select>
+        </div>
+    </div>
+
     <table>
         <thead>
         <tr>
@@ -82,7 +100,7 @@
         </thead>
         <tbody>
         <c:forEach items="${listOrders}" var="o">
-            <tr>
+            <tr class="order-row" data-status="${o.status}">
                 <td><b>#${o.orderId}</b></td>
                 <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                 <td>User #${o.userId}</td>
@@ -91,14 +109,12 @@
                 </td>
                 <td>${o.paymentMethod}</td>
                 <td>
-                            <span style="font-weight: bold;
-                                color: ${o.status == 'Completed' ? 'green' : (o.status == 'Cancelled' ? 'red' : 'blue')}">
-                                    ${o.status}
-                            </span>
+                    <span style="font-weight: bold; color: ${o.status == 'Completed' ? 'green' : (o.status == 'Cancelled' ? 'red' : 'blue')}">
+                            ${o.status}
+                    </span>
                 </td>
                 <td>
                     <c:choose>
-                        <%-- TRƯỜNG HỢP 1: Đơn đang yêu cầu hủy -> Hiện nút Duyệt/Từ chối --%>
                         <c:when test="${o.status == 'Request Cancel'}">
                             <div style="display: flex; gap: 5px; margin-bottom: 5px;">
                                 <a href="${pageContext.request.contextPath}/admin/dashboard?action=approveCancel&id=${o.orderId}"
@@ -118,7 +134,6 @@
                             <span style="font-size: 12px; color: orange;">Khách yêu cầu hủy</span>
                         </c:when>
 
-                        <%-- TRƯỜNG HỢP 2: Các trạng thái khác -> Hiện Dropdown như cũ --%>
                         <c:otherwise>
                             <form action="dashboard" method="POST" style="display: flex; gap: 5px;">
                                 <input type="hidden" name="action" value="update_status">
@@ -146,6 +161,22 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    function filterOrders() {
+        const selectedStatus = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.order-row');
+
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

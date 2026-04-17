@@ -339,6 +339,73 @@ public class OrderDAO {
         return list;
     }
 
+    public List<Order> getAllOrders() {
+        List<Order> list = new ArrayList<>();
+        String query = "SELECT * FROM Orders ORDER BY orderDate DESC";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Order(
+                        rs.getInt("orderId"),
+                        rs.getInt("userId"),
+                        rs.getInt("shippingAddressId"),
+                        rs.getInt("voucherId"),
+                        rs.getTimestamp("orderDate"),
+                        rs.getDouble("totalAmount"),
+                        rs.getDouble("discountAmount"),
+                        rs.getString("paymentMethod"),
+                        rs.getString("paymentStatus"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
+    public List<Order> getOrdersByStatus(String status) {
+        List<Order> list = new ArrayList<>();
+        String query = "SELECT * FROM Orders WHERE status = ? ORDER BY orderDate DESC";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Order(
+                        rs.getInt("orderId"),
+                        rs.getInt("userId"),
+                        rs.getInt("shippingAddressId"),
+                        rs.getInt("voucherId"),
+                        rs.getTimestamp("orderDate"),
+                        rs.getDouble("totalAmount"),
+                        rs.getDouble("discountAmount"),
+                        rs.getString("paymentMethod"),
+                        rs.getString("paymentStatus"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
+    public void updateOrderStatus(int orderId, String newStatus) {
+        String query = "UPDATE Orders SET status = ? WHERE orderId = ?";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, newStatus);
+            ps.setInt(2, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 }
