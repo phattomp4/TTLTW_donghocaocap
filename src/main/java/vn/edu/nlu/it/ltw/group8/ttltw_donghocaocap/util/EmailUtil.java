@@ -36,7 +36,7 @@ public class EmailUtil {
             message.setContent(
                     "<h3> VVP - Xác thực tài khoản</h3>" +
                             "<h2>" + otp + "</h2>" +
-                            "<p>Mã có hiệu lực trong 5 phút</p>",
+                            "<p>Mã có hiệu lực trong 2 phút</p>",
                     "text/html; charset=UTF-8"
             );
 
