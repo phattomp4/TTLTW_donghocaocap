@@ -7,7 +7,6 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.io.IOException;
 import java.util.Date;
 
@@ -16,14 +15,21 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String code = request.getParameter("code");
+        HttpSession session = request.getSession();
 
+        String mess = (String) session.getAttribute("mess");
+        if (mess != null) {
+            request.setAttribute("mess", mess);
+            session.removeAttribute("mess");
+        }
+
+        String code = request.getParameter("code");
         if (code != null && !code.isEmpty()) {
             processRequest(request, response);
         } else {
             String referer = request.getHeader("Referer");
             if (referer != null && !referer.contains("login") && !referer.contains("register")) {
-                request.getSession().setAttribute("redirect_url", referer);
+                session.setAttribute("redirect_url", referer);
             }
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
@@ -38,30 +44,30 @@ public class LoginServlet extends HttpServlet {
         UserDAO dao = new UserDAO();
         User user = dao.getUserByAccount(u);
 
-        if (user == null) {
-            request.setAttribute("mess", "Tài khoản không tồn tại!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+        HttpSession session = request.getSession();
+        Long lockTime = (Long) session.getAttribute("lockTime");
+        if (lockTime != null && lockTime > System.currentTimeMillis()) {
+            long minutesLeft = ((lockTime - System.currentTimeMillis()) / 1000 / 60) + 1;
+            session.setAttribute("mess", "Tài khoản bị khóa tạm thời. Vui lòng thử lại sau " + minutesLeft + " phút!");
+            response.sendRedirect("login");
             return;
         }
-
-        if (user.getLockExpiry() != null && user.getLockExpiry().after(new Date())) {
-            request.setAttribute("mess", "Tài khoản bị khóa tạm thời. Vui lòng thử lại sau!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+        if (user == null) {
+            session.setAttribute("mess", "Tài khoản không tồn tại!");
+            response.sendRedirect("login");
             return;
         }
 
         if (BCrypt.checkpw(p, user.getPassword())) {
-
             if (!"Active".equals(user.getStatus())) {
-                request.setAttribute("mess", "Tài khoản chưa kích hoạt! Vui lòng kiểm tra email.");
-                request.setAttribute("username", u);
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                session.setAttribute("mess", "Tài khoản chưa kích hoạt! Vui lòng kiểm tra email.");
+                response.sendRedirect("login");
                 return;
             }
 
-            dao.resetFailedAttempts(user.getId());
+            session.removeAttribute("failedAttempts");
+            session.removeAttribute("lockTime");
 
-            HttpSession session = request.getSession();
             session.setAttribute("acc", user);
             session.setMaxInactiveInterval(60 * 60);
 
@@ -69,7 +75,7 @@ public class LoginServlet extends HttpServlet {
                 String token = java.util.UUID.randomUUID().toString();
                 dao.updateRememberToken(user.getUsername(), token);
                 Cookie tokenCookie = new Cookie("remember_token", token);
-                tokenCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày
+                tokenCookie.setMaxAge(60 * 60 * 24 * 7);
                 response.addCookie(tokenCookie);
             }
 
@@ -81,20 +87,23 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("home");
             }
         } else {
-            int currentFailed = user.getFailedAttempts();
-            dao.handleFailedLogin(user.getId(), currentFailed);
+           // fix: đăng nhập sai, dùng session tối ưu
+            Integer failedCount = (Integer) session.getAttribute("failedAttempts");
+            if (failedCount == null) failedCount = 0;
+            failedCount++;
+            session.setAttribute("failedAttempts", failedCount);
 
-            int attemptsLeft = 5 - (currentFailed + 1);
             String errorMsg = "Sai mật khẩu!";
-            if (attemptsLeft > 0) {
-                errorMsg += " Bạn còn " + attemptsLeft + " lần thử.";
-            } else {
+            if (failedCount >= 5) {
+                session.setAttribute("lockTime", System.currentTimeMillis() + (15 * 60 * 1000));
                 errorMsg = "Tài khoản đã bị khóa 15 phút do nhập sai quá 5 lần.";
+            } else {
+                int attemptsLeft = 5 - failedCount;
+                errorMsg += " Bạn còn " + attemptsLeft + " lần thử.";
             }
 
-            request.setAttribute("mess", errorMsg);
-            request.setAttribute("username", u);
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            session.setAttribute("mess", errorMsg);
+            response.sendRedirect("login"); // fix: Redirect để khi F5 không trừ số lần đăng nhập sai
         }
     }
 
@@ -110,6 +119,10 @@ public class LoginServlet extends HttpServlet {
                 UserDAO dao = new UserDAO();
                 String googleEmail = acc.getEmail();
                 User existingUser = dao.checkEmailExist(googleEmail);
+                HttpSession session = request.getSession();
+
+                session.removeAttribute("failedAttempts");
+                session.removeAttribute("lockTime");
 
                 if (existingUser != null) {
                     if (!"Active".equals(existingUser.getStatus())) {
@@ -117,7 +130,6 @@ public class LoginServlet extends HttpServlet {
                         existingUser = dao.checkEmailExist(googleEmail);
                     }
 
-                    HttpSession session = request.getSession();
                     session.setAttribute("acc", existingUser);
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
@@ -137,15 +149,15 @@ public class LoginServlet extends HttpServlet {
                     dao.activateAccount(googleToken);
 
                     User newUser = dao.checkEmailExist(googleEmail);
-                    HttpSession session = request.getSession();
                     session.setAttribute("acc", newUser);
                     response.sendRedirect("home");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("mess", "Đã xảy ra lỗi đăng nhập Google!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            HttpSession session = request.getSession();
+            session.setAttribute("mess", "Đã xảy ra lỗi đăng nhập Google!");
+            response.sendRedirect("login");
         }
     }
 }
