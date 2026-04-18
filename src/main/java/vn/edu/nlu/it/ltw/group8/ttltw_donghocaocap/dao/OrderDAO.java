@@ -339,6 +339,87 @@ public class OrderDAO {
         return list;
     }
 
+    public List<Order> getAllOrders() {
+        List<Order> list = new ArrayList<>();
+        // Sử dụng LEFT JOIN để lấy số điện thoại trực tiếp từ bảng Users
+        // Giả định bảng người dùng của bạn tên là 'Users' và cột khóa chính là 'ID'
+        String query = "SELECT o.*, u.phone " +
+                "FROM Orders o " +
+                "LEFT JOIN Users u ON o.UserID = u.id " +
+                "ORDER BY o.OrderDate DESC";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderID"));
+                o.setUserId(rs.getInt("UserID"));
+                o.setShippingAddressId(rs.getInt("ShippingAddressID"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                o.setPaymentMethod(rs.getString("PaymentMethod"));
+                o.setPaymentStatus(rs.getString("PaymentStatus"));
+                o.setStatus(rs.getString("Status"));
+
+                o.setPhone(rs.getString("phone"));
+
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Order> getOrdersByStatus(String status) {
+        List<Order> list = new ArrayList<>();
+        // Tương tự, sử dụng LEFT JOIN cho hàm lọc theo trạng thái
+        String query = "SELECT o.*, u.phone " +
+                "FROM Orders o " +
+                "LEFT JOIN Users u ON o.UserID = u.id " +
+                "WHERE o.Status = ? " +
+                "ORDER BY o.OrderDate DESC";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderID"));
+                o.setUserId(rs.getInt("UserID"));
+                o.setShippingAddressId(rs.getInt("ShippingAddressID"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                o.setPaymentMethod(rs.getString("PaymentMethod"));
+                o.setPaymentStatus(rs.getString("PaymentStatus"));
+                o.setStatus(rs.getString("Status"));
+
+                o.setPhone(rs.getString("phone"));
+
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void updateOrderStatus(int orderId, String newStatus) {
+        String query = "UPDATE Orders SET status = ? WHERE orderId = ?";
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, newStatus);
+            ps.setInt(2, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 // hàm kiểm tra user đã mua và nhận thành công chưa
     public boolean checkUserBoughtProduct(int userId, int productId) {
         String query = "SELECT COUNT(*) FROM OrderDetails od " +
