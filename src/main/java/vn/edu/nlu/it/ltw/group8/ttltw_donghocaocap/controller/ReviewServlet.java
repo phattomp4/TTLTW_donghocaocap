@@ -34,6 +34,7 @@ public class ReviewServlet extends HttpServlet {
             String pidStr = request.getParameter("productId");
             String ratingStr = request.getParameter("rating");
             String comment = request.getParameter("comment");
+            String reviewIdStr = request.getParameter("reviewId");
 
             if (pidStr == null || comment == null || comment.trim().isEmpty()) {
                 response.getWriter().write("Vui lòng nhập nội dung đánh giá.");
@@ -71,12 +72,21 @@ public class ReviewServlet extends HttpServlet {
             }
 
             ReviewDAO reviewDAO = new ReviewDAO();
-            boolean success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
+            boolean success = false;
+
+            if (reviewIdStr != null && !reviewIdStr.isEmpty()) {
+                int existingReviewId = Integer.parseInt(reviewIdStr);
+                success = reviewDAO.updateReview(existingReviewId, rating, comment, imageUrl);
+            } else {
+                if (reviewDAO.getMyReview(user.getId(), productId) != null) {
+                    response.getWriter().write("Bạn đã đánh giá sản phẩm này rồi! Vui lòng chọn tính năng chỉnh sửa.");
+                    return;
+                }
+                success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
+            }
 
             if (success) {
                 response.getWriter().write("success|" + (imageUrl != null ? imageUrl : ""));
-            } else {
-                response.getWriter().write("Lỗi Database: Không thể lưu đánh giá.");
             }
 
         } catch (Exception e) {

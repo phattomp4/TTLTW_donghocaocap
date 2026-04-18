@@ -118,7 +118,22 @@
 
 <div class="container" style="max-width: 1200px; margin: 50px auto;">
     <h3 style="color: #1b6e76; font-weight: 800; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; margin-bottom: 25px;">ĐÁNH GIÁ SẢN PHẨM</h3>
+    <div style="background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 25px; border-radius: 5px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <span style="font-weight: bold; margin-right: 15px; display: flex; align-items: center;">Lọc theo:</span>
+        <button class="filter-btn active" onclick="applyFilter(0, false, this)">Tất cả</button>
+        <button class="filter-btn" onclick="applyFilter(5, false, this)">5 Sao</button>
+        <button class="filter-btn" onclick="applyFilter(4, false, this)">4 Sao</button>
+        <button class="filter-btn" onclick="applyFilter(3, false, this)">3 Sao</button>
+        <button class="filter-btn" onclick="applyFilter(2, false, this)">2 Sao</button>
+        <button class="filter-btn" onclick="applyFilter(1, false, this)">1 Sao</button>
+        <button class="filter-btn" onclick="applyFilter(0, true, this)">Có hình ảnh</button>
+    </div>
 
+    <style>
+        .filter-btn { border: 1px solid #ccc; background: #fff; padding: 5px 15px; border-radius: 20px; cursor: pointer; transition: 0.2s;}
+        .filter-btn:hover { border-color: #1b6e76; color: #1b6e76;}
+        .filter-btn.active { border-color: #1b6e76; color: #1b6e76; font-weight: bold; background: #e9fcfe;}
+    </style>
     <c:if test="${!canReview}">
         <div style="background: #e9f7fd; color: #31708f; padding: 15px; border-radius: 5px; border: 1px solid #bce8f1; margin-bottom: 30px;">
             <i class="fa-solid fa-circle-info"></i> Chỉ những khách hàng đã mua và nhận sản phẩm này mới có quyền viết đánh giá.
@@ -127,10 +142,16 @@
 
     <c:if test="${canReview}">
         <div id="reviewFormContainer" style="background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; padding: 25px; margin-bottom: 40px;">
-            <h5 style="margin-top: 0; margin-bottom: 15px; font-weight: bold;">Viết đánh giá của bạn</h5>
+            <h5 style="margin-top: 0; margin-bottom: 15px; font-weight: bold;">
+                    ${myReview != null ? 'Chỉnh sửa đánh giá của bạn' : 'Viết đánh giá của bạn'}
+            </h5>
 
             <form id="reviewForm" onsubmit="submitReviewAjax(event)" enctype="multipart/form-data">
                 <input type="hidden" name="productId" value="${p.id}">
+
+                <c:if test="${myReview != null}">
+                    <input type="hidden" name="reviewId" value="${myReview.id}">
+                </c:if>
 
                 <div style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
                     <label style="font-weight: 600; display: block; margin-bottom: 5px;">Chất lượng sản phẩm: <span style="color: #d0011b; font-weight: bold;">*</span></label>
@@ -147,8 +168,15 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <textarea name="comment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required style="width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ccc; outline: none; resize: vertical;"></textarea>
+                    <textarea name="comment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required style="width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ccc; outline: none; resize: vertical;">${myReview != null ? myReview.comment : ''}</textarea>
                 </div>
+
+                <c:if test="${myReview != null && not empty myReview.imageUrl}">
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: #666;">Ảnh hiện tại:</span><br>
+                        <img src="${myReview.imageUrl}" style="height: 60px; border-radius: 5px; border: 1px solid #ddd;">
+                    </div>
+                </c:if>
 
                 <div style="margin-bottom: 20px;">
                     <label style="cursor: pointer; background: #fff; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; font-size: 14px;">
@@ -160,9 +188,22 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btnSubmitReview" style="background-color: #1b6e76; color: white; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer;">Gửi Đánh Giá</button>
+                <button type="submit" id="btnSubmitReview" style="background-color: #1b6e76; color: white; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                        ${myReview != null ? 'Cập Nhật Đánh Giá' : 'Gửi Đánh Giá'}
+                </button>
             </form>
         </div>
+
+        <c:if test="${myReview != null}">
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const oldRating = ${myReview.rating};
+                    if(oldRating > 0) {
+                        document.getElementById('star' + oldRating).checked = true;
+                    }
+                });
+            </script>
+        </c:if>
     </c:if>
 
     <div class="review-list" id="reviewContainer">
@@ -309,7 +350,7 @@
 
         const checkedStar = form.querySelector('input[name="rating"]:checked');
         const ratingVal = checkedStar ? checkedStar.value : "0";
-        
+
         if (ratingVal === "0") {
             alert("Vui lòng chọn số sao để đánh giá sản phẩm!");
             return;
@@ -486,6 +527,30 @@
                     toggleReplyForm(reviewId);
                 } else {
                     alert(result.split('|')[1]);
+                }
+            });
+    }
+
+    let currentFilterStar = 0;
+    let currentFilterImage = false;
+
+    function applyFilter(star, hasImage, btnElement) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        currentFilterStar = star;
+        currentFilterImage = hasImage;
+        currentOffset = 0;
+
+        document.getElementById('reviewContainer').innerHTML = '<div style="text-align:center; padding: 30px;"><i class="fa-solid fa-spinner fa-spin fa-2x text-muted"></i></div>';
+
+        fetch(`load-more-reviews?pid=${p.id}&offset=0&star=`+star+`&hasImage=`+hasImage)
+            .then(response => response.text())
+            .then(html => {
+                if (html.trim() !== "") {
+                    document.getElementById('reviewContainer').innerHTML = html;
+                    currentOffset = 10;
+                } else {
+                    document.getElementById('reviewContainer').innerHTML = '<div style="text-align: center; padding: 40px 0; color: #999;"><p>Không có đánh giá nào phù hợp với bộ lọc.</p></div>';
                 }
             });
     }
