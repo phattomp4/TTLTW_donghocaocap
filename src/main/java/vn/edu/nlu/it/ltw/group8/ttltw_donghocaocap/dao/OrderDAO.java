@@ -220,14 +220,14 @@ public class OrderDAO {
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
 
-            // 1. Cập nhật bảng Order
+
             try (PreparedStatement psUpdate = conn.prepareStatement(updateOrder)) {
                 psUpdate.setString(1, newStatus);
                 psUpdate.setInt(2, orderId);
                 psUpdate.executeUpdate();
             }
 
-            // 2. Ghi Log
+
             try (PreparedStatement psLog = conn.prepareStatement(insertLog)) {
                 psLog.setInt(1, orderId);
                 psLog.setString(2, newStatus);
@@ -420,6 +420,22 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+// hàm kiểm tra user đã mua và nhận thành công chưa
+    public boolean checkUserBoughtProduct(int userId, int productId) {
+        String query = "SELECT COUNT(*) FROM OrderDetails od " +
+                "JOIN Orders o ON od.OrderID = o.OrderID " +
+                "WHERE o.UserID = ? AND od.ProductID = ? AND o.Status = 'Completed'";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
 
+    }
 
 }

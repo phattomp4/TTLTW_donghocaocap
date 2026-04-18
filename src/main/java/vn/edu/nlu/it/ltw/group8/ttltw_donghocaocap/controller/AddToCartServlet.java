@@ -103,7 +103,7 @@ public class AddToCartServlet extends HttpServlet {
 
 
             session.setAttribute("cart", cart);
-
+            dao.incrementProductScore(productId, 3);
 
             int totalCount = 0;
             for (CartItem item : cart) totalCount += item.getQuantity();

@@ -11,21 +11,18 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f6f9; }
 
-        /* Sidebar */
         .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; }
         .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; }
         .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 25px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
-        /* Content */
+
         .content { margin-left: 250px; padding: 20px; width: 100%; }
 
-        /* Detail Box */
         .detail-box { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
         .detail-row:last-child { border-bottom: none; }
 
-        /* Table Sản phẩm */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
         th { background: #f8f9fa; }

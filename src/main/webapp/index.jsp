@@ -14,410 +14,348 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <style>
+        /* CSS tuỳ chỉnh cho 2 băng chuyền mới */
+        .custom-slider-container { max-width: 1200px; margin: 50px auto; padding: 0 15px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 2px solid #eaeaea; padding-bottom: 10px;}
+        .slider-title { color: #1b6e76; font-weight: 800; text-transform: uppercase; margin: 0; font-size: 22px; }
+        .view-all-link { color: #d0011b; font-weight: 600; text-decoration: none; font-size: 15px; transition: 0.3s;}
+        .view-all-link:hover { color: #a10014; }
+
+        /* Swiper custom */
+        .productSwiper { padding-bottom: 50px !important; }
+        .productSwiper .swiper-slide { height: auto; display: flex; justify-content: center;}
+        .productSwiper .swiper-button-next, .productSwiper .swiper-button-prev { color: #1b6e76; background: white; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .productSwiper .swiper-button-next:after, .productSwiper .swiper-button-prev:after { font-size: 18px; font-weight: bold; }
+        .productSwiper .swiper-pagination-bullet-active { background: #1b6e76; }
+
+        /* Đảm bảo card của bạn nằm gọn trong slide */
+        .productSwiper .Product { margin: 0; width: 100%; max-width: 250px; }
+    </style>
 </head>
-  
+
 <body>
 
-    <button id="btnScrollToTop" onclick="scrollToTop()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 15l-6-6-6 6" />
-        </svg>
-    </button>
+<button id="btnScrollToTop" onclick="scrollToTop()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 15l-6-6-6 6" />
+    </svg>
+</button>
 
-    <!-- Header -->
+<jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
 
-    <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
+<div class="slideshow-container">
+    <c:forEach items="${listSlideshow}" var="banner">
+        <div class="mySlides fade">
+            <img src="${banner.imageUrl}" style="width:100%">
+        </div>
+    </c:forEach>
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    <div class="dots-container" style="text-align:center">
+        <c:forEach items="${listSlideshow}" var="banner" varStatus="status">
+            <span class="dot" onclick="currentSlide(${status.count})"></span>
+        </c:forEach>
+    </div>
+</div>
+<br>
 
-    <!-- Slideshow container -->
-    <div class="slideshow-container">
+<div class="service">
+    <div class="icon-box">
+        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:#1b6e76;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M16 25C20.9706 25 25 20.9706 25 16C25 11.0294 20.9706 7 16 7C11.0294 7 7 11.0294 7 16C7 20.9706 11.0294 25 16 25Z" fill="white" stroke="white" stroke-width="2" stroke-miterlimit="10"></path> <path d="M16 11V16H21" stroke="#1b6e76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 8.51597L11.851 3.82162C11.8928 3.5911 12.0142 3.38257 12.1941 3.23241C12.3739 3.08225 12.6007 3 12.835 3H19.165C19.3993 3 19.6261 3.08225 19.8059 3.23241C19.9858 3.38257 20.1072 3.5911 20.149 3.82162L21 8.516" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 23.484L11.851 28.1784C11.8928 28.4089 12.0142 28.6174 12.1941 28.7676C12.3739 28.9178 12.6007 29 12.835 29H19.165C19.3993 29 19.6261 28.9178 19.8059 28.7676C19.9858 28.6174 20.1072 28.4089 20.149 28.1784L21 23.484" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </svg></div></div></div>
+        <div class="icon-box-text"><h4>Mẫu mã đa dạng nhất</h4><p>Hoàn tiền nếu phát hiện bán hàng giả</p></div>
+    </div>
+    <div class="icon-box">
+        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M5.72973 26.1991L5.71678 26.2834L10.8086 22.7549L10.8679 22.7747C10.8679 22.7747 10.8679 22.7747 10.8679 22.7747C10.9465 22.5388 11.1157 22.3438 11.3381 22.2326C11.5605 22.1214 11.8179 22.1031 12.0538 22.1817C12.2897 22.2603 12.4847 22.4295 12.5959 22.6519C12.7071 22.8742 12.7254 23.1317 12.6468 23.3676C11.9723 25.3906 10.3649 26.8805 7.98801 27.6728C6.92122 28.0255 5.80861 28.2204 4.68545 28.2512C4.43711 28.251 4.199 28.1523 4.02338 27.9766C3.84777 27.801 3.74902 27.5629 3.74878 27.3146C3.77965 26.1914 3.97453 25.0788 4.32725 24.012C5.1196 21.6351 6.60939 20.0276 8.63244 19.3533L8.63248 19.3532C8.7493 19.3142 8.87266 19.2986 8.99553 19.3073C9.11839 19.3159 9.23834 19.3487 9.34853 19.4038C9.45871 19.4588 9.55697 19.535 9.63769 19.628C9.71841 19.7211 9.78001 19.8291 9.81896 19.9459C9.85792 20.0628 9.87347 20.1862 9.86472 20.309C9.85598 20.4319 9.82311 20.5518 9.768 20.662C9.71289 20.7721 9.63661 20.8703 9.54353 20.951C9.45044 21.0317 9.34238 21.0932 9.22551 21.1321L9.22548 21.1321C7.97783 21.5479 7.16244 22.4328 6.63035 23.4029C6.09865 24.3723 5.84799 25.4298 5.72973 26.1991Z" fill="white" stroke="white" stroke-width="0.125"></path> <path d="M28.4514 5.22757C28.3899 4.80408 28.1932 4.4118 27.8906 4.10922C27.588 3.80664 27.1957 3.60995 26.7722 3.54849C25.3615 3.33798 21.6946 3.23434 18.1211 6.80765L16.9998 7.92898H9.34302C9.08027 7.92829 8.81998 7.9797 8.57722 8.08024C8.33446 8.18079 8.11404 8.32846 7.92872 8.51473L3.88599 12.5575C3.63004 12.8135 3.44836 13.1342 3.36033 13.4853C3.2723 13.8364 3.28122 14.2048 3.38613 14.5513C3.49104 14.8978 3.68802 15.2092 3.95605 15.4525C4.22408 15.6958 4.55312 15.8618 4.90809 15.9328L9.84995 16.9212L15.0787 22.1499L16.067 27.0918C16.1379 27.4469 16.3039 27.776 16.5472 28.0441C16.7905 28.3122 17.102 28.5093 17.4486 28.6142C17.7951 28.7191 18.1636 28.728 18.5148 28.6398C18.8659 28.5517 19.1866 28.3699 19.4425 28.1138L23.4852 24.071C23.6715 23.8857 23.8192 23.6653 23.9197 23.4226C24.0203 23.1799 24.0716 22.9196 24.0709 22.6569V15L25.1923 13.8787C28.7658 10.3052 28.662 6.63833 28.4514 5.22757ZM9.34302 9.92898H14.9998L10.0143 14.9145L5.3003 13.9717L9.34302 9.92898ZM22.0709 22.6569L18.0282 26.6996L17.0854 21.9856L22.0709 17.0001L22.0709 22.6569Z" fill="white"></path> </svg></div></div></div>
+        <div class="icon-box-text"><h4>Miễn phí vận chuyển</h4><p>Giao hàng nhanh, đóng gói cẩn thận</p></div>
+    </div>
+    <div class="icon-box">
+        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M24 7.06252H24.0625V7.00002V5.00002C24.0625 4.81459 24.1175 4.63333 24.2205 4.47915C24.3236 4.32498 24.47 4.20481 24.6413 4.13386C24.8126 4.0629 25.0011 4.04434 25.183 4.08052C25.3648 4.1167 25.5319 4.206 25.663 4.33712L25.7071 4.29301L25.663 4.33712L28.663 7.33712C28.8388 7.51293 28.9376 7.75138 28.9376 8.00002C28.9376 8.24865 28.8388 8.4871 28.663 8.66291L25.663 11.6629C25.5319 11.794 25.3648 11.8833 25.183 11.9195C25.0011 11.9557 24.8126 11.9371 24.6413 11.8662C24.47 11.7952 24.3236 11.6751 24.2205 11.5209C24.1175 11.3667 24.0625 11.1854 24.0625 11V9.00002V8.93752H24H12H12C10.1275 8.93963 8.33241 9.68438 7.0084 11.0084C5.6844 12.3324 4.93964 14.1275 4.93753 15.9999V16C4.93753 16.2487 4.83876 16.4871 4.66295 16.6629C4.48713 16.8387 4.24867 16.9375 4.00003 16.9375C3.75139 16.9375 3.51294 16.8387 3.33712 16.6629C3.16131 16.4871 3.06254 16.2487 3.06253 16.0001C3.06521 13.6305 4.0077 11.3588 5.68323 9.68322C7.35878 8.00768 9.63053 7.06518 12.0001 7.06252H24ZM20 23.0625H20.0001C21.8725 23.0604 23.6677 22.3157 24.9917 20.9916C26.3157 19.6676 27.0604 17.8725 27.0625 16.0001V16C27.0625 15.7514 27.1613 15.5129 27.3371 15.3371C27.5129 15.1613 27.7514 15.0625 28 15.0625C28.2487 15.0625 28.4871 15.1613 28.6629 15.3371C28.8387 15.5129 28.9375 15.7513 28.9375 15.9999C28.9349 18.3695 27.9924 20.6413 26.3168 22.3168C24.6413 23.9924 22.3695 24.9348 20 24.9375H8.00003H7.93753V25V27C7.93753 27.1854 7.88255 27.3667 7.77953 27.5209C7.67651 27.6751 7.53009 27.7952 7.35878 27.8662C7.18746 27.9371 6.99896 27.9557 6.8171 27.9195C6.63523 27.8833 6.46819 27.794 6.33707 27.6629L3.33707 24.6629C3.16127 24.4871 3.0625 24.2486 3.0625 24C3.0625 23.7514 3.16127 23.5129 3.33707 23.3371L6.33707 20.3371C6.46819 20.206 6.63523 20.1167 6.8171 20.0805C6.99896 20.0443 7.18746 20.0629 7.35878 20.1339C7.53009 20.2048 7.67651 20.325 7.77953 20.4792C7.88255 20.6333 7.93753 20.8146 7.93753 21V23V23.0625H8.00003H20Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg></div></div></div>
+        <div class="icon-box-text"><h4>Đổi hàng 7 ngày</h4><p>1 đổi 1 trong 7 ngày với sản phẩm lỗi</p></div>
+    </div>
+    <div class="icon-box">
+        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M15.3991 29.7943L15.3987 29.7942C13.5007 29.1654 4.06262 25.4711 4.06262 14.333V7.00004C4.0633 6.48638 4.26765 5.99396 4.63086 5.63074C4.99409 5.26752 5.48653 5.06317 6.0002 5.0625L26.0001 5.0625C26.5137 5.06318 27.0062 5.26753 27.3694 5.63074C27.7326 5.99396 27.937 6.48641 27.9376 7.00008V14.333C27.9376 25.472 18.4985 29.1654 16.6016 29.7942L16.6011 29.7943C16.2114 29.9266 15.7889 29.9266 15.3991 29.7943ZM22.3322 13.6611C22.3885 13.5904 22.4357 13.5126 22.4724 13.4296C22.529 13.302 22.5598 13.1644 22.5631 13.0248C22.5665 12.8852 22.5423 12.7463 22.4919 12.6161C22.4415 12.4859 22.366 12.3668 22.2696 12.2658C22.1732 12.1648 22.0579 12.0837 21.9302 12.0273C21.8024 11.9709 21.6648 11.9402 21.5252 11.937C21.3856 11.9338 21.2468 11.9581 21.1166 12.0086C20.9864 12.0591 20.8674 12.1347 20.7665 12.2312L14.1661 18.5308L11.2337 15.7312C11.2337 15.7312 11.2337 15.7312 11.2337 15.7312C11.1328 15.6347 11.0138 15.5591 10.8836 15.5086C10.7535 15.4581 10.6146 15.4338 10.475 15.437C10.3354 15.4402 10.1978 15.4709 10.0701 15.5273C9.94236 15.5837 9.82701 15.6648 9.73062 15.7658C9.63423 15.8668 9.55869 15.9859 9.50833 16.1161C9.45797 16.2463 9.43377 16.3852 9.43711 16.5248C9.44045 16.6644 9.47127 16.802 9.5278 16.9296C9.58433 17.0573 9.66548 17.1726 9.76659 17.2689L13.4325 20.7688L13.4326 20.7689C13.6303 20.9574 13.893 21.0625 14.1661 21.0625C14.4393 21.0625 14.702 20.9574 14.8997 20.7689L14.8997 20.7688L22.2337 13.7688L22.3466 13.6611H22.3322Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg></div></div></div>
+        <div class="icon-box-text"><h4>Bảo hành 5 năm</h4><p>Thụ tục nhanh gọn, thay pin miễn phí</p></div>
+    </div>
+    <div class="icon-box">
+        <div class="icon-box-img" style="width: 32px"><div class="icon"><div class="icon-inner"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M6.80761 25.1924C5.65711 24.0419 6.42019 21.6265 5.8346 20.2111C5.22755 18.744 3 17.5631 3 16C3 14.4368 5.22756 13.256 5.8346 11.7888C6.4202 10.3735 5.65711 7.95811 6.80761 6.80761C7.95811 5.65711 10.3735 6.42019 11.7889 5.8346C13.256 5.22755 14.4369 3 16 3C17.5632 3 18.744 5.22756 20.2112 5.8346C21.6265 6.4202 24.0419 5.65711 25.1924 6.80761C26.3429 7.95811 25.5798 10.3735 26.1654 11.7889C26.7725 13.256 29 14.4369 29 16C29 17.5632 26.7724 18.744 26.1654 20.2112C25.5798 21.6265 26.3429 24.0419 25.1924 25.1924C24.0419 26.3429 21.6265 25.5798 20.2111 26.1654C18.744 26.7725 17.5631 29 16 29C14.4368 29 13.256 26.7724 11.7888 26.1654C10.3735 25.5798 7.95811 26.3429 6.80761 25.1924Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M21.5 13L14.1666 20L10.5 16.5" stroke="#1b6e76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </svg></div></div></div>
+        <div class="icon-box-text"><h4>Đeo trước trả sau</h4><p>Hoàn tiền nếu phát hiện bán hàng giả</p></div>
+    </div>
+</div>
 
-        <c:forEach items="${listSlideshow}" var="banner">
-            <div class="mySlides fade">
-                <img src="${banner.imageUrl}" style="width:100%">
+<div class="introduce-text">
+    <div class="introduce-section container-introduce-title" style="margin-left: auto; margin-right: auto; width: 80%">
+        <h1 class="introduce-title" style="margin-bottom:0">
+            <b aria-hidden="true" style="background-color: black; display: block; flex: 1; height: 2px; opacity: .1"></b>
+            <span style="font-size: 90%; margin: 0 15px; font-weight: 500">ĐỒNG HỒ ĐEO TAY CHÍNH HÃNG</span>
+            <b aria-hidden="true" style="background-color: black; display: block; flex: 1; height: 2px; opacity: .1"></b>
+        </h1>
+    </div>
+    <div class="introduce-section">
+        <p id="text-introduce" style="text-align: center; font-size: 12px;">VVP cung cấp đa dạng mẫu đồng hồ theo nhiều phong cách khác nhau.</p>
+    </div>
+</div>
+
+<div class="container-introduce-brand">
+    <div class="introduce-brand">
+        <div class="row-brand" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+            <c:forEach items="${listSmallBanners}" var="b">
+                <div class="brand">
+                    <div class="container-img-brand">
+                        <div class="img-brand">
+                            <img src="${b.imageUrl}" width="232" height="99" alt="Banner Brand">
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
+        </div>
+    </div>
+</div>
+
+
+<div class="custom-slider-container">
+    <div class="slider-header">
+        <h2 class="slider-title">
+            <i class="fa-solid fa-star text-warning" style="color: #ffc107;"></i> Sản Phẩm Nổi Bật
+        </h2>
+        <a href="category?type=collection&name=noi-bat" class="view-all-link">Xem tất cả <i class="fa-solid fa-angle-right"></i></a>
+    </div>
+
+    <div class="swiper productSwiper">
+        <div class="swiper-wrapper">
+            <c:forEach items="${listFeatured}" var="p">
+                <div class="swiper-slide">
+                    <c:set var="isOut" value="${p.stockQuantity <= 0}" />
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                            <img src="${p.imageUrl}" alt="${p.name}">
+                            <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
+                        </a>
+                        <br />
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <div class="Discount-row">
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        </div>
+                        <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
+                    </div>
+                </div>
+            </c:forEach>
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+</div>
+
+
+<div class="custom-slider-container">
+    <div class="slider-header">
+        <h2 class="slider-title">
+            <i class="fa-solid fa-fire text-danger" style="color: #dc3545;"></i> Sản Phẩm Bán Chạy
+        </h2>
+        <a href="category?type=collection&name=ban-chay" class="view-all-link">Xem tất cả <i class="fa-solid fa-angle-right"></i></a>
+    </div>
+
+    <div class="swiper productSwiper">
+        <div class="swiper-wrapper">
+            <c:forEach items="${listBestSeller}" var="p">
+                <div class="swiper-slide">
+                    <c:set var="isOut" value="${p.stockQuantity <= 0}" />
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                            <img src="${p.imageUrl}" alt="${p.name}">
+                            <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
+                        </a>
+                        <br />
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <div class="Discount-row">
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        </div>
+                        <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
+                    </div>
+                </div>
+            </c:forEach>
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+</div>
+
+
+<div class="collection-luxury">
+    <div class="luxury-title">
+        <h2>BỘ SƯU TẬP HÀNG LUXURY</h2>
+    </div>
+
+    <div class="luxury-cards">
+        <div class="luxury-banner">
+            <a href="category?type=luxury"> <img src="https://www.watchstore.vn/wp-content/uploads/2025/06/banner-dong-ho-cao-cap_1714020205.webp" width="285" height="350"></a>
+        </div>
+
+        <div class="card-wrapper swiper">
+            <ul class="ul-luxury-cards swiper-wrapper">
+                <c:forEach items="${listLuxury}" var="p">
+                    <li class="luxury-card swiper-slide">
+                        <c:set var="isOut" value="${p.stockQuantity <= 0}" />
+                        <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                                <img src="${p.imageUrl}" alt="${p.name}">
+                                <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
+                            </a>
+                            <br />
+                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
+                            <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <div class="Discount-row">
+                                <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            </div>
+                            <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
+                        </div>
+                    </li>
+                </c:forEach>
+            </ul>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-slide-button swiper-button-prev"></div>
+            <div class="swiper-slide-button swiper-button-next"></div>
+        </div>
+    </div>
+</div>
+
+
+<div><p class="ThuongHieu">Thương hiệu có ở VVP</p></div>
+<div class="CamKet"><p>VPP Cam kết chính hãng 100%, bồi thường 20 lần nếu phát hiện hàng giả</p></div>
+
+<div class="brand-slider-wrapper" style="position: relative; max-width: 1200px; margin: 0 auto;">
+    <button class="brand-nav-btn prev-brand" onclick="scrollBrand(-1)">❮</button>
+    <div class="logo-container" id="brand-slider">
+        <c:forEach items="${listBrands}" var="b">
+            <div class="logo-brand">
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; overflow: hidden;">
+                    <img src="${b.logoUrl}" alt="${b.name}" title="${b.name}" style="width: 80px; height: 40px; object-fit: contain;">
+                </div>
             </div>
         </c:forEach>
-
-        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-        <a class="next" onclick="plusSlides(1)">&#10095;</a>
-
-        <div class="dots-container" style="text-align:center">
-            <c:forEach items="${listSlideshow}" var="banner" varStatus="status">
-                <span class="dot" onclick="currentSlide(${status.count})"></span>
-            </c:forEach>
-        </div>
     </div>
-    <br>
+    <button class="brand-nav-btn next-brand" onclick="scrollBrand(1)">❯</button>
+</div>
 
+<div class="BST"><p>SẢN PHẨM THEO GIỚI TÍNH</p></div>
 
+<div class="button-bst-container">
+    <button id="tab-men" class="active">Đồng hồ nam</button>
+    <button id="tab-women">Đồng hồ nữ</button>
+</div>
 
-    <!-- Service-->
-    <div class="service">
-        <div class="icon-box">
-            <div class="icon-box-img" style="width: 28px">
-                <div class="icon">
-                    <div class="icon-inner" style="color:#1b6e76;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M16 25C20.9706 25 25 20.9706 25 16C25 11.0294 20.9706 7 16 7C11.0294 7 7 11.0294 7 16C7 20.9706 11.0294 25 16 25Z" fill="white" stroke="white" stroke-width="2" stroke-miterlimit="10"></path> <path d="M16 11V16H21" stroke="#1b6e76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 8.51597L11.851 3.82162C11.8928 3.5911 12.0142 3.38257 12.1941 3.23241C12.3739 3.08225 12.6007 3 12.835 3H19.165C19.3993 3 19.6261 3.08225 19.8059 3.23241C19.9858 3.38257 20.1072 3.5911 20.149 3.82162L21 8.516" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 23.484L11.851 28.1784C11.8928 28.4089 12.0142 28.6174 12.1941 28.7676C12.3739 28.9178 12.6007 29 12.835 29H19.165C19.3993 29 19.6261 28.9178 19.8059 28.7676C19.9858 28.6174 20.1072 28.4089 20.149 28.1784L21 23.484" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="icon-box-text">
-                <h4>Mẫu mã đa dạng nhất</h4>
-                <p>Hoàn tiền nếu phát hiện bán hàng giả</p>
-            </div>
-        </div>
-
-        <div class="icon-box">
-            <div class="icon-box-img" style="width: 28px">
-                <div class="icon">
-                    <div class="icon-inner" style="color:rgb(255, 255, 255);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M5.72973 26.1991L5.71678 26.2834L10.8086 22.7549L10.8679 22.7747C10.8679 22.7747 10.8679 22.7747 10.8679 22.7747C10.9465 22.5388 11.1157 22.3438 11.3381 22.2326C11.5605 22.1214 11.8179 22.1031 12.0538 22.1817C12.2897 22.2603 12.4847 22.4295 12.5959 22.6519C12.7071 22.8742 12.7254 23.1317 12.6468 23.3676C11.9723 25.3906 10.3649 26.8805 7.98801 27.6728C6.92122 28.0255 5.80861 28.2204 4.68545 28.2512C4.43711 28.251 4.199 28.1523 4.02338 27.9766C3.84777 27.801 3.74902 27.5629 3.74878 27.3146C3.77965 26.1914 3.97453 25.0788 4.32725 24.012C5.1196 21.6351 6.60939 20.0276 8.63244 19.3533L8.63248 19.3532C8.7493 19.3142 8.87266 19.2986 8.99553 19.3073C9.11839 19.3159 9.23834 19.3487 9.34853 19.4038C9.45871 19.4588 9.55697 19.535 9.63769 19.628C9.71841 19.7211 9.78001 19.8291 9.81896 19.9459C9.85792 20.0628 9.87347 20.1862 9.86472 20.309C9.85598 20.4319 9.82311 20.5518 9.768 20.662C9.71289 20.7721 9.63661 20.8703 9.54353 20.951C9.45044 21.0317 9.34238 21.0932 9.22551 21.1321L9.22548 21.1321C7.97783 21.5479 7.16244 22.4328 6.63035 23.4029C6.09865 24.3723 5.84799 25.4298 5.72973 26.1991Z" fill="white" stroke="white" stroke-width="0.125"></path> <path d="M28.4514 5.22757C28.3899 4.80408 28.1932 4.4118 27.8906 4.10922C27.588 3.80664 27.1957 3.60995 26.7722 3.54849C25.3615 3.33798 21.6946 3.23434 18.1211 6.80765L16.9998 7.92898H9.34302C9.08027 7.92829 8.81998 7.9797 8.57722 8.08024C8.33446 8.18079 8.11404 8.32846 7.92872 8.51473L3.88599 12.5575C3.63004 12.8135 3.44836 13.1342 3.36033 13.4853C3.2723 13.8364 3.28122 14.2048 3.38613 14.5513C3.49104 14.8978 3.68802 15.2092 3.95605 15.4525C4.22408 15.6958 4.55312 15.8618 4.90809 15.9328L9.84995 16.9212L15.0787 22.1499L16.067 27.0918C16.1379 27.4469 16.3039 27.776 16.5472 28.0441C16.7905 28.3122 17.102 28.5093 17.4486 28.6142C17.7951 28.7191 18.1636 28.728 18.5148 28.6398C18.8659 28.5517 19.1866 28.3699 19.4425 28.1138L23.4852 24.071C23.6715 23.8857 23.8192 23.6653 23.9197 23.4226C24.0203 23.1799 24.0716 22.9196 24.0709 22.6569V15L25.1923 13.8787C28.7658 10.3052 28.662 6.63833 28.4514 5.22757ZM9.34302 9.92898H14.9998L10.0143 14.9145L5.3003 13.9717L9.34302 9.92898ZM22.0709 22.6569L18.0282 26.6996L17.0854 21.9856L22.0709 17.0001L22.0709 22.6569Z" fill="white"></path> </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="icon-box-text">
-                <h4>Miễn phí vận chuyển</h4>
-                <p>Giao hàng nhanh, đóng gói cẩn thận</p>
-            </div>
-        </div>
-
-        <div class="icon-box">
-            <div class="icon-box-img" style="width: 28px">
-                <div class="icon">
-                    <div class="icon-inner" style="color:rgb(255, 255, 255);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M24 7.06252H24.0625V7.00002V5.00002C24.0625 4.81459 24.1175 4.63333 24.2205 4.47915C24.3236 4.32498 24.47 4.20481 24.6413 4.13386C24.8126 4.0629 25.0011 4.04434 25.183 4.08052C25.3648 4.1167 25.5319 4.206 25.663 4.33712L25.7071 4.29301L25.663 4.33712L28.663 7.33712C28.8388 7.51293 28.9376 7.75138 28.9376 8.00002C28.9376 8.24865 28.8388 8.4871 28.663 8.66291L25.663 11.6629C25.5319 11.794 25.3648 11.8833 25.183 11.9195C25.0011 11.9557 24.8126 11.9371 24.6413 11.8662C24.47 11.7952 24.3236 11.6751 24.2205 11.5209C24.1175 11.3667 24.0625 11.1854 24.0625 11V9.00002V8.93752H24H12H12C10.1275 8.93963 8.33241 9.68438 7.0084 11.0084C5.6844 12.3324 4.93964 14.1275 4.93753 15.9999V16C4.93753 16.2487 4.83876 16.4871 4.66295 16.6629C4.48713 16.8387 4.24867 16.9375 4.00003 16.9375C3.75139 16.9375 3.51294 16.8387 3.33712 16.6629C3.16131 16.4871 3.06254 16.2487 3.06253 16.0001C3.06521 13.6305 4.0077 11.3588 5.68323 9.68322C7.35878 8.00768 9.63053 7.06518 12.0001 7.06252H24ZM20 23.0625H20.0001C21.8725 23.0604 23.6677 22.3157 24.9917 20.9916C26.3157 19.6676 27.0604 17.8725 27.0625 16.0001V16C27.0625 15.7514 27.1613 15.5129 27.3371 15.3371C27.5129 15.1613 27.7514 15.0625 28 15.0625C28.2487 15.0625 28.4871 15.1613 28.6629 15.3371C28.8387 15.5129 28.9375 15.7513 28.9375 15.9999C28.9349 18.3695 27.9924 20.6413 26.3168 22.3168C24.6413 23.9924 22.3695 24.9348 20 24.9375H8.00003H7.93753V25V27C7.93753 27.1854 7.88255 27.3667 7.77953 27.5209C7.67651 27.6751 7.53009 27.7952 7.35878 27.8662C7.18746 27.9371 6.99896 27.9557 6.8171 27.9195C6.63523 27.8833 6.46819 27.794 6.33707 27.6629L3.33707 24.6629C3.16127 24.4871 3.0625 24.2486 3.0625 24C3.0625 23.7514 3.16127 23.5129 3.33707 23.3371L6.33707 20.3371C6.46819 20.206 6.63523 20.1167 6.8171 20.0805C6.99896 20.0443 7.18746 20.0629 7.35878 20.1339C7.53009 20.2048 7.67651 20.325 7.77953 20.4792C7.88255 20.6333 7.93753 20.8146 7.93753 21V23V23.0625H8.00003H20Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="icon-box-text">
-                <h4>Đổi hàng 7 ngày</h4>
-                <p>1 đổi 1 trong 7 ngày với sản phẩm lỗi</p>
-            </div>
-        </div>
-
-        <div class="icon-box">
-            <div class="icon-box-img" style="width: 28px">
-                <div class="icon">
-                    <div class="icon-inner" style="color:rgb(255, 255, 255);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M15.3991 29.7943L15.3987 29.7942C13.5007 29.1654 4.06262 25.4711 4.06262 14.333V7.00004C4.0633 6.48638 4.26765 5.99396 4.63086 5.63074C4.99409 5.26752 5.48653 5.06317 6.0002 5.0625L26.0001 5.0625C26.5137 5.06318 27.0062 5.26753 27.3694 5.63074C27.7326 5.99396 27.937 6.48641 27.9376 7.00008V14.333C27.9376 25.472 18.4985 29.1654 16.6016 29.7942L16.6011 29.7943C16.2114 29.9266 15.7889 29.9266 15.3991 29.7943ZM22.3322 13.6611C22.3885 13.5904 22.4357 13.5126 22.4724 13.4296C22.529 13.302 22.5598 13.1644 22.5631 13.0248C22.5665 12.8852 22.5423 12.7463 22.4919 12.6161C22.4415 12.4859 22.366 12.3668 22.2696 12.2658C22.1732 12.1648 22.0579 12.0837 21.9302 12.0273C21.8024 11.9709 21.6648 11.9402 21.5252 11.937C21.3856 11.9338 21.2468 11.9581 21.1166 12.0086C20.9864 12.0591 20.8674 12.1347 20.7665 12.2312L14.1661 18.5308L11.2337 15.7312C11.2337 15.7312 11.2337 15.7312 11.2337 15.7312C11.1328 15.6347 11.0138 15.5591 10.8836 15.5086C10.7535 15.4581 10.6146 15.4338 10.475 15.437C10.3354 15.4402 10.1978 15.4709 10.0701 15.5273C9.94236 15.5837 9.82701 15.6648 9.73062 15.7658C9.63423 15.8668 9.55869 15.9859 9.50833 16.1161C9.45797 16.2463 9.43377 16.3852 9.43711 16.5248C9.44045 16.6644 9.47127 16.802 9.5278 16.9296C9.58433 17.0573 9.66548 17.1726 9.76659 17.2689L13.4325 20.7688L13.4326 20.7689C13.6303 20.9574 13.893 21.0625 14.1661 21.0625C14.4393 21.0625 14.702 20.9574 14.8997 20.7689L14.8997 20.7688L22.2337 13.7688L22.3466 13.6611H22.3322Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="icon-box-text">
-                <h4>Bảo hành 5 năm</h4>
-                <p>Thụ tục nhanh gọn, thay pin miễn phí</p>
-            </div>
-        </div>
-
-        <div class="icon-box">
-            <div class="icon-box-img" style="width: 32px">
-                <div class="icon">
-                    <div class="icon-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M6.80761 25.1924C5.65711 24.0419 6.42019 21.6265 5.8346 20.2111C5.22755 18.744 3 17.5631 3 16C3 14.4368 5.22756 13.256 5.8346 11.7888C6.4202 10.3735 5.65711 7.95811 6.80761 6.80761C7.95811 5.65711 10.3735 6.42019 11.7889 5.8346C13.256 5.22755 14.4369 3 16 3C17.5632 3 18.744 5.22756 20.2112 5.8346C21.6265 6.4202 24.0419 5.65711 25.1924 6.80761C26.3429 7.95811 25.5798 10.3735 26.1654 11.7889C26.7725 13.256 29 14.4369 29 16C29 17.5632 26.7724 18.744 26.1654 20.2112C25.5798 21.6265 26.3429 24.0419 25.1924 25.1924C24.0419 26.3429 21.6265 25.5798 20.2111 26.1654C18.744 26.7725 17.5631 29 16 29C14.4368 29 13.256 26.7724 11.7888 26.1654C10.3735 25.5798 7.95811 26.3429 6.80761 25.1924Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M21.5 13L14.1666 20L10.5 16.5" stroke="#1b6e76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="icon-box-text">
-                <h4>Đeo trước trả sau</h4>
-                <p>Hoàn tiền nếu phát hiện bán hàng giả</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="introduce-text">
-        <div class="introduce-section container-introduce-title" style="margin-left: auto; margin-right: auto; width: 80%">
-            <h1 class="introduce-title" style="margin-bottom:0">
-                <b aria-hidden="true" style="background-color: black; display: block; flex: 1; height: 2px; opacity: .1"></b>
-                <span style="font-size: 90%; margin: 0 15px; font-weight: 500">ĐỒNG HỒ ĐEO TAY CHÍNH HÃNG</span>
-                <b aria-hidden="true" style="background-color: black; display: block; flex: 1; height: 2px; opacity: .1"></b>
-            </h1>
-        </div>
-
-        <div class="introduce-section">
-            <p id="text-introduce">
-                VVP cung cấp đa dạng mẫu đồng hồ theo nhiều phong cách khác nhau.
-            </p>
-            <style>
-                #text-introduce {
-                    text-align: center;
-                    font-size: 12px;
-                }
-            </style>
-        </div>
-
-
-    </div>
-
-    <div class="container-introduce-brand">
-        <div class="introduce-brand">
-            <div class="row-brand" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
-
-                <c:forEach items="${listSmallBanners}" var="b">
-                    <div class="brand">
-                        <div class="container-img-brand">
-                            <div class="img-brand">
-                                <img src="${b.imageUrl}" width="232" height="99" alt="Banner Brand">
-                            </div>
+<div class="Product-list-container">
+    <div id="content-men" class="tab-content">
+        <div class="Product-page">
+            <c:forEach items="${listMen}" var="p">
+                <div class="link-product js-item-men">
+                    <c:set var="isOut" value="${p.stockQuantity <= 0}" />
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                            <img src="${p.imageUrl}" alt="${p.name}">
+                            <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
+                        </a>
+                        <br />
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <div class="Discount-row">
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
                         </div>
-                    </div>
-                </c:forEach>
-
-            </div>
-        </div>
-    </div>
-
-    <div class="collection-luxury">
-        <div class="luxury-title">
-            <h2>BỘ SƯU TẬP HÀNG LUXURY</h2>
-        </div>
-
-        <div class="luxury-cards">
-            <div class="luxury-banner">
-                <a href="category?type=luxury"> <img src="https://www.watchstore.vn/wp-content/uploads/2025/06/banner-dong-ho-cao-cap_1714020205.webp" width="285" height="350"></a>
-            </div>
-
-            <div class="card-wrapper swiper">
-                <ul class="ul-luxury-cards swiper-wrapper">
-                    <c:forEach items="${listLuxury}" var="p">
-                        <li class="luxury-card swiper-slide">
-                            <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-
-                            <div class="Product ${isOut ? 'out-of-stock' : ''}">
-
-                                <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                    <img src="${p.imageUrl}" alt="${p.name}">
-
-                                    <c:if test="${isOut}">
-                                        <span class="badge-out-of-stock">HẾT HÀNG</span>
-                                    </c:if>
-                                </a>
-
-                                <br />
-                                <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-
-                                <p class="PriceOfPoduct">
-                                    <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                </p>
-
-                                <div class="Discount-row">
-                                    <p class="Discount">
-                                        <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                    </p>
-                                </div>
-
-                                <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
-                            </div>
-                        </li>
-                    </c:forEach>
-                </ul>
-
-                <div class="swiper-pagination"></div>
-                <div class="swiper-slide-button swiper-button-prev"></div>
-                <div class="swiper-slide-button swiper-button-next"></div>
-            </div>
-        </div>
-    </div>
-
-
-    <div>
-        <p class="ThuongHieu">Thương hiệu có ở VVP</p>
-    </div>
-    <div class="CamKet">
-        <p>VPP Cam kết chính hãng 100%, bồi thường 20 lần nếu phát hiện hàng giả</p>
-    </div>
-
-    <div class="brand-slider-wrapper" style="position: relative; max-width: 1200px; margin: 0 auto;">
-
-        <button class="brand-nav-btn prev-brand" onclick="scrollBrand(-1)">❮</button>
-
-        <div class="logo-container" id="brand-slider">
-            <c:forEach items="${listBrands}" var="b">
-                <div class="logo-brand">
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; overflow: hidden;">
-                        <img src="${b.logoUrl}" alt="${b.name}" title="${b.name}"
-                             style="width: 80px; height: 40px; object-fit: contain;">
+                        <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>
                 </div>
             </c:forEach>
         </div>
-
-        <button class="brand-nav-btn next-brand" onclick="scrollBrand(1)">❯</button>
-
+        <div class="container-btn-viewmore" style="text-align: center; margin: 30px 0; width: 100%;">
+            <button id="btnLoadMoreMen" type="button" class="btn-view-more-style">Xem thêm <i class="fa-solid fa-chevron-down"></i></button>
+        </div>
     </div>
 
-    <div class="BST">
-        <p>BỘ SƯU TẬP</p>
-    </div>
-
-
-    <div class="button-bst-container">
-        <button id="tab-featured" class="active">Tất cả</button>
-        <button id="tab-men">Đồng hồ nam</button>
-        <button id="tab-women">Đồng hồ nữ</button>
-    </div>
-
-    <div class="Product-list-container">
-
-        <div id="content-featured" class="tab-content">
-            <div class="Product-page">
-                <c:forEach items="${listFeatured}" var="p">
-                    <div class="link-product js-item-featured"> <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-
-                        <div class="Product ${isOut ? 'out-of-stock' : ''}">
-
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}">
-
-                                <c:if test="${isOut}">
-                                    <span class="badge-out-of-stock">HẾT HÀNG</span>
-                                </c:if>
-                            </a>
-
-                            <br />
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-
-                            <p class="PriceOfPoduct">
-                                <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                            </p>
-
-                            <div class="Discount-row">
-                                <p class="Discount">
-                                    <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                </p>
-                            </div>
-
-                            <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
+    <div id="content-women" class="tab-content hidden">
+        <div class="Product-page">
+            <c:forEach items="${listWomen}" var="p">
+                <div class="link-product js-item-women">
+                    <c:set var="isOut" value="${p.stockQuantity <= 0}" />
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                            <img src="${p.imageUrl}" alt="${p.name}">
+                            <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
+                        </a>
+                        <br />
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <div class="Discount-row">
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
                         </div>
+                        <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>
-                </c:forEach>
-            </div>
-            <div class="container-btn-viewmore" style="text-align: center; margin: 30px 0; width: 100%;">
-                <button id="btnNewLoadMore" type="button" class="btn-view-more-style">
-                    Xem thêm <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-        </div>
-
-        <div id="content-men" class="tab-content hidden">
-            <div class="Product-page">
-                <c:forEach items="${listMen}" var="p">
-                    <div class="link-product js-item-men"> <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-
-                        <div class="Product ${isOut ? 'out-of-stock' : ''}">
-
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}">
-
-                                <c:if test="${isOut}">
-                                    <span class="badge-out-of-stock">HẾT HÀNG</span>
-                                </c:if>
-                            </a>
-
-                            <br />
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-
-                            <p class="PriceOfPoduct">
-                                <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                            </p>
-
-                            <div class="Discount-row">
-                                <p class="Discount">
-                                    <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                </p>
-                            </div>
-
-                            <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-            <div class="container-btn-viewmore" style="text-align: center; margin: 30px 0; width: 100%;">
-                <button id="btnLoadMoreMen" type="button" class="btn-view-more-style">
-                    Xem thêm <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-        </div>
-
-        <div id="content-women" class="tab-content hidden">
-            <div class="Product-page">
-                <c:forEach items="${listWomen}" var="p">
-                    <div class="link-product js-item-women"> <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-
-                        <div class="Product ${isOut ? 'out-of-stock' : ''}">
-
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
-                                <img src="${p.imageUrl}" alt="${p.name}">
-
-                                <c:if test="${isOut}">
-                                    <span class="badge-out-of-stock">HẾT HÀNG</span>
-                                </c:if>
-                            </a>
-
-                            <br />
-                            <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-
-                            <p class="PriceOfPoduct">
-                                <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                            </p>
-
-                            <div class="Discount-row">
-                                <p class="Discount">
-                                    <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                </p>
-                            </div>
-
-                            <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-            <div class="container-btn-viewmore" style="text-align: center; margin: 30px 0; width: 100%;">
-                <button id="btnLoadMoreWomen" type="button" class="btn-view-more-style">
-                    Xem thêm <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-        </div>
-
-    </div>
-
-
-
-    <section class="InformationStore">
-        <div class="History-Brand">
-            <div class="Picture-Brand">
-                <img src="${shopInfo.mainImageUrl}" alt="VVP Store">
-            </div>
-            <div class="Introduce-Brand">
-                <p class="LogoStore">${shopInfo.brandName}</p>
-                <p class="ReputationBrand">${shopInfo.subtitle}</p>
-
-                <p class="History1">${shopInfo.history1}</p>
-                <p class="History2">${shopInfo.history2}</p>
-                <p class="History3">${shopInfo.history3}</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="slideshow-gallery-section">
-        <button class="gallery-button prev-gallery" onclick="scrollSlider(-1)">❮</button>
-
-        <div class="new-store-gallery-container" id="slide-list-img-new">
-            <c:forEach items="${shopGallery}" var="imgUrl">
-                <img src="${imgUrl}" alt="Cửa hàng VVP" class="gallery-image">
+                </div>
             </c:forEach>
         </div>
-
-        <button class="gallery-button next-gallery" onclick="scrollSlider(1)">❯</button>
+        <div class="container-btn-viewmore" style="text-align: center; margin: 30px 0; width: 100%;">
+            <button id="btnLoadMoreWomen" type="button" class="btn-view-more-style">Xem thêm <i class="fa-solid fa-chevron-down"></i></button>
+        </div>
     </div>
+</div>
 
-        <jsp:include page="WEB-INF/tags/footer.jsp"></jsp:include>
+<section class="InformationStore">
+    <div class="History-Brand">
+        <div class="Picture-Brand">
+            <img src="${shopInfo.mainImageUrl}" alt="VVP Store">
+        </div>
+        <div class="Introduce-Brand">
+            <p class="LogoStore">${shopInfo.brandName}</p>
+            <p class="ReputationBrand">${shopInfo.subtitle}</p>
+            <p class="History1">${shopInfo.history1}</p>
+            <p class="History2">${shopInfo.history2}</p>
+            <p class="History3">${shopInfo.history3}</p>
+        </div>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/ProductCards.js"></script>
+<div class="slideshow-gallery-section">
+    <button class="gallery-button prev-gallery" onclick="scrollSlider(-1)">❮</button>
+    <div class="new-store-gallery-container" id="slide-list-img-new">
+        <c:forEach items="${shopGallery}" var="imgUrl">
+            <img src="${imgUrl}" alt="Cửa hàng VVP" class="gallery-image">
+        </c:forEach>
+    </div>
+    <button class="gallery-button next-gallery" onclick="scrollSlider(1)">❯</button>
+</div>
+
+<jsp:include page="WEB-INF/tags/footer.jsp"></jsp:include>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/ProductCards.js"></script>
+
+<script>
+    var featuredSwiper = new Swiper(".productSwiper", {
+        slidesPerView: 2,
+        spaceBetween: 15,
+        autoplay: {
+            delay: 3500,
+            disableOnInteraction: false,
+        },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+            dynamicBullets: true,
+        },
+        breakpoints: {
+            576: { slidesPerView: 3, spaceBetween: 15 },
+            768: { slidesPerView: 4, spaceBetween: 20 },
+            1024: { slidesPerView: 5, spaceBetween: 20 },
+        },
+    });
+</script>
 </body>
 </html>

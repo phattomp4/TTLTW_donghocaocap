@@ -14,7 +14,9 @@ public class UserDAO {
     PreparedStatement ps = null;
     ResultSet rs = null;
 
+
     public User login(String account, String pass) {
+
         String query = "SELECT * FROM users WHERE Username = ? OR Email = ? OR Phone = ?";
         try {
             conn = new DBContext().getConnection();
@@ -23,23 +25,11 @@ public class UserDAO {
             ps.setString(2, account);
             ps.setString(3, account);
             rs = ps.executeQuery();
+
             if (rs.next()) {
                 String dbPass = rs.getString("PasswordHash");
-
                 if (BCrypt.checkpw(pass, dbPass)) {
-                    User u = new User();
-                    u.setId(rs.getInt("UserID"));
-                    u.setUsername(rs.getString("Username"));
-                    u.setPassword(rs.getString("PasswordHash"));
-                    u.setFullName(rs.getString("FullName"));
-                    u.setEmail(rs.getString("Email"));
-                    u.setRole(rs.getString("Role"));
-                    u.setPhone(rs.getString("Phone"));
-                    u.setGender(rs.getString("Gender"));
-                    u.setAddress(rs.getString("Address"));
-                    u.setAvatar(rs.getString("Avatar"));
-
-                    return u;
+                    return mapUser(rs);
                 }
             }
         } catch (Exception e) {
@@ -79,9 +69,11 @@ public class UserDAO {
         }
         return null;
     }
-    public boolean signup(String user, String pass, String fullName, String email, String phone) {
-        // Role mặc định là 'user' và thực hiện một lệnh INSERT duy nhất vào bảng users
-        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone) VALUES (?, ?, ?, ?, 'user', NOW(), ?)";
+    public boolean signup(String user, String pass, String fullName, String email, String phone, String token) {
+        // role mặc định là 'user'
+        // Status mặc định là 'Unverified' mã kích hoạt có hạn 24h
+        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone, Status, VerificationToken, VerificationExpiry) " +
+                "VALUES (?, ?, ?, ?, 'user', NOW(), ?, 'Unverified', ?, DATE_ADD(NOW(), INTERVAL 24 HOUR))";
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -90,10 +82,11 @@ public class UserDAO {
             conn.setAutoCommit(false);
             ps = conn.prepareStatement(query);
             ps.setString(1, user);
-            ps.setString(2, BCrypt.hashpw(pass, BCrypt.gensalt(12)));
+            ps.setString(2, BCrypt.hashpw(pass, BCrypt.gensalt(12))); //
             ps.setString(3, email);
             ps.setString(4, fullName);
             ps.setString(5, phone);
+            ps.setString(6, token); // Lưu mã token ngẫu nhiên để kích hoạt
 
             int result = ps.executeUpdate();
             if (result > 0) {
@@ -115,6 +108,7 @@ public class UserDAO {
         } finally {
             try {
                 if (conn != null) {
+                    // Bước 4: Trả lại trạng thái AutoCommit và giải phóng tài nguyên
                     conn.setAutoCommit(true);
                     conn.close();
                 }
@@ -125,7 +119,51 @@ public class UserDAO {
         }
         return false;
     }
-
+    // Hàm cập nhật lại Token mới cho tài khoản chưa kích hoạt
+    public void refreshVerificationToken(String email, String newToken) {
+        String query = "UPDATE users SET VerificationToken = ?, VerificationExpiry = DATE_ADD(NOW(), INTERVAL 24 HOUR) WHERE Email = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, newToken);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { closeResources(); }
+    }
+    public boolean activateAccount(String token) {
+        String query = "UPDATE users SET Status = 'Active', VerificationToken = NULL, VerificationExpiry = NULL WHERE VerificationToken = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, token);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+    public boolean isAccountExist(String accountInfo) {
+        String query = "SELECT COUNT(*) FROM users WHERE Email = ? OR Phone = ? OR Username = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, accountInfo);
+            ps.setString(2, accountInfo);
+            ps.setString(3, accountInfo);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
     public User checkUserExist(String user) {
         String query = "SELECT * FROM users WHERE Username = ?";
         return getSingleUser(query, user);
@@ -281,43 +319,8 @@ public class UserDAO {
         }
     }
 
-    public boolean setResetCode(String accountInfo, String code) {
-        String sql = "UPDATE users SET ResetToken = ?, TokenExpiry = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE Email = ? OR Phone = ?";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, code);
-            ps.setString(2, accountInfo);
-            ps.setString(3, accountInfo);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeResources();
-        }
-        return false;
-    }
-
-    public boolean verifyCode(String accountInfo, String code) {
-        String sql = "SELECT UserID FROM users WHERE (Email = ? OR Phone = ?) AND ResetToken = ? AND TokenExpiry > NOW()";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, accountInfo);
-            ps.setString(2, accountInfo);
-            ps.setString(3, code);
-            rs = ps.executeQuery();
-            return rs.next();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeResources();
-        }
-        return false;
-    }
-
     public boolean resetPassword(String accountInfo, String newPassword) {
-        String sql = "UPDATE users SET PasswordHash = ?, ResetToken = NULL, TokenExpiry = NULL WHERE Email = ? OR Phone = ?";
+        String sql = "UPDATE users SET PasswordHash = ? WHERE Email = ? OR Phone = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(sql);
@@ -360,6 +363,10 @@ public class UserDAO {
         u.setGender(rs.getString("Gender"));
         u.setAddress(rs.getString("Address"));
         u.setAvatar(rs.getString("Avatar"));
+
+        u.setStatus(rs.getString("Status"));
+        u.setVerificationToken(rs.getString("VerificationToken"));
+        u.setVerificationExpiry(rs.getTimestamp("VerificationExpiry"));
         return u;
     }
 
@@ -400,7 +407,6 @@ public class UserDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // đóng kết nối để không bị tràn RAM
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
@@ -493,6 +499,18 @@ public class UserDAO {
             closeResources();
         }
     }
-
-
+    public User getUserByAccount(String account) {
+        String query = "SELECT * FROM users WHERE Username = ? OR Email = ? OR Phone = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, account);
+            ps.setString(2, account);
+            ps.setString(3, account);
+            rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs); //
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { closeResources(); }
+        return null;
+    }
 }

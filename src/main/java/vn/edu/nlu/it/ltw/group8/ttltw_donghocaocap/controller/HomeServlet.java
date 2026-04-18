@@ -33,21 +33,22 @@ public class HomeServlet extends HttpServlet {
             session.setAttribute("shopGallery", gallery);
         }
 
-        List<Product> listFeatured = productDao.getFeaturedProducts();
         List<Product> listMen = productDao.getMenProducts();
         List<Product> listWomen = productDao.getWomenProducts();
         List<Product> listLuxury = productDao.getLuxuryProducts();
-
         List<SmallBanner> listSmallBanners = homeDao.getSmallBanners();
         List<Banner> listSlideshow = homeDao.getSlideshowBanners();
         List<Brand> listBrands = homeDao.getFeaturedBrands();
+        List<Product> listFeatured = productDao.getFeaturedProducts(8);
+        List<Product> listBestSeller = productDao.getBestSellersLast3Months(8);
 
 
+        request.setAttribute("listFeatured", listFeatured);
+        request.setAttribute("listBestSeller", listBestSeller);
         request.setAttribute("listFeatured", listFeatured);
         request.setAttribute("listMen", listMen);
         request.setAttribute("listWomen", listWomen);
         request.setAttribute("listLuxury", listLuxury);
-
         request.setAttribute("listSmallBanners", listSmallBanners);
         request.setAttribute("listSlideshow", listSlideshow);
         request.setAttribute("listBrands", listBrands);

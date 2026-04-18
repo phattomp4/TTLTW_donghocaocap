@@ -5,11 +5,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ReviewDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
-
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Review;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "DetailServlet", urlPatterns = {"/detail"})
 public class DetailServlet extends HttpServlet {
@@ -20,9 +25,30 @@ public class DetailServlet extends HttpServlet {
 
             ProductDAO dao = new ProductDAO();
             Product p = dao.getProductById(pid);
+            dao.incrementProductScore(pid, 1);
 
             if(p != null) {
                 request.setAttribute("p", p);
+
+                HttpSession session = request.getSession();
+                User user = (User) session.getAttribute("acc");
+                boolean canReview = false;
+
+                // kiểm tra user đã mua hàng chưa để ẩn hiện form đánh giá
+                if (user != null) {
+                    OrderDAO orderDAO = new OrderDAO();
+                    canReview = orderDAO.checkUserBoughtProduct(user.getId(), pid);
+                }
+                request.setAttribute("canReview", canReview);
+
+                ReviewDAO reviewDAO = new ReviewDAO();
+                int totalReviews = reviewDAO.countReviewsByProductId(pid);
+                request.setAttribute("totalReviews", totalReviews);
+
+                List<Review> listReviews = reviewDAO.getReviewsWithPagination(pid, 0, 10);
+                request.setAttribute("listReviews", listReviews);
+
+
                 request.getRequestDispatcher("detail.jsp").forward(request, response);
             } else {
                 response.sendRedirect("home");

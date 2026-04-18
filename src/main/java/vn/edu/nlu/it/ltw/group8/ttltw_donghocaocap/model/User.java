@@ -1,6 +1,7 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class User  implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -14,16 +15,28 @@ public class User  implements Serializable {
     private String gender;
     private String address;
     private String avatar;
+    private String status;
+    //them truong de them chuc nang kich hoat
+    private String verificationToken;
+    private Timestamp verificationExpiry;
 
-    public User() {}
+    public User() {
+    }
 
-    public User(int id, String username, String password, String fullName, String email, String role) {
+    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.role = role;
+        this.phone = phone;
+        this.gender = gender;
+        this.address = address;
+        this.avatar = avatar;
+        this.status = status;
+        this.verificationToken = verificationToken;
+        this.verificationExpiry = verificationExpiry;
     }
 
     public int getId() {
@@ -98,7 +111,35 @@ public class User  implements Serializable {
         this.address = address;
     }
 
-    public String getAvatar() { return avatar; }
+    public String getAvatar() {
+        return avatar;
+    }
 
-    public void setAvatar(String avatar) { this.avatar = avatar; }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public Timestamp getVerificationExpiry() {
+        return verificationExpiry;
+    }
+
+    public void setVerificationExpiry(Timestamp verificationExpiry) {
+        this.verificationExpiry = verificationExpiry;
+    }
 }
