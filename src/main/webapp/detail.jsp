@@ -11,16 +11,24 @@
     <title>${p.name} - Chi tiết sản phẩm</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/TrangChiTietSanPham.css">
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
 
     <style>
-        .Main-image-container img { max-width: 100%; height: auto; }
-        .Body { display: flex; gap: 30px; margin: 20px auto; max-width: 1200px; }
-        @media (max-width: 768px) { .Body { flex-direction: column; } }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 5px;}
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 25px; color: #ccc; cursor: pointer; transition: 0.2s;}
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label { color: #ffc107; }
+
+        .review-item { border-bottom: 1px solid #eee; padding: 20px 0; display: flex; gap: 15px;}
+        .review-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd;}
+        .review-user { font-weight: bold; color: #333; margin-bottom: 2px; }
+        .review-date { font-size: 12px; color: #999; }
+        .review-stars { color: #ffc107; font-size: 13px; margin-bottom: 5px; }
+        .review-img { max-width: 120px; border-radius: 4px; margin-top: 10px; border: 1px solid #ddd; cursor: zoom-in;}
     </style>
 </head>
 <body>
@@ -28,6 +36,7 @@
 <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
 <c:set var="pName" value="${fn:toLowerCase(p.name)}" />
 <c:set var="isAccessory" value="${fn:contains(pName, 'dây') or fn:contains(pName, 'hộp') or fn:contains(pName, 'khóa') or fn:contains(pName, 'phụ kiện')}" />
+
 <div class="product-detail-container" style="margin-top: 5px; display: flex; gap: 30px; padding: 0 10%;">
 
     <div class="product-images" style="width: 50%;">
@@ -61,34 +70,14 @@
         <div class="specs-table" style="margin-top: 40px;">
             <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">THÔNG SỐ KỸ THUẬT</h3>
             <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-
-                <c:if test="${not empty p.specifications['Thương hiệu']}">
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Thương hiệu</td><td>${p.specifications['Thương hiệu']}</td></tr>
-                </c:if>
-
-                <c:if test="${not empty p.specifications['Thương hiệu']}">
-                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Xuất xứ</td><td>${p.specifications['Xuất xứ']}</td></tr>
-                </c:if>
-
-                <c:if test="${not empty p.specifications['Đối tượng']}">
-                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Đối tượng</td><td>${p.specifications['Đối tượng']}</td></tr>
-                </c:if>
-
-                <c:if test="${not empty p.specifications['Chống nước']}">
-                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chống nước</td><td>${p.specifications['Chống nước']}</td></tr>
-                </c:if>
-
-                <c:if test="${not empty p.specifications['Loại máy']}">
-                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Loại máy</td><td>${p.specifications['Loại máy']}</td></tr>
-                </c:if>
-
-                <c:if test="${not empty p.specifications['Chất liệu kính']}">
-                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chất liệu kính</td><td>${p.specifications['Chất liệu kính']}</td></tr>
-                </c:if>
-
+                <c:if test="${not empty p.specifications['Thương hiệu']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Thương hiệu</td><td>${p.specifications['Thương hiệu']}</td></tr></c:if>
+                <c:if test="${not empty p.specifications['Xuất xứ']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Xuất xứ</td><td>${p.specifications['Xuất xứ']}</td></tr></c:if>
+                <c:if test="${not empty p.specifications['Đối tượng']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Đối tượng</td><td>${p.specifications['Đối tượng']}</td></tr></c:if>
+                <c:if test="${not empty p.specifications['Chống nước']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chống nước</td><td>${p.specifications['Chống nước']}</td></tr></c:if>
+                <c:if test="${not empty p.specifications['Loại máy']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Loại máy</td><td>${p.specifications['Loại máy']}</td></tr></c:if>
+                <c:if test="${not empty p.specifications['Chất liệu kính']}"><tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px; font-weight: bold;">Chất liệu kính</td><td>${p.specifications['Chất liệu kính']}</td></tr></c:if>
             </table>
         </div>
-
 
         <div class="actions">
             <form id="productForm" action="${pageContext.request.contextPath}/add-to-cart" method="GET">
@@ -96,39 +85,27 @@
 
                 <div class="quantity-box">
                     <label>Số lượng:</label>
-                    <input type="number" id="qtyInput" name="quantity" value="1" min="1"
-                           style="width: 50px; text-align: center;"
-                    ${p.stockQuantity <= 0 ? 'disabled' : ''}>
+                    <input type="number" id="qtyInput" name="quantity" value="1" min="1" style="width: 50px; text-align: center;" ${p.stockQuantity <= 0 ? 'disabled' : ''}>
                 </div>
 
                 <c:choose>
                     <c:when test="${p.stockQuantity > 0}">
                         <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
-
                             <c:choose>
                                 <c:when test="${sessionScope.acc != null && sessionScope.acc.role == 'Admin'}">
-                                    <a href="admin/product-form?id=${p.id}" class="btn-buy-now"
-                                       style="background: #343a40; color: white; border: none; padding: 10px 30px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                    <a href="admin/product-form?id=${p.id}" class="btn-buy-now" style="background: #343a40; color: white; border: none; padding: 10px 30px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
                                         <i class="fa-solid fa-screwdriver-wrench"></i> QUẢN LÝ / SỬA SẢN PHẨM NÀY
                                     </a>
                                 </c:when>
                                 <c:otherwise>
-                                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart"
-                                            style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;">
+                                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;">
                                         <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                                     </button>
-
-                                    <button type="submit" name="action" value="buynow" class="btn-buy-now"
-                                            style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">
-                                        Mua ngay
-                                    </button>
+                                    <button type="submit" name="action" value="buynow" class="btn-buy-now" style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">Mua ngay</button>
                                 </c:otherwise>
                             </c:choose>
-
                         </div>
-                        <p style="color: green; margin-top: 10px; font-size: 14px;">
-                            <i class="fa-solid fa-check-circle"></i> Còn lại ${p.stockQuantity} sản phẩm
-                        </p>
+                        <p style="color: green; margin-top: 10px; font-size: 14px;"><i class="fa-solid fa-check-circle"></i> Còn lại ${p.stockQuantity} sản phẩm</p>
                     </c:when>
                     <c:otherwise>
                         <div class="out-of-stock-alert" style="margin-top: 20px; padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
@@ -145,46 +122,252 @@
         </div>
     </div>
 </div>
+
 <div class="description-product" style="padding:5px 85px 5px 85px;">
     <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">MÔ TẢ CHI TIẾT</h3>
-    <p class="desc" >${p.description}</p></div>
+    <p class="desc">${p.description}</p>
+</div>
+
+
+<div class="container" style="max-width: 1200px; margin: 50px auto;">
+    <h3 style="color: #1b6e76; font-weight: 800; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; margin-bottom: 25px;">
+        ĐÁNH GIÁ SẢN PHẨM
+    </h3>
+
+    <c:if test="${!canReview}">
+        <div style="background: #e9f7fd; color: #31708f; padding: 15px; border-radius: 5px; border: 1px solid #bce8f1; margin-bottom: 30px;">
+            <i class="fa-solid fa-circle-info"></i> Chỉ những khách hàng đã mua và nhận sản phẩm này mới có quyền viết đánh giá.
+        </div>
+    </c:if>
+
+    <c:if test="${canReview}">
+        <div id="reviewFormContainer" style="background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; padding: 25px; margin-bottom: 40px;">
+            <h5 style="margin-top: 0; margin-bottom: 15px; font-weight: bold;">Viết đánh giá của bạn</h5>
+
+            <form id="reviewForm" onsubmit="submitReviewAjax(event)" enctype="multipart/form-data">
+                <input type="hidden" name="productId" value="${p.id}">
+
+                <div style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 5px;">Chất lượng sản phẩm: <span style="font-weight: normal; color: #777; font-size: 13px;">(Không bắt buộc)</span></label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="star-rating" id="starRatingContainer">
+                            <input type="radio" id="star5" name="rating" value="5"/><label for="star5"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4"/><label for="star4"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3"/><label for="star3"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2"/><label for="star2"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1"/><label for="star1"><i class="fa-solid fa-star"></i></label>
+                        </div>
+                        <button type="button" onclick="clearRating()" style="background: none; border: none; font-size: 12px; color: #dc3545; cursor: pointer; text-decoration: underline;">Bỏ chọn</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <textarea name="comment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required style="width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ccc; outline: none; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="cursor: pointer; background: #fff; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; font-size: 14px;">
+                        <i class="fa-solid fa-camera" style="color: #666;"></i> Đính kèm ảnh thực tế
+                        <input type="file" name="reviewImage" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                    </label>
+                    <div style="margin-top: 10px;">
+                        <img id="imgPreview" src="" style="max-height: 80px; display: none; border-radius: 5px; border: 1px solid #ddd;">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmitReview" style="background-color: #1b6e76; color: white; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer;">Gửi Đánh Giá</button>
+            </form>
+        </div>
+    </c:if>
+
+    <div class="review-list" id="reviewContainer">
+        <c:if test="${empty listReviews}">
+            <div id="emptyReviewMsg" style="text-align: center; padding: 40px 0; color: #999;">
+                <i class="fa-regular fa-comment-dots" style="font-size: 40px; margin-bottom: 15px;"></i>
+                <p>Chưa có đánh giá nào cho sản phẩm này.<br>Hãy trở thành người đầu tiên đánh giá nhé!</p>
+            </div>
+        </c:if>
+
+        <c:forEach items="${listReviews}" var="r">
+            <div class="review-item position-relative">
+                <img src="${not empty r.userAvatar ? r.userAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="review-avatar" alt="Avatar">
+                <div style="flex: 1;">
+                    <div class="review-user">${r.username}</div>
+                    <div class="review-stars">
+                        <c:choose>
+                            <c:when test="${r.rating > 0}">
+                                <c:forEach begin="1" end="5" var="i">
+                                    <i class="fa-${i <= r.rating ? 'solid' : 'regular'} fa-star"></i>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <span style="color: #999; font-style: italic;">Chưa đánh giá sao</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div class="review-date">
+                        <fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy HH:mm"/> | Đã mua sản phẩm này
+                    </div>
+                    <div style="font-size: 14.5px; color: #333; line-height: 1.6; margin-top: 10px;">
+                            ${r.comment}
+                    </div>
+                    <c:if test="${not empty r.imageUrl}">
+                        <img src="${r.imageUrl}" class="review-img" onclick="window.open(this.src, '_blank')" title="Click để phóng to">
+                    </c:if>
+                </div>
+
+                <c:if test="${sessionScope.acc != null && sessionScope.acc.id == r.userId}">
+                    <form action="delete-review" method="POST" class="position-absolute top-0 end-0" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?')">
+                        <input type="hidden" name="rid" value="${r.id}">
+                        <input type="hidden" name="pid" value="${p.id}">
+                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa đánh giá" style="background:none; border:none; cursor:pointer;">
+                            <i class="fa-solid fa-trash-can" style="color: #dc3545;"></i>
+                        </button>
+                    </form>
+                </c:if>
+            </div>
+        </c:forEach>
+    </div>
+
+    <div class="text-center mt-4" id="loadMoreSection" style="text-align: center; margin-top: 20px;">
+        <c:if test="${totalReviews > 10}">
+            <button id="btnLoadMore" style="background: none; border: 1px solid #6c757d; color: #6c757d; padding: 8px 20px; border-radius: 4px; cursor: pointer;" onclick="loadMoreReviews(${p.id})">
+                Xem thêm đánh giá (<span id="remainingCount">${totalReviews - 10}</span>)
+            </button>
+        </c:if>
+    </div>
+
+</div>
+
 <script>
     function addToCartAjax() {
         const pidInput = document.querySelector('input[name="pid"]');
         const pid = pidInput ? pidInput.value : "";
-
-        if (!pid) {
-            alert("Lỗi: Không tìm thấy ID sản phẩm. Vui lòng tải lại trang.");
-            return;
-        }
+        if (!pid) return alert("Lỗi: Không tìm thấy ID sản phẩm.");
         const qtyInput = document.getElementById('qtyInput');
         const qty = qtyInput ? qtyInput.value : 1;
 
         fetch('${pageContext.request.contextPath}/add-to-cart?pid=' + pid + '&quantity=' + qty + '&ajax=true')
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Lỗi Server hoặc Đường dẫn sai");
-                }
+                if (!response.ok) throw new Error("Lỗi Server");
                 return response.text();
             })
             .then(data => {
-                const listCartCounts = document.querySelectorAll(".cart-count");
-                listCartCounts.forEach(el => {
-                    el.innerText = data;
-                });
-
-                const x = document.getElementById("toast");
-                if (x) {
-                    x.style.visibility = "visible";
-                    setTimeout(function(){ x.style.visibility = "hidden"; }, 3000);
+                document.querySelectorAll(".cart-count").forEach(el => el.innerText = data);
+                const toast = document.getElementById("toast");
+                if (toast) {
+                    toast.style.visibility = "visible";
+                    setTimeout(function(){ toast.style.visibility = "hidden"; }, 3000);
                 }
             })
-            .catch(error => {
-                console.error('Lỗi:', error);
-                alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console (F12) để biết chi tiết.");
+            .catch(error => alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console."));
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreview').src = e.target.result;
+                document.getElementById('imgPreview').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearRating() {
+        const radios = document.getElementsByName('rating');
+        for (let i = 0; i < radios.length; i++) radios[i].checked = false;
+    }
+
+    function submitReviewAjax(event) {
+        event.preventDefault();
+        const form = document.getElementById('reviewForm');
+        const formData = new FormData(form);
+        const btnSubmit = document.getElementById('btnSubmitReview');
+
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+        btnSubmit.disabled = true;
+
+        fetch('${pageContext.request.contextPath}/submit-review', { method: 'POST', body: formData })
+            .then(response => response.text())
+            .then(data => {
+                const result = data.trim();
+                if (result.startsWith('success')) {
+                    alert("Cảm ơn bạn đã đánh giá sản phẩm!");
+                    const uploadedImgUrl = result.split('|')[1];
+                    document.getElementById('reviewFormContainer').innerHTML =
+                        '<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;"><i class="fa-solid fa-check-circle"></i> Bạn đã đánh giá sản phẩm này thành công.</div>';
+
+                    const emptyMsg = document.getElementById('emptyReviewMsg');
+                    if(emptyMsg) emptyMsg.style.display = 'none';
+
+                    appendNewReviewToUI(formData.get('rating'), formData.get('comment'), uploadedImgUrl);
+                } else {
+                    alert("Lỗi: " + result);
+                }
+            })
+            .catch(error => alert("Đã xảy ra lỗi mạng. Vui lòng thử lại!"))
+            .finally(() => {
+                btnSubmit.innerHTML = 'Gửi Đánh Giá';
+                btnSubmit.disabled = false;
+            });
+    }
+
+    function appendNewReviewToUI(ratingValue, comment, imgUrl) {
+        const reviewContainer = document.getElementById('reviewContainer');
+        const username = '${sessionScope.acc.username}';
+        const avatar = '${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : "https://cdn-icons-png.flaticon.com/512/149/149071.png"}';
+        const rating = parseInt(ratingValue) || 0;
+
+        let starsHtml = '';
+        if (rating > 0) {
+            for(let i=1; i<=5; i++) starsHtml += `<i class="fa-${i <= rating ? 'solid' : 'regular'} fa-star"></i> `;
+        } else {
+            starsHtml = `<span style="color: #999; font-style: italic;">Chưa đánh giá sao</span>`;
+        }
+
+        let imgHtml = '';
+        if (imgUrl && imgUrl.trim() !== '') {
+            imgHtml = `<img src="` + imgUrl.trim() + `" style="max-width: 120px; border-radius: 4px; margin-top: 10px; border: 1px solid #ddd; cursor: zoom-in;" onclick="window.open(this.src, '_blank')">`;
+        }
+
+        const newReviewHtml = `
+            <div class="review-item position-relative" style="border-bottom: 1px solid #eee; padding: 20px 0; display: flex; gap: 15px; background: #fffdf5; animation: fadeIn 1s;">
+                <img src="` + avatar + `" class="review-avatar" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover;">
+                <div style="flex: 1;">
+                    <div class="review-user" style="font-weight: bold; color: #333;">` + username + ` <span style="color:red; font-size:12px;">(Mới)</span></div>
+                    <div class="review-stars" style="color: #ffc107; font-size: 13px;">` + starsHtml + `</div>
+                    <div style="font-size: 14.5px; color: #333; line-height: 1.6; margin-top: 10px;">` + comment + `</div>
+                    ` + imgHtml + `
+                </div>
+            </div>`;
+        if (reviewContainer) reviewContainer.insertAdjacentHTML('afterbegin', newReviewHtml);
+    }
+
+    let currentOffset = 10;
+    function loadMoreReviews(productId) {
+        const btn = document.getElementById('btnLoadMore');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...';
+
+        fetch(`load-more-reviews?pid=${productId}&offset=${currentOffset}`)
+            .then(response => response.text())
+            .then(html => {
+                if (html.trim() !== "") {
+                    document.getElementById('reviewContainer').innerHTML += html;
+                    currentOffset += 10;
+                    let total = ${totalReviews};
+                    let remaining = total - currentOffset;
+                    if (remaining <= 0) {
+                        document.getElementById('loadMoreSection').style.display = 'none';
+                    } else {
+                        document.getElementById('remainingCount').innerText = remaining;
+                        btn.innerText = 'Xem thêm đánh giá';
+                    }
+                }
             });
     }
 </script>
+
 <jsp:include page="WEB-INF/tags/footer.jsp"></jsp:include>
 </body>
 </html>

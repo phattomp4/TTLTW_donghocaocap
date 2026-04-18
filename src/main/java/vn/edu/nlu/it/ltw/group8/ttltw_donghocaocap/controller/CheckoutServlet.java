@@ -29,7 +29,7 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         if (cart == null || cart.isEmpty()) {
-            response.sendRedirect("cart"); // Giỏ trống thì về trang giỏ hàng
+            response.sendRedirect("cart");
             return;
         }
 
@@ -60,16 +60,15 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // Lấy thông tin từ Form
         String addressIdRaw = request.getParameter("addressId");
         String paymentMethod = request.getParameter("paymentMethod");
 
-        // Tính lại tổng tiền (backend phải tự tính lại, không tin tưởng hoàn toàn số liệu từ frontend gửi lên)
+
         double totalMoney = 0;
         for (CartItem item : cart) {
             totalMoney += item.getTotalPrice();
         }
-        double discount = 0; // Xử lý logic Voucher sau nếu cần
+        double discount = 0;
 
         try {
             int addressId = Integer.parseInt(addressIdRaw);
@@ -78,14 +77,11 @@ public class CheckoutServlet extends HttpServlet {
             boolean result = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, totalMoney - discount, discount);
 
             if (result) {
-                // Đặt hàng thành công
-                session.removeAttribute("cart");      // Xóa giỏ hàng
-                session.removeAttribute("cartCount"); // Reset số lượng icon
+                session.removeAttribute("cart");
+                session.removeAttribute("cartCount");
 
-                // Chuyển sang trang lịch sử đơn hàng
                 response.sendRedirect("order-history");
             } else {
-                // Thất bại
                 request.setAttribute("error", "Đặt hàng thất bại. Vui lòng thử lại!");
                 doGet(request, response);
             }

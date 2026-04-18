@@ -22,23 +22,18 @@ public class GoogleLoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Google trả về URL có chứa code
         String code = request.getParameter("code");
 
         if (code != null && !code.isEmpty()) {
             try {
-                // Dùng code đổi lấy Access Token
                 String accessToken = getToken(code);
 
-                // Dùng Access Token lấy thông tin Google Account
                 GoogleAccount googleAcc = getUserInfo(accessToken);
 
-                // Lấy các trường thông tin cụ thể
                 String email = googleAcc.getEmail();
                 String name = googleAcc.getName();
                 String avatar = googleAcc.getPicture();
 
-                // Kiểm tra và Lưu vào Database
                 UserDAO userDAO = new UserDAO();
                 User user = userDAO.getUserByEmail(email);
 
@@ -47,12 +42,10 @@ public class GoogleLoginServlet extends HttpServlet {
                     user.setEmail(email);
                     user.setFullName(name);
                     user.setAvatar(avatar);
-
                     userDAO.insertGoogleUser(user);
                     user = userDAO.getUserByEmail(email);
                 }
 
-                // Set Session và chuyển hướng về trang chủ
                 HttpSession session = request.getSession();
                 session.setAttribute("acc", user);
 
@@ -63,7 +56,6 @@ public class GoogleLoginServlet extends HttpServlet {
                 response.sendRedirect("login.jsp?error=google_login_failed");
             }
         } else {
-            // Nếu không có code, quay về trang login
             response.sendRedirect("login.jsp");
         }
     }

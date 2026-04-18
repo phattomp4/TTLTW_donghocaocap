@@ -26,7 +26,6 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    // tổng tiền = giá * số lượng
     public double getTotalPrice() {
         return product.getCurrentPrice() * quantity;
     }

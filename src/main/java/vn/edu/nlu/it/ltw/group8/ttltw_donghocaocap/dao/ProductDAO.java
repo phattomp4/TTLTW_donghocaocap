@@ -467,7 +467,7 @@ public class ProductDAO {
             ps.setInt(1, limit);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapResultSetToProduct(rs)); // Dùng hàm map có sẵn của bạn
+                list.add(mapResultSetToProduct(rs));
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
