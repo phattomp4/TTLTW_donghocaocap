@@ -341,24 +341,31 @@ public class OrderDAO {
 
     public List<Order> getAllOrders() {
         List<Order> list = new ArrayList<>();
-        String query = "SELECT * FROM Orders ORDER BY orderDate DESC";
+        // Sử dụng LEFT JOIN để lấy số điện thoại trực tiếp từ bảng Users
+        // Giả định bảng người dùng của bạn tên là 'Users' và cột khóa chính là 'ID'
+        String query = "SELECT o.*, u.phone " +
+                "FROM Orders o " +
+                "LEFT JOIN Users u ON o.UserID = u.id " +
+                "ORDER BY o.OrderDate DESC";
         try {
             Connection conn = new DBContext().getConnection();
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new Order(
-                        rs.getInt("orderId"),
-                        rs.getInt("userId"),
-                        rs.getInt("shippingAddressId"),
-                        rs.getInt("voucherId"),
-                        rs.getTimestamp("orderDate"),
-                        rs.getDouble("totalAmount"),
-                        rs.getDouble("discountAmount"),
-                        rs.getString("paymentMethod"),
-                        rs.getString("paymentStatus"),
-                        rs.getString("status")
-                ));
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderID"));
+                o.setUserId(rs.getInt("UserID"));
+                o.setShippingAddressId(rs.getInt("ShippingAddressID"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                o.setPaymentMethod(rs.getString("PaymentMethod"));
+                o.setPaymentStatus(rs.getString("PaymentStatus"));
+                o.setStatus(rs.getString("Status"));
+
+                o.setPhone(rs.getString("phone"));
+
+                list.add(o);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -368,25 +375,32 @@ public class OrderDAO {
 
     public List<Order> getOrdersByStatus(String status) {
         List<Order> list = new ArrayList<>();
-        String query = "SELECT * FROM Orders WHERE status = ? ORDER BY orderDate DESC";
+        // Tương tự, sử dụng LEFT JOIN cho hàm lọc theo trạng thái
+        String query = "SELECT o.*, u.phone " +
+                "FROM Orders o " +
+                "LEFT JOIN Users u ON o.UserID = u.id " +
+                "WHERE o.Status = ? " +
+                "ORDER BY o.OrderDate DESC";
         try {
             Connection conn = new DBContext().getConnection();
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new Order(
-                        rs.getInt("orderId"),
-                        rs.getInt("userId"),
-                        rs.getInt("shippingAddressId"),
-                        rs.getInt("voucherId"),
-                        rs.getTimestamp("orderDate"),
-                        rs.getDouble("totalAmount"),
-                        rs.getDouble("discountAmount"),
-                        rs.getString("paymentMethod"),
-                        rs.getString("paymentStatus"),
-                        rs.getString("status")
-                ));
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderID"));
+                o.setUserId(rs.getInt("UserID"));
+                o.setShippingAddressId(rs.getInt("ShippingAddressID"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                o.setPaymentMethod(rs.getString("PaymentMethod"));
+                o.setPaymentStatus(rs.getString("PaymentStatus"));
+                o.setStatus(rs.getString("Status"));
+
+                o.setPhone(rs.getString("phone"));
+
+                list.add(o);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -407,5 +421,5 @@ public class OrderDAO {
         }
     }
 
-    
+
 }
