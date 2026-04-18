@@ -54,8 +54,7 @@ public class ReviewServlet extends HttpServlet {
 
             String imageUrl = null;
             Part filePart = request.getPart("reviewImage");
-
-            // Xử lý Cloudinary
+          
             if (filePart != null && filePart.getSize() > 0) {
                 try {
                     Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(

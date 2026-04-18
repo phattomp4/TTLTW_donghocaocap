@@ -3,7 +3,6 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Review;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ReviewReply;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,7 +80,6 @@ public class ReviewDAO {
                 "LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-
             ps.setInt(1, productId);
             ps.setInt(2, limit);
             ps.setInt(3, offset);

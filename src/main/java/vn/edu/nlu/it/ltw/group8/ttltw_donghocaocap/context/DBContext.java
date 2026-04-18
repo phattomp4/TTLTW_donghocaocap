@@ -8,7 +8,7 @@ public class DBContext {
 
         String url = "jdbc:mysql://localhost:3306/DongHoCaoCap?useUnicode=true&characterEncoding=UTF-8";
         String user = "root";
-        String pass = "Totanphat56po";
+        String pass = "";
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(url, user, pass);
     }

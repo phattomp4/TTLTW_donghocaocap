@@ -13,19 +13,22 @@ public class Order {
     private String paymentStatus;
     private String status;
 
+    private String phone;
+
     public Order() {}
 
-    public Order(int orderId, int userId, int shippingAddressId, int voucherId, Timestamp orderDate, double totalAmount, double discountAmount, String paymentMethod, String paymentStatus, String status) {
+    public Order(int orderId, int userId, int shippingAddressId, int voucherId, Timestamp orderDate, double discountAmount, double totalAmount, String paymentMethod, String paymentStatus, String status, String phone) {
         this.orderId = orderId;
         this.userId = userId;
         this.shippingAddressId = shippingAddressId;
         this.voucherId = voucherId;
         this.orderDate = orderDate;
-        this.totalAmount = totalAmount;
         this.discountAmount = discountAmount;
+        this.totalAmount = totalAmount;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
         this.status = status;
+
     }
 
     public int getOrderId() {
@@ -106,5 +109,13 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
