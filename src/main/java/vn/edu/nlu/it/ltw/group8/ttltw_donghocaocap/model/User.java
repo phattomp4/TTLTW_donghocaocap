@@ -19,13 +19,11 @@ public class User  implements Serializable {
     //them truong de them chuc nang kich hoat
     private String verificationToken;
     private Timestamp verificationExpiry;
-    private int failedAttempts;
-    private java.sql.Timestamp lockExpiry;
 
-    public User() {}
+    public User() {
+    }
 
-
-    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry, int failedAttempts, Timestamp lockExpiry) {
+    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -39,8 +37,6 @@ public class User  implements Serializable {
         this.status = status;
         this.verificationToken = verificationToken;
         this.verificationExpiry = verificationExpiry;
-        this.failedAttempts = failedAttempts;
-        this.lockExpiry = lockExpiry;
     }
 
     public int getId() {
@@ -115,9 +111,13 @@ public class User  implements Serializable {
         this.address = address;
     }
 
-    public String getAvatar() { return avatar; }
+    public String getAvatar() {
+        return avatar;
+    }
 
-    public void setAvatar(String avatar) { this.avatar = avatar; }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     public String getStatus() {
         return status;
@@ -141,21 +141,5 @@ public class User  implements Serializable {
 
     public void setVerificationExpiry(Timestamp verificationExpiry) {
         this.verificationExpiry = verificationExpiry;
-    }
-
-    public int getFailedAttempts() {
-        return failedAttempts;
-    }
-
-    public void setFailedAttempts(int failedAttempts) {
-        this.failedAttempts = failedAttempts;
-    }
-
-    public Timestamp getLockExpiry() {
-        return lockExpiry;
-    }
-
-    public void setLockExpiry(Timestamp lockExpiry) {
-        this.lockExpiry = lockExpiry;
     }
 }
