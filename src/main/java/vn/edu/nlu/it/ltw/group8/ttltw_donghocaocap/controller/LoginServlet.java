@@ -8,6 +8,7 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
@@ -15,8 +16,17 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
+        String checkValue = request.getParameter("checkAccount");
+        if (checkValue != null) {
+            response.setContentType("text/plain;charset=UTF-8");
+            UserDAO dao = new UserDAO();
+            if (dao.getUserByAccount(checkValue) == null) {
+                response.getWriter().write("Tài khoản không tồn tại!");
+            }
+            return;
+        }
 
+        HttpSession session = request.getSession();
         String mess = (String) session.getAttribute("mess");
         if (mess != null) {
             request.setAttribute("mess", mess);
@@ -38,36 +48,46 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         String u = request.getParameter("username");
         String p = request.getParameter("password");
         String r = request.getParameter("remember");
+
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty()) {
+            out.write("ERROR|Vui lòng điền đầy đủ thông tin!");
+            return;
+        }
+
         UserDAO dao = new UserDAO();
         User user = dao.getUserByAccount(u);
-
         HttpSession session = request.getSession();
+
         Long lockTime = (Long) session.getAttribute("lockTime");
         if (lockTime != null && lockTime > System.currentTimeMillis()) {
             long minutesLeft = ((lockTime - System.currentTimeMillis()) / 1000 / 60) + 1;
-            session.setAttribute("mess", "Tài khoản bị khóa tạm thời. Vui lòng thử lại sau " + minutesLeft + " phút!");
-            response.sendRedirect("login");
+            out.write("ERROR|Tài khoản bị khóa. Thử lại sau " + minutesLeft + " phút!");
             return;
         }
+
         if (user == null) {
-            session.setAttribute("mess", "Tài khoản không tồn tại!");
-            response.sendRedirect("login");
+            out.write("ERROR|Tài khoản không tồn tại!");
             return;
         }
 
         if (BCrypt.checkpw(p, user.getPassword())) {
             if (!"Active".equals(user.getStatus())) {
-                session.setAttribute("mess", "Tài khoản chưa kích hoạt! Vui lòng kiểm tra email.");
-                response.sendRedirect("login");
+                String newToken = java.util.UUID.randomUUID().toString();
+                dao.refreshVerificationToken(user.getEmail(), newToken);
+                vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.EmailUtil.sendActivationEmail(user.getEmail(), newToken);
+
+                out.write("INFO|Tài khoản chưa kích hoạt. Mã mới đã được gửi vào Email!");
                 return;
             }
 
             session.removeAttribute("failedAttempts");
             session.removeAttribute("lockTime");
-
             session.setAttribute("acc", user);
             session.setMaxInactiveInterval(60 * 60);
 
@@ -80,83 +100,57 @@ public class LoginServlet extends HttpServlet {
             }
 
             String redirectUrl = (String) session.getAttribute("redirect_url");
-            if (redirectUrl != null) {
-                session.removeAttribute("redirect_url");
-                response.sendRedirect(redirectUrl);
-            } else {
-                response.sendRedirect("home");
-            }
+            String target = (redirectUrl != null) ? redirectUrl : "home";
+            if (redirectUrl != null) session.removeAttribute("redirect_url");
+
+            out.write("SUCCESS|" + target);
         } else {
-           // fix: đăng nhập sai, dùng session tối ưu
             Integer failedCount = (Integer) session.getAttribute("failedAttempts");
             if (failedCount == null) failedCount = 0;
             failedCount++;
             session.setAttribute("failedAttempts", failedCount);
 
-            String errorMsg = "Sai mật khẩu!";
             if (failedCount >= 5) {
                 session.setAttribute("lockTime", System.currentTimeMillis() + (15 * 60 * 1000));
-                errorMsg = "Tài khoản đã bị khóa 15 phút do nhập sai quá 5 lần.";
+                out.write("ERROR|Sai quá 5 lần. Tài khoản bị khóa 15 phút.");
             } else {
-                int attemptsLeft = 5 - failedCount;
-                errorMsg += " Bạn còn " + attemptsLeft + " lần thử.";
+                out.write("ERROR|Sai mật khẩu! Bạn còn " + (5 - failedCount) + " lần thử.");
             }
-
-            session.setAttribute("mess", errorMsg);
-            response.sendRedirect("login"); // fix: Redirect để khi F5 không trừ số lần đăng nhập sai
         }
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         String code = request.getParameter("code");
-
         try {
             String accessToken = GoogleLoginServlet.getToken(code);
             GoogleAccount acc = GoogleLoginServlet.getUserInfo(accessToken);
-
             if (acc != null) {
                 UserDAO dao = new UserDAO();
-                String googleEmail = acc.getEmail();
-                User existingUser = dao.checkEmailExist(googleEmail);
+                User existingUser = dao.checkEmailExist(acc.getEmail());
                 HttpSession session = request.getSession();
-
                 session.removeAttribute("failedAttempts");
                 session.removeAttribute("lockTime");
-
                 if (existingUser != null) {
                     if (!"Active".equals(existingUser.getStatus())) {
                         dao.activateAccount(existingUser.getVerificationToken());
-                        existingUser = dao.checkEmailExist(googleEmail);
+                        existingUser = dao.checkEmailExist(acc.getEmail());
                     }
-
                     session.setAttribute("acc", existingUser);
-
                     String redirectUrl = (String) session.getAttribute("redirect_url");
-                    if (redirectUrl != null) {
-                        session.removeAttribute("redirect_url");
-                        response.sendRedirect(redirectUrl);
-                    } else {
-                        response.sendRedirect("home");
-                    }
-
+                    response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
                 } else {
-                    String autoUsername = googleEmail.substring(0, googleEmail.indexOf("@"));
+                    String autoUsername = acc.getEmail().substring(0, acc.getEmail().indexOf("@"));
                     String randomPassword = java.util.UUID.randomUUID().toString();
                     String googleToken = "GOOGLE_" + java.util.UUID.randomUUID().toString();
-
-                    dao.signup(autoUsername, randomPassword, acc.getName(), googleEmail, "", googleToken);
+                    dao.signup(autoUsername, randomPassword, acc.getName(), acc.getEmail(), "", googleToken);
                     dao.activateAccount(googleToken);
-
-                    User newUser = dao.checkEmailExist(googleEmail);
-                    session.setAttribute("acc", newUser);
+                    session.setAttribute("acc", dao.checkEmailExist(acc.getEmail()));
                     response.sendRedirect("home");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            HttpSession session = request.getSession();
-            session.setAttribute("mess", "Đã xảy ra lỗi đăng nhập Google!");
             response.sendRedirect("login");
         }
     }
