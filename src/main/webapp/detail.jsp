@@ -41,15 +41,11 @@
 
     <div class="product-images" style="width: 50%;">
         <div class="main-image" style="margin-bottom: 10px;">
-            <img src="${p.imageList.size() > 0 ? p.imageList[0] : p.imageUrl}"
-                 id="mainImg" alt="${p.name}" style="width: 100%; border-radius: 8px;">
+            <img src="${p.imageList.size() > 0 ? p.imageList[0] : p.imageUrl}" id="mainImg" alt="${p.name}" style="width: 100%; border-radius: 8px;">
         </div>
-
         <div class="thumbnail-list" style="display: flex; gap: 10px; overflow-x: auto;">
             <c:forEach items="${p.imageList}" var="img">
-                <img src="${img}"
-                     onclick="document.getElementById('mainImg').src='${img}'"
-                     style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 1px solid #ddd; border-radius: 4px;">
+                <img src="${img}" onclick="document.getElementById('mainImg').src='${img}'" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 1px solid #ddd; border-radius: 4px;">
             </c:forEach>
         </div>
     </div>
@@ -59,12 +55,8 @@
         <p style="color: #666;">Mã SP: <strong>${p.sku}</strong> | Tình trạng: <strong>${p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}</strong></p>
 
         <div class="price-box" style="margin: 20px 0;">
-                <span style="color: #d0011b; font-size: 28px; font-weight: bold;">
-                    <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/>
-                </span>
-            <span style="text-decoration: line-through; color: #888; margin-left: 15px;">
-                    <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/>
-                </span>
+            <span style="color: #d0011b; font-size: 28px; font-weight: bold;"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/></span>
+            <span style="text-decoration: line-through; color: #888; margin-left: 15px;"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/></span>
         </div>
 
         <div class="specs-table" style="margin-top: 40px;">
@@ -82,7 +74,6 @@
         <div class="actions">
             <form id="productForm" action="${pageContext.request.contextPath}/add-to-cart" method="GET">
                 <input type="hidden" name="pid" value="${p.id}">
-
                 <div class="quantity-box">
                     <label>Số lượng:</label>
                     <input type="number" id="qtyInput" name="quantity" value="1" min="1" style="width: 50px; text-align: center;" ${p.stockQuantity <= 0 ? 'disabled' : ''}>
@@ -93,14 +84,12 @@
                         <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
                             <c:choose>
                                 <c:when test="${sessionScope.acc != null && sessionScope.acc.role == 'Admin'}">
-                                    <a href="admin/product-form?id=${p.id}" class="btn-buy-now" style="background: #343a40; color: white; border: none; padding: 10px 30px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                    <a href="admin/product-form?id=${p.id}" class="btn-buy-now" style="background: #343a40; color: white; border: none; padding: 10px 30px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
                                         <i class="fa-solid fa-screwdriver-wrench"></i> QUẢN LÝ / SỬA SẢN PHẨM NÀY
                                     </a>
                                 </c:when>
                                 <c:otherwise>
-                                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;">
-                                        <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
-                                    </button>
+                                    <button type="button" onclick="addToCartAjax()" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;"><i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ</button>
                                     <button type="submit" name="action" value="buynow" class="btn-buy-now" style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">Mua ngay</button>
                                 </c:otherwise>
                             </c:choose>
@@ -115,7 +104,6 @@
                     </c:otherwise>
                 </c:choose>
             </form>
-
             <div id="toast" style="visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; font-size: 17px;">
                 <i class="fa-solid fa-check"></i> Đã thêm sản phẩm vào giỏ!
             </div>
@@ -128,11 +116,8 @@
     <p class="desc">${p.description}</p>
 </div>
 
-
 <div class="container" style="max-width: 1200px; margin: 50px auto;">
-    <h3 style="color: #1b6e76; font-weight: 800; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; margin-bottom: 25px;">
-        ĐÁNH GIÁ SẢN PHẨM
-    </h3>
+    <h3 style="color: #1b6e76; font-weight: 800; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; margin-bottom: 25px;">ĐÁNH GIÁ SẢN PHẨM</h3>
 
     <c:if test="${!canReview}">
         <div style="background: #e9f7fd; color: #31708f; padding: 15px; border-radius: 5px; border: 1px solid #bce8f1; margin-bottom: 30px;">
@@ -148,7 +133,7 @@
                 <input type="hidden" name="productId" value="${p.id}">
 
                 <div style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
-                    <label style="font-weight: 600; display: block; margin-bottom: 5px;">Chất lượng sản phẩm: <span style="font-weight: normal; color: #777; font-size: 13px;">(Không bắt buộc)</span></label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 5px;">Chất lượng sản phẩm: <span style="color: #d0011b; font-weight: bold;">*</span></label>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div class="star-rating" id="starRatingContainer">
                             <input type="radio" id="star5" name="rating" value="5"/><label for="star5"><i class="fa-solid fa-star"></i></label>
@@ -191,29 +176,65 @@
         <c:forEach items="${listReviews}" var="r">
             <div class="review-item position-relative">
                 <img src="${not empty r.userAvatar ? r.userAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="review-avatar" alt="Avatar">
+
                 <div style="flex: 1;">
                     <div class="review-user">${r.username}</div>
+
                     <div class="review-stars">
                         <c:choose>
                             <c:when test="${r.rating > 0}">
-                                <c:forEach begin="1" end="5" var="i">
-                                    <i class="fa-${i <= r.rating ? 'solid' : 'regular'} fa-star"></i>
-                                </c:forEach>
+                                <c:forEach begin="1" end="5" var="i"><i class="fa-${i <= r.rating ? 'solid' : 'regular'} fa-star"></i></c:forEach>
                             </c:when>
                             <c:otherwise>
                                 <span style="color: #999; font-style: italic;">Chưa đánh giá sao</span>
                             </c:otherwise>
                         </c:choose>
                     </div>
-                    <div class="review-date">
-                        <fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy HH:mm"/> | Đã mua sản phẩm này
-                    </div>
-                    <div style="font-size: 14.5px; color: #333; line-height: 1.6; margin-top: 10px;">
-                            ${r.comment}
-                    </div>
+
+                    <div class="review-date"><fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy HH:mm"/> | Đã mua sản phẩm này</div>
+                    <div style="font-size: 14.5px; color: #333; line-height: 1.6; margin-top: 10px;">${r.comment}</div>
+
                     <c:if test="${not empty r.imageUrl}">
                         <img src="${r.imageUrl}" class="review-img" onclick="window.open(this.src, '_blank')" title="Click để phóng to">
                     </c:if>
+
+                    <div style="margin-top: 15px; display: flex; gap: 15px; align-items: center;">
+                        <button type="button" onclick="likeReview(${r.id}, this)" style="background:none; border:none; color:#666; cursor:pointer; font-size:13px; padding:0;">
+                            <i class="fa-regular fa-thumbs-up"></i> Hữu ích (<span class="like-count">${r.likes}</span>)
+                        </button>
+                        <button type="button" onclick="toggleReplyForm(${r.id})" style="background:none; border:none; color:#666; cursor:pointer; font-size:13px; padding:0;">
+                            <i class="fa-regular fa-comment"></i> Trả lời
+                        </button>
+                    </div>
+
+                    <div id="repliesContainer_${r.id}">
+                        <c:forEach items="${r.replies}" var="rep">
+                            <div style="display:flex; gap:10px; margin-top:15px; background:#f8f9fa; border-left: 3px solid #1b6e76; padding:10px; border-radius:4px;">
+                                <img src="${not empty rep.userAvatar ? rep.userAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight:bold; font-size:13px; color:#333;">
+                                            ${rep.username}
+                                        <c:if test="${rep.role == 'Admin'}"><span style="background:#d0011b; color:#fff; font-size:10px; padding:2px 5px; border-radius:3px; margin-left:5px;">Quản trị viên</span></c:if>
+                                    </div>
+                                    <div style="font-size:13.5px; color:#555; margin-top:3px;">${rep.replyText}</div>
+
+                                    <div style="margin-top: 5px; display: flex; gap: 15px; align-items: center;">
+                                        <button type="button" onclick="likeReply(${rep.replyId}, this)" style="background:none; border:none; color:#888; cursor:pointer; font-size:11px; padding:0;">
+                                            <i class="fa-regular fa-thumbs-up"></i> Hữu ích (<span class="like-count">${rep.likes}</span>)
+                                        </button>
+                                        <button type="button" onclick="replyToUser(${r.id}, '${rep.username}')" style="background:none; border:none; color:#888; cursor:pointer; font-size:11px; padding:0;">
+                                            <i class="fa-solid fa-reply"></i> Phản hồi
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+
+                    <div id="replyFormBox_${r.id}" style="display:none; margin-top:15px; display:flex; gap:10px;">
+                        <input type="text" id="replyInput_${r.id}" placeholder="Viết câu trả lời..." style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:4px; outline:none;">
+                        <button type="button" onclick="submitReply(${r.id})" style="background:#1b6e76; color:#fff; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">Gửi</button>
+                    </div>
                 </div>
 
                 <c:if test="${sessionScope.acc != null && sessionScope.acc.id == r.userId}">
@@ -275,15 +296,26 @@
     }
 
     function clearRating() {
-        const radios = document.getElementsByName('rating');
+        const radios = document.querySelectorAll('input[name="rating"]');
         for (let i = 0; i < radios.length; i++) radios[i].checked = false;
     }
 
+    // đăng review tổng
     function submitReviewAjax(event) {
         event.preventDefault();
         const form = document.getElementById('reviewForm');
         const formData = new FormData(form);
         const btnSubmit = document.getElementById('btnSubmitReview');
+
+        const checkedStar = form.querySelector('input[name="rating"]:checked');
+        const ratingVal = checkedStar ? checkedStar.value : "0";
+        
+        if (ratingVal === "0") {
+            alert("Vui lòng chọn số sao để đánh giá sản phẩm!");
+            return;
+        }
+
+        formData.set('rating', ratingVal);
 
         btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
         btnSubmit.disabled = true;
@@ -293,23 +325,27 @@
             .then(data => {
                 const result = data.trim();
                 if (result.startsWith('success')) {
-                    alert("Cảm ơn bạn đã đánh giá sản phẩm!");
                     const uploadedImgUrl = result.split('|')[1];
-                    document.getElementById('reviewFormContainer').innerHTML =
-                        '<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;"><i class="fa-solid fa-check-circle"></i> Bạn đã đánh giá sản phẩm này thành công.</div>';
-
                     const emptyMsg = document.getElementById('emptyReviewMsg');
                     if(emptyMsg) emptyMsg.style.display = 'none';
 
-                    appendNewReviewToUI(formData.get('rating'), formData.get('comment'), uploadedImgUrl);
+                    appendNewReviewToUI(ratingVal, formData.get('comment'), uploadedImgUrl);
+
+                    form.reset();
+                    clearRating();
+                    document.getElementById('imgPreview').src = '';
+                    document.getElementById('imgPreview').style.display = 'none';
+
                 } else {
                     alert("Lỗi: " + result);
                 }
             })
             .catch(error => alert("Đã xảy ra lỗi mạng. Vui lòng thử lại!"))
             .finally(() => {
-                btnSubmit.innerHTML = 'Gửi Đánh Giá';
-                btnSubmit.disabled = false;
+                if (btnSubmit) {
+                    btnSubmit.innerHTML = 'Gửi Đánh Giá';
+                    btnSubmit.disabled = false;
+                }
             });
     }
 
@@ -341,9 +377,11 @@
                     ` + imgHtml + `
                 </div>
             </div>`;
+
         if (reviewContainer) reviewContainer.insertAdjacentHTML('afterbegin', newReviewHtml);
     }
 
+    // xem thêm
     let currentOffset = 10;
     function loadMoreReviews(productId) {
         const btn = document.getElementById('btnLoadMore');
@@ -353,7 +391,7 @@
             .then(response => response.text())
             .then(html => {
                 if (html.trim() !== "") {
-                    document.getElementById('reviewContainer').innerHTML += html;
+                    document.getElementById('reviewContainer').insertAdjacentHTML('beforeend', html);
                     currentOffset += 10;
                     let total = ${totalReviews};
                     let remaining = total - currentOffset;
@@ -363,6 +401,91 @@
                         document.getElementById('remainingCount').innerText = remaining;
                         btn.innerText = 'Xem thêm đánh giá';
                     }
+                }
+            });
+    }
+
+    function likeReview(reviewId, btnElement) {
+        fetch('${pageContext.request.contextPath}/like-review', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'rid=' + reviewId
+        })
+            .then(res => res.text())
+            .then(newLikes => {
+                btnElement.innerHTML = `<i class="fa-solid fa-thumbs-up" style="color:#007bff;"></i> Hữu ích (` + newLikes.trim() + `)`;
+                btnElement.style.color = '#007bff';
+                btnElement.disabled = true;
+            });
+    }
+
+    function likeReply(replyId, btnElement) {
+        fetch('${pageContext.request.contextPath}/like-reply', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'replyId=' + replyId
+        })
+            .then(res => res.text())
+            .then(newLikes => {
+                btnElement.innerHTML = `<i class="fa-solid fa-thumbs-up" style="color:#007bff;"></i> Hữu ích (` + newLikes.trim() + `)`;
+                btnElement.style.color = '#007bff';
+                btnElement.disabled = true;
+            });
+    }
+
+    // form trả lời
+    function toggleReplyForm(reviewId) {
+        const form = document.getElementById('replyFormBox_' + reviewId);
+        form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function replyToUser(reviewId, targetUsername) {
+        const formBox = document.getElementById('replyFormBox_' + reviewId);
+        formBox.style.display = 'flex'; // Hiện form lên
+
+        const input = document.getElementById('replyInput_' + reviewId);
+        input.value = '@' + targetUsername + ' ';
+        input.focus();
+    }
+
+    // đăng trả lời
+    function submitReply(reviewId) {
+        const input = document.getElementById('replyInput_' + reviewId);
+        const text = input.value.trim();
+        if(!text) return alert("Vui lòng nhập nội dung trả lời.");
+
+        fetch('${pageContext.request.contextPath}/reply-review', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'rid=' + reviewId + '&text=' + encodeURIComponent(text)
+        })
+            .then(res => res.text())
+            .then(data => {
+                const result = data.trim();
+                if(result.startsWith("success")) {
+                    const parts = result.split('|');
+                    const username = parts[1];
+                    const avatar = parts[2];
+                    const role = parts[3];
+
+                    const roleBadge = (role === 'Admin') ? `<span style="background:#d0011b; color:#fff; font-size:10px; padding:2px 5px; border-radius:3px; margin-left:5px;">Quản trị viên</span>` : '';
+
+                    let formattedText = text.replace(/(@\S+)/g, '<b style="color:#1b6e76;">$1</b>');
+
+                    const replyHtml = `
+                    <div style="display:flex; gap:10px; margin-top:15px; background:#f1f1f1; padding:10px; border-radius:5px; animation: fadeIn 0.5s;">
+                        <img src="`+avatar+`" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                        <div style="flex: 1;">
+                            <div style="font-weight:bold; font-size:13px; color:#333;">`+username+roleBadge+`</div>
+                            <div style="font-size:13.5px; color:#555; margin-top:3px;">`+formattedText+`</div>
+                        </div>
+                    </div>`;
+
+                    document.getElementById('repliesContainer_' + reviewId).insertAdjacentHTML('beforeend', replyHtml);
+                    input.value = '';
+                    toggleReplyForm(reviewId);
+                } else {
+                    alert(result.split('|')[1]);
                 }
             });
     }

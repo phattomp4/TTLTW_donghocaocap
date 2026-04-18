@@ -1,6 +1,8 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Review {
     private int id;
@@ -12,6 +14,8 @@ public class Review {
     private Date createdAt;
     private String username;
     private String userAvatar;
+    private int likes;
+    private List<ReviewReply> replies = new ArrayList<>();
 
     public Review() {
     }
@@ -42,4 +46,18 @@ public class Review {
 
     public String getUserAvatar() { return userAvatar; }
     public void setUserAvatar(String userAvatar) { this.userAvatar = userAvatar; }
+
+    public int getLikes() {
+        return likes;
+    }
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public List<ReviewReply> getReplies() {
+        return replies;
+    }
+    public void setReplies(List<ReviewReply> replies) {
+        this.replies = replies;
+    }
 }

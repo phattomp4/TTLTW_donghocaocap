@@ -2,6 +2,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Review;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ReviewReply;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,16 +75,18 @@ public class ReviewDAO {
         List<Review> list = new ArrayList<>();
         String query = "SELECT r.*, u.Username, u.Avatar " +
                 "FROM Reviews r " +
-                "JOIN Users u ON r.UserID = u.id " +
+                "JOIN Users u ON r.UserID = u.UserID " +
                 "WHERE r.ProductID = ? " +
                 "ORDER BY r.CreatedAt DESC " +
                 "LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, productId);
             ps.setInt(2, limit);
             ps.setInt(3, offset);
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 Review review = new Review();
                 review.setId(rs.getInt("ReviewID"));
@@ -95,9 +98,14 @@ public class ReviewDAO {
                 review.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 review.setUsername(rs.getString("Username"));
                 review.setUserAvatar(rs.getString("Avatar"));
+                review.setLikes(rs.getInt("Likes"));
+                review.setReplies(getRepliesByReviewId(review.getId()));
                 list.add(review);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.out.println("Lỗi load danh sách đánh giá: " + e.getMessage());
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -108,6 +116,72 @@ public class ReviewDAO {
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int incrementLike(int reviewId) {
+        String query = "UPDATE Reviews SET Likes = Likes + 1 WHERE ReviewID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, reviewId);
+            ps.executeUpdate();
+            PreparedStatement ps2 = conn.prepareStatement("SELECT Likes FROM Reviews WHERE ReviewID = ?");
+            ps2.setInt(1, reviewId);
+            ResultSet rs = ps2.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public boolean insertReply(int reviewId, int userId, String text) {
+        String query = "INSERT INTO ReviewReplies (ReviewID, UserID, ReplyText, CreatedAt) VALUES (?, ?, ?, NOW())";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, reviewId);
+            ps.setInt(2, userId);
+            ps.setString(3, text);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    // lấy các câu trả lời của 1 đánh giá
+    public List<ReviewReply> getRepliesByReviewId(int reviewId) {
+        List<ReviewReply> list = new ArrayList<>();
+        String query = "SELECT rr.*, u.Username, u.Avatar, u.Role FROM ReviewReplies rr JOIN Users u ON rr.UserID = u.UserID WHERE rr.ReviewID = ? ORDER BY rr.CreatedAt ASC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, reviewId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ReviewReply reply = new ReviewReply();
+                reply.setReplyId(rs.getInt("ReplyID"));
+                reply.setReviewId(rs.getInt("ReviewID"));
+                reply.setUserId(rs.getInt("UserID"));
+                reply.setReplyText(rs.getString("ReplyText"));
+                reply.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                reply.setUsername(rs.getString("Username"));
+                reply.setUserAvatar(rs.getString("Avatar"));
+                reply.setRole(rs.getString("Role"));
+                reply.setLikes(rs.getInt("Likes"));
+                list.add(reply);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int incrementReplyLike(int replyId) {
+        String query = "UPDATE ReviewReplies SET Likes = Likes + 1 WHERE ReplyID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, replyId);
+            ps.executeUpdate();
+
+            PreparedStatement ps2 = conn.prepareStatement("SELECT Likes FROM ReviewReplies WHERE ReplyID = ?");
+            ps2.setInt(1, replyId);
+            ResultSet rs = ps2.executeQuery();
             if (rs.next()) return rs.getInt(1);
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
