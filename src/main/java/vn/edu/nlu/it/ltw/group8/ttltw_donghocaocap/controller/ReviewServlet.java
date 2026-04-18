@@ -35,13 +35,16 @@ public class ReviewServlet extends HttpServlet {
             String ratingStr = request.getParameter("rating");
             String comment = request.getParameter("comment");
 
-            if (pidStr == null || ratingStr == null || comment == null || comment.trim().isEmpty()) {
-                response.getWriter().write("Vui lòng nhập đầy đủ số sao và nội dung đánh giá.");
+            if (pidStr == null || comment == null || comment.trim().isEmpty()) {
+                response.getWriter().write("Vui lòng nhập nội dung đánh giá.");
                 return;
             }
 
             int productId = Integer.parseInt(pidStr);
-            int rating = Integer.parseInt(ratingStr);
+            int rating = 0;
+            if (ratingStr != null && !ratingStr.isEmpty()) {
+                rating = Integer.parseInt(ratingStr);
+            }
 
             OrderDAO orderDAO = new OrderDAO();
             if (!orderDAO.checkUserBoughtProduct(user.getId(), productId)) {
@@ -51,8 +54,7 @@ public class ReviewServlet extends HttpServlet {
 
             String imageUrl = null;
             Part filePart = request.getPart("reviewImage");
-
-            // Xử lý Cloudinary an toàn (Bỏ qua nếu bị lỗi API key)
+          
             if (filePart != null && filePart.getSize() > 0) {
                 try {
                     Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -61,7 +63,7 @@ public class ReviewServlet extends HttpServlet {
                             "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4"
                     ));
                     byte[] fileBytes = filePart.getInputStream().readAllBytes();
-                    Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("folder", "vvp_store_reviews"));
+                    Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("folder", "reviews"));
                     imageUrl = (String) uploadResult.get("secure_url");
                 } catch (Exception e) {
                     System.out.println("Lỗi Cloudinary (Bỏ qua ảnh): " + e.getMessage());
