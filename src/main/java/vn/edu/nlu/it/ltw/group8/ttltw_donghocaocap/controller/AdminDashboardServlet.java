@@ -1,4 +1,4 @@
-  package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
+package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,6 +22,7 @@ public class AdminDashboardServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("approveCancel".equals(action) || "rejectCancel".equals(action)) {
+            String redirectUrl = "dashboard"; 
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
                 OrderDAO orderDao = new OrderDAO();
@@ -38,13 +39,19 @@ public class AdminDashboardServlet extends HttpServlet {
                 } else {
                     adminDao.updateOrderStatus(orderId, "Processing");
                 }
+
+                String source = request.getParameter("source");
+                if ("detail_page".equals(source)) {
+                    redirectUrl = "order-detail?id=" + orderId;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            response.sendRedirect("dashboard");
+            response.sendRedirect(redirectUrl);
             return;
         }
+
         AdminDAO dao = new AdminDAO();
         double revenue = dao.getTotalRevenue();
         int totalOrders = dao.countOrders();
@@ -64,16 +71,24 @@ public class AdminDashboardServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("update_status".equals(action)) {
+            String redirectUrl = "dashboard";
+
             try {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
                 String status = request.getParameter("status");
 
                 AdminDAO dao = new AdminDAO();
                 dao.updateOrderStatus(orderId, status);
+
+                String source = request.getParameter("source");
+                if ("detail_page".equals(source)) {
+                    redirectUrl = "order-detail?id=" + orderId;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            response.sendRedirect("dashboard");
+
+            response.sendRedirect(redirectUrl);
         }
     }
 }
