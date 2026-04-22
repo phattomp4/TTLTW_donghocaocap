@@ -489,5 +489,63 @@ public class AdminDAO {
         return list;
     }
 
-}
+    public boolean updateOrderStatusWithLog(int OrderID, String nextStatus){
+        String queryCheck = "SELECT Status FROM Orders WHERE OrderID = ?";
+        String queryUpdate = "Update Orders SET Status = ? WHERE OrderID = ?";
+        try{
+            String currentStatus = "";
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement preparedStatementCheck = conn.prepareStatement(queryCheck);
+            preparedStatementCheck.setInt(1, OrderID);
+            ResultSet resultSet = preparedStatementCheck.executeQuery();
+            if(resultSet.next()){
+                currentStatus = resultSet.getString("Status");
+            }
+
+            if("Completed".equals(currentStatus) || "Cancelled".equals(currentStatus)){
+                return false;
+            }
+
+            PreparedStatement preparedStatementUpdate = conn.prepareStatement(queryUpdate);
+            preparedStatementUpdate.setString(1, nextStatus);
+            preparedStatementUpdate.setInt(2, OrderID);
+            preparedStatementUpdate.executeQuery();
+
+            if("Cancelled".equals(nextStatus)){
+                String queryReturn = "SELECT ProductID, Quantity FROM OrderDetails WHERE OrderID = ?";
+                PreparedStatement preparedStatementReturn = conn.prepareStatement(queryReturn);
+                preparedStatementReturn.setInt(1, OrderID);
+                ResultSet resultSetReturn = preparedStatementReturn.executeQuery();
+
+                String queryUpdateStock = "UPDATE Products SET StockQuantity = StockQuantity + ? WHERE ProductID = ?";
+                PreparedStatement preparedStatementStock = conn.prepareStatement(queryUpdateStock);
+
+                while(resultSetReturn.next()){
+                    preparedStatementStock.setInt(1, resultSetReturn.getInt("Quantity"));
+                    preparedStatementStock.setInt(2, resultSetReturn.getInt("ProductID"));
+                    preparedStatementStock.addBatch();
+                }
+                preparedStatementStock.executeBatch();
+            }
+            conn.commit();
+            return true;
+        }
+        catch (Exception e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    }
+
 
