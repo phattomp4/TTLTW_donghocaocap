@@ -10,8 +10,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class VNPayService {
 
-    public static String vnp_TmnCode = "";
-    public static String vnp_HashSecret = "";
+    public static String vnp_TmnCode = ""; //them sau
+    public static String vnp_HashSecret = ""; // them sau
     public static String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
 
