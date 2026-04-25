@@ -81,7 +81,7 @@
 
                 <c:choose>
                     <c:when test="${p.stockQuantity > 0}">
-                        <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
+                        <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                             <c:choose>
                                 <c:when test="${sessionScope.acc != null && sessionScope.acc.role == 'Admin'}">
                                     <a href="admin/product-form?id=${p.id}" class="btn-buy-now" style="background: #343a40; color: white; border: none; padding: 10px 30px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
@@ -91,6 +91,12 @@
                                 <c:otherwise>
                                     <button type="button" onclick="addToCartAjax()" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;"><i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ</button>
                                     <button type="submit" name="action" value="buynow" class="btn-buy-now" style="background: #d0011b; color: white; border: none; padding: 10px 30px; cursor: pointer;">Mua ngay</button>
+
+                                    <button type="button" id="btnFavorite" onclick="toggleFavoriteAjax(${p.id})" style="background: #fff; border: 1px solid #ccc; padding: 10px 15px; border-radius: 4px; cursor: pointer; color: ${isFavorite ? '#d0011b' : '#333'};">
+                                        <i id="heartIcon" class="fa-${isFavorite ? 'solid' : 'regular'} fa-heart"></i>
+                                        <span id="favText">${isFavorite ? 'Đã yêu thích' : 'Lưu yêu thích'}</span>
+                                    </button>
+
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -283,6 +289,38 @@
             })
             .catch(error => alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console."));
     }
+    
+    function toggleFavoriteAjax(pid) {
+        fetch('${pageContext.request.contextPath}/toggle-favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'pid=' + pid
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
+                    window.location.href = "login.jsp"; // Chuyển hướng tới trang đăng nhập
+                    return;
+                }
+
+                const icon = document.getElementById("heartIcon");
+                const btn = document.getElementById("btnFavorite");
+                const text = document.getElementById("favText");
+
+                if (data === "added") {
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    btn.style.color = "#d0011b";
+                    text.innerText = "Đã yêu thích";
+                } else if (data === "removed") {
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    btn.style.color = "#333";
+                    text.innerText = "Lưu yêu thích";
+                }
+            });
+    }
 
     function previewImage(input) {
         if (input.files && input.files[0]) {
@@ -300,7 +338,6 @@
         for (let i = 0; i < radios.length; i++) radios[i].checked = false;
     }
 
-    // đăng review tổng
     function submitReviewAjax(event) {
         event.preventDefault();
         const form = document.getElementById('reviewForm');
@@ -309,7 +346,7 @@
 
         const checkedStar = form.querySelector('input[name="rating"]:checked');
         const ratingVal = checkedStar ? checkedStar.value : "0";
-        
+
         if (ratingVal === "0") {
             alert("Vui lòng chọn số sao để đánh giá sản phẩm!");
             return;
@@ -381,7 +418,6 @@
         if (reviewContainer) reviewContainer.insertAdjacentHTML('afterbegin', newReviewHtml);
     }
 
-    // xem thêm
     let currentOffset = 10;
     function loadMoreReviews(productId) {
         const btn = document.getElementById('btnLoadMore');
@@ -433,7 +469,6 @@
             });
     }
 
-    // form trả lời
     function toggleReplyForm(reviewId) {
         const form = document.getElementById('replyFormBox_' + reviewId);
         form.style.display = form.style.display === 'none' ? 'flex' : 'none';
@@ -441,14 +476,13 @@
 
     function replyToUser(reviewId, targetUsername) {
         const formBox = document.getElementById('replyFormBox_' + reviewId);
-        formBox.style.display = 'flex'; // Hiện form lên
+        formBox.style.display = 'flex';
 
         const input = document.getElementById('replyInput_' + reviewId);
         input.value = '@' + targetUsername + ' ';
         input.focus();
     }
 
-    // đăng trả lời
     function submitReply(reviewId) {
         const input = document.getElementById('replyInput_' + reviewId);
         const text = input.value.trim();
