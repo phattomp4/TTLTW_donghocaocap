@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.FavoriteDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ReviewDAO;
@@ -53,7 +54,12 @@ public class DetailServlet extends HttpServlet {
                 List<Review> listReviews = reviewDAO.getReviewsWithPaginationAndFilter(pid, 0, 10, 0, false);
                 request.setAttribute("listReviews", listReviews);
 
-
+                boolean isFavorite = false;
+                if (user != null) {
+                    FavoriteDAO favDao = new FavoriteDAO();
+                    isFavorite = favDao.isFavorite(user.getId(), pid);
+                }
+                request.setAttribute("isFavorite", isFavorite);
                 request.getRequestDispatcher("detail.jsp").forward(request, response);
             } else {
                 response.sendRedirect("home");
