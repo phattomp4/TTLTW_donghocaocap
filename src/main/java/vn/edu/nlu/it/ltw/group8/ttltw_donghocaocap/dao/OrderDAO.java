@@ -9,7 +9,7 @@ import java.util.List;
 
 public class OrderDAO {
 
-    public boolean insertOrder(User user, List<CartItem> cart, int addressId, String paymentMethod, double totalAmount, double discountAmount) {
+    public int insertOrder(User user, List<CartItem> cart, int addressId, String paymentMethod, double totalAmount, double discountAmount) {
         Connection conn = null;
         PreparedStatement psOrder = null;
         PreparedStatement psDetail = null;
@@ -18,11 +18,10 @@ public class OrderDAO {
 
         try {
             conn = new DBContext().getConnection();
-
             conn.setAutoCommit(false);
 
-            String sqlOrder = "INSERT INTO Orders (UserID, ShippingAddressID, OrderDate, TotalAmount, DiscountAmount, PaymentMethod, PaymentStatus, Status) "
-                    + "VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)";
+            String sqlOrder = "INSERT INTO orders (UserID, ShippingAddressID, OrderDate, TotalAmount, DiscountAmount, PaymentMethod, PaymentStatus, Status) "
+                    + "VALUES (?, ?, NOW(), ?, ?, ?, 'Unpaid', 'Processing')";
 
             psOrder = conn.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             psOrder.setInt(1, user.getId());
@@ -30,8 +29,6 @@ public class OrderDAO {
             psOrder.setDouble(3, totalAmount);
             psOrder.setDouble(4, discountAmount);
             psOrder.setString(5, paymentMethod);
-            psOrder.setString(6, "Pending");
-            psOrder.setString(7, "Processing");
             psOrder.executeUpdate();
 
             rs = psOrder.getGeneratedKeys();
@@ -39,9 +36,8 @@ public class OrderDAO {
             if (rs.next()) {
                 orderId = rs.getInt(1);
             }
-
-            String sqlDetail = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
-            String sqlUpdateProduct = "UPDATE Products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ?";
+            String sqlDetail = "INSERT INTO order_details (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
+            String sqlUpdateProduct = "UPDATE products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ? AND StockQuantity >= ?";
 
             psDetail = conn.prepareStatement(sqlDetail);
             psUpdateProduct = conn.prepareStatement(sqlUpdateProduct);
@@ -56,13 +52,20 @@ public class OrderDAO {
                 psUpdateProduct.setInt(1, item.getQuantity());
                 psUpdateProduct.setInt(2, item.getQuantity());
                 psUpdateProduct.setInt(3, item.getProduct().getId());
+                psUpdateProduct.setInt(4, item.getQuantity());
                 psUpdateProduct.addBatch();
             }
-            psDetail.executeBatch();
-            psUpdateProduct.executeBatch();
 
+            psDetail.executeBatch();
+            int[] stockResults = psUpdateProduct.executeBatch();
+
+            for (int res : stockResults) {
+                if (res == 0) {
+                    throw new Exception("Sản phẩm trong kho không đủ để thực hiện giao dịch!");
+                }
+            }
             conn.commit();
-            return true;
+            return orderId;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,9 +74,8 @@ public class OrderDAO {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            return false;
+            return 0;
         } finally {
-
             try {
                 if (rs != null) rs.close();
                 if (psOrder != null) psOrder.close();
@@ -83,6 +85,84 @@ public class OrderDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+
+    public boolean confirmPaid(int orderId, String transactionId) throws SQLException {
+        String sql = "UPDATE orders SET PaymentStatus = 'Paid', TransactionID = ?, PaymentDate = NOW(), Status = 'Processing' WHERE OrderID = ?";
+        try (Connection conn = new DBContext().getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, transactionId);
+                ps.setInt(2, orderId);
+                int result = ps.executeUpdate();
+                updateOrderStatusWithConn(conn, orderId, "Paid", "Thanh toán thành công qua VNPAY.");
+                conn.commit();
+                return result > 0;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Lỗi khi xác nhận thanh toán đơn hàng #" + orderId);
+        }
+    }
+    private void updateOrderStatusWithConn(Connection conn, int orderId, String status, String note) throws SQLException {
+        String sql = "INSERT INTO order_logs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ps.setString(2, status);
+            ps.setString(3, note);
+            ps.executeUpdate();
+        }
+    }
+
+    public boolean updatePaymentStatus(int orderId, String paymentStatus, String transactionId) {
+        String sql = "UPDATE orders SET PaymentStatus = ?, TransactionID = ? WHERE OrderID = ?";
+
+        try (Connection conn = new DBContext().getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, paymentStatus);
+                ps.setString(2, transactionId);
+                ps.setInt(3, orderId);
+                int row = ps.executeUpdate();
+
+                if ("Failed".equalsIgnoreCase(paymentStatus) || "Cancelled".equalsIgnoreCase(paymentStatus)) {
+                    rollbackStock(orderId);
+                }
+                return row > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void rollbackStock(int orderId) {
+        String sqlGetDetails = "SELECT ProductID, Quantity FROM order_details WHERE OrderID = ?";
+        String sqlUpdateStock = "UPDATE products SET StockQuantity = StockQuantity + ?, SoldQuantity = SoldQuantity - ? WHERE ProductID = ?";
+
+        try (Connection conn = new DBContext().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement psGet = conn.prepareStatement(sqlGetDetails)) {
+                psGet.setInt(1, orderId);
+                ResultSet rs = psGet.executeQuery();
+                while (rs.next()) {
+                    try (PreparedStatement psUp = conn.prepareStatement(sqlUpdateStock)) {
+                        int qty = rs.getInt("Quantity");
+                        psUp.setInt(1, qty);
+                        psUp.setInt(2, qty);
+                        psUp.setInt(3, rs.getInt("ProductID"));
+                        psUp.executeUpdate();
+                    }
+                }
+            }
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

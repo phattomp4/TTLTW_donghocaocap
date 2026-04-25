@@ -5,6 +5,7 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.UserAddress;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.VNPayService; // FIX: Import Service thanh toán
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -37,14 +38,13 @@ public class CheckoutServlet extends HttpServlet {
         List<UserAddress> listAddress = userDAO.getAddresses(acc.getId());
         request.setAttribute("listAddress", listAddress);
 
-        // tính tổng tiền
         double totalMoney = 0;
         for (CartItem item : cart) {
             totalMoney += item.getTotalPrice();
         }
 
         request.setAttribute("totalMoney", totalMoney);
-        request.setAttribute("finalTotal", totalMoney); // sau này có voucher thì trừ ở đây
+        request.setAttribute("finalTotal", totalMoney);
 
         request.getRequestDispatcher("user/checkout.jsp").forward(request, response);
     }
@@ -63,26 +63,29 @@ public class CheckoutServlet extends HttpServlet {
         String addressIdRaw = request.getParameter("addressId");
         String paymentMethod = request.getParameter("paymentMethod");
 
-
         double totalMoney = 0;
         for (CartItem item : cart) {
             totalMoney += item.getTotalPrice();
         }
-        double discount = 0;
+        double discount = 0; // Xử lý voucher (xử lý sau)
 
         try {
             int addressId = Integer.parseInt(addressIdRaw);
-
             OrderDAO orderDAO = new OrderDAO();
-            boolean result = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, totalMoney - discount, discount);
+            int orderId = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, totalMoney - discount, discount);
 
-            if (result) {
+            if (orderId > 0) {
                 session.removeAttribute("cart");
                 session.removeAttribute("cartCount");
 
-                response.sendRedirect("order-history");
+                if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
+                    String vnpayUrl = VNPayService.createPaymentUrl(totalMoney - discount, orderId, request);
+                    response.sendRedirect(vnpayUrl);
+                } else {
+                    response.sendRedirect("order-history?msg=success");
+                }
             } else {
-                request.setAttribute("error", "Đặt hàng thất bại. Vui lòng thử lại!");
+                request.setAttribute("error", "Đặt hàng thất bại. Sản phẩm có thể đã hết hàng hoặc lỗi hệ thống!");
                 doGet(request, response);
             }
 
