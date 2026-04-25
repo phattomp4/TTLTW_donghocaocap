@@ -12,23 +12,27 @@ public class Order {
     private String paymentMethod;
     private String paymentStatus;
     private String status;
-
     private String phone;
+    // xu ly thanh toan
+    private String transactionId;
+    private Timestamp paymentDate;
 
     public Order() {}
 
-    public Order(int orderId, int userId, int shippingAddressId, int voucherId, Timestamp orderDate, double discountAmount, double totalAmount, String paymentMethod, String paymentStatus, String status, String phone) {
+    public Order(int orderId, int userId, int shippingAddressId, int voucherId, Timestamp orderDate, double totalAmount, double discountAmount, String paymentMethod, String paymentStatus, String status, String phone, String transactionId, Timestamp paymentDate) {
         this.orderId = orderId;
         this.userId = userId;
         this.shippingAddressId = shippingAddressId;
         this.voucherId = voucherId;
         this.orderDate = orderDate;
-        this.discountAmount = discountAmount;
         this.totalAmount = totalAmount;
+        this.discountAmount = discountAmount;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
         this.status = status;
-
+        this.phone = phone;
+        this.transactionId = transactionId;
+        this.paymentDate = paymentDate;
     }
 
     public int getOrderId() {
@@ -117,5 +121,21 @@ public class Order {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Timestamp getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(Timestamp paymentDate) {
+        this.paymentDate = paymentDate;
     }
 }
