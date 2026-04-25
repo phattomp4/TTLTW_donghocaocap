@@ -289,7 +289,7 @@
             })
             .catch(error => alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console."));
     }
-    
+
     function toggleFavoriteAjax(pid) {
         fetch('${pageContext.request.contextPath}/toggle-favorite', {
             method: 'POST',
