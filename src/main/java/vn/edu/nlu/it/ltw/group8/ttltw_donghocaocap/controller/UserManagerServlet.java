@@ -15,17 +15,22 @@ public class UserManagerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         AdminDAO dao = new AdminDAO();
-        List<User> list;
-
         String keyword = request.getParameter("keyword");
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            list = dao.searchUsers(keyword.trim());
-        } else {
-            list = dao.getAllUsers();
+        int page = 1;
+        int limit = 10;
+        if (request.getParameter("page") != null) {
+            page = Integer.parseInt(request.getParameter("page"));
         }
+        int offset = (page - 1) * limit;
+
+        List<User> list = dao.getUsersWithPagination(offset, limit, keyword);
+        int totalUsers = dao.getTotalUsersCount(keyword);
+        int totalPages = (int) Math.ceil((double) totalUsers / limit);
 
         request.setAttribute("listUsers", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("searchKeyword", keyword);
 
         request.getRequestDispatcher("/admin/user-manager.jsp").forward(request, response);

@@ -36,6 +36,25 @@
         tr:hover { background-color: #f9f9f9; }
 
         .avatar-circle { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #777; font-weight: bold; }
+
+        .page-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: #333;
+            border-radius: 4px;
+            transition: all 0.3s;
+            background: white;
+        }
+        .page-link.active {
+            background-color: #1b6e76;
+            color: white;
+            border-color: #1b6e76;
+        }
+        .page-link:hover:not(.active) {
+            background-color: #f1f1f1;
+            border-color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -110,6 +129,24 @@
             </tbody>
         </table>
     </div>
+    <c:if test="${totalPages > 1}">
+        <div class="pagination" style="display: flex; justify-content: center; margin-top: 25px; gap: 8px;">
+            <c:if test="${currentPage > 1}">
+                <a href="user-manager?page=${currentPage - 1}&keyword=${searchKeyword}" class="page-link">&laquo;</a>
+            </c:if>
+
+            <c:forEach begin="1" end="${totalPages}" var="i">
+                <a href="user-manager?page=${i}&keyword=${searchKeyword}"
+                   class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+            </c:forEach>
+
+            <c:if test="${currentPage < totalPages}">
+                <a href="user-manager?page=${currentPage + 1}&keyword=${searchKeyword}" class="page-link">&raquo;</a>
+            </c:if>
+        </div>
+    </c:if>
+
+
 </div>
 
 </body>

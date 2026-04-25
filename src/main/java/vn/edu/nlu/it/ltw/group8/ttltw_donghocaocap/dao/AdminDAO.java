@@ -546,6 +546,64 @@ public class AdminDAO {
             }
         }
     }
+    public List<User> getUsersWithPagination(int offset, int limit, String keyword) {
+        List<User> list = new ArrayList<>();
+        String query = "SELECT u.*, " +
+                "(SELECT StreetDetail FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
+                "FROM Users u WHERE Role != 'Admin'";
+
+        if (keyword != null && !keyword.isEmpty()) {
+            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+        }
+
+        query += " ORDER BY UserID DESC LIMIT ? OFFSET ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            int paramIdx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String key = "%" + keyword + "%";
+                ps.setString(paramIdx++, key);
+                ps.setString(paramIdx++, key);
+                ps.setString(paramIdx++, key);
+            }
+            ps.setInt(paramIdx++, limit);
+            ps.setInt(paramIdx, offset);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("UserID"));
+                u.setUsername(rs.getString("Username"));
+                u.setFullName(rs.getString("FullName"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+                u.setAddress(rs.getString("DefaultStreet") != null ? rs.getString("DefaultStreet") : "Chưa thiết lập");
+                list.add(u);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int getTotalUsersCount(String keyword) {
+        String query = "SELECT COUNT(*) FROM Users WHERE Role != 'Admin'";
+        if (keyword != null && !keyword.isEmpty()) {
+            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+        }
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            if (keyword != null && !keyword.isEmpty()) {
+                String key = "%" + keyword + "%";
+                ps.setString(1, key);
+                ps.setString(2, key);
+                ps.setString(3, key);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
     }
 
 
