@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -32,11 +33,17 @@
         .table-container { background: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background: #343a40; color: white; text-transform: uppercase; font-size: 14px; }
+        th { background: #343a40; color: white; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
         tr:hover { background-color: #f9f9f9; }
 
-        .avatar-circle { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #777; font-weight: bold; }
+        .avatar-circle { width: 40px; height: 40px; background: #1b6e76; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
 
+        /* Status Badges */
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-active { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-locked { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* Pagination */
         .page-link {
             padding: 8px 16px;
             text-decoration: none;
@@ -45,6 +52,7 @@
             border-radius: 4px;
             transition: all 0.3s;
             background: white;
+            font-weight: 500;
         }
         .page-link.active {
             background-color: #1b6e76;
@@ -88,15 +96,16 @@
                 <th style="width: 60px;">Avatar</th>
                 <th>Tên tài khoản</th>
                 <th>Họ và tên</th>
-                <th>Email</th>
-                <th>Số điện thoại</th>
+                <th>Ngày đăng ký</th> <th>Trạng thái</th>   <th>Email</th>
+                <th>SĐT</th>
                 <th>Địa chỉ</th>
             </tr>
             </thead>
             <tbody>
             <c:if test="${empty listUsers}">
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 30px; color: #777;">
+                    <td colspan="9" style="text-align: center; padding: 40px; color: #777;">
+                        <i class="fa-solid fa-user-slash" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
                         Không tìm thấy khách hàng nào.
                     </td>
                 </tr>
@@ -119,9 +128,25 @@
                         </a>
                     </td>
                     <td>${u.fullName}</td>
-                    <td>${u.email}</td>
-                    <td>${u.phone}</td>
-                    <td style="color: #666; font-size: 13px;">
+
+                    <td style="font-size: 13px; color: #555;">
+                        <fmt:formatDate value="${u.createdAt}" pattern="dd/MM/yyyy"/>
+                    </td>
+
+                    <td>
+                        <c:choose>
+                            <c:when test="${u.status == 'Active' || u.status == '1'}">
+                                <span class="badge badge-active">Hoạt động</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="badge badge-locked">Bị khóa</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
+
+                    <td style="font-size: 13px;">${u.email}</td>
+                    <td style="font-size: 13px;">${u.phone}</td>
+                    <td style="color: #666; font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             ${u.address}
                     </td>
                 </tr>
@@ -129,10 +154,11 @@
             </tbody>
         </table>
     </div>
+
     <c:if test="${totalPages > 1}">
         <div class="pagination" style="display: flex; justify-content: center; margin-top: 25px; gap: 8px;">
             <c:if test="${currentPage > 1}">
-                <a href="user-manager?page=${currentPage - 1}&keyword=${searchKeyword}" class="page-link">&laquo;</a>
+                <a href="user-manager?page=${currentPage - 1}&keyword=${searchKeyword}" class="page-link">&laquo; Trước</a>
             </c:if>
 
             <c:forEach begin="1" end="${totalPages}" var="i">
@@ -141,12 +167,10 @@
             </c:forEach>
 
             <c:if test="${currentPage < totalPages}">
-                <a href="user-manager?page=${currentPage + 1}&keyword=${searchKeyword}" class="page-link">&raquo;</a>
+                <a href="user-manager?page=${currentPage + 1}&keyword=${searchKeyword}" class="page-link">Sau &raquo;</a>
             </c:if>
         </div>
     </c:if>
-
-
 </div>
 
 </body>

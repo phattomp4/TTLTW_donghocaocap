@@ -73,7 +73,6 @@ public class AdminDAO {
         return list;
     }
 
-    // 5. CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
     public void updateOrderStatus(int orderId, String status) {
         String query = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
         try {
@@ -208,7 +207,6 @@ public class AdminDAO {
                 list.add(p);
             }
         } catch (Exception e) {
-            // In lỗi ra console để debug (Xem Output cửa sổ bên dưới nếu vẫn lỗi)
             System.out.println("Lỗi getAllProducts: " + e.getMessage());
             e.printStackTrace();
         } finally {
@@ -316,7 +314,7 @@ public class AdminDAO {
             ps.setDouble(5, p.getCurrentPrice());
             ps.setInt(6, p.getStockQuantity());
             ps.setBoolean(7, p.isLuxury());
-            ps.setInt(8, p.getId()); // ID để WHERE
+            ps.setInt(8, p.getId());
             ps.executeUpdate();
 
             if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
@@ -549,7 +547,7 @@ public class AdminDAO {
     public List<User> getUsersWithPagination(int offset, int limit, String keyword) {
         List<User> list = new ArrayList<>();
         String query = "SELECT u.*, " +
-                "(SELECT StreetDetail FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
+                "(SELECT Street FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
                 "FROM Users u WHERE Role != 'Admin'";
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -579,6 +577,10 @@ public class AdminDAO {
                 u.setFullName(rs.getString("FullName"));
                 u.setEmail(rs.getString("Email"));
                 u.setPhone(rs.getString("Phone"));
+
+                u.setStatus(rs.getString("Status"));
+                u.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
                 u.setAddress(rs.getString("DefaultStreet") != null ? rs.getString("DefaultStreet") : "Chưa thiết lập");
                 list.add(u);
             }
