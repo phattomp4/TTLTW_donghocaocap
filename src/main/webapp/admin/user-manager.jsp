@@ -96,7 +96,9 @@
                 <th style="width: 60px;">Avatar</th>
                 <th>Tên tài khoản</th>
                 <th>Họ và tên</th>
-                <th>Ngày đăng ký</th> <th>Trạng thái</th>   <th>Email</th>
+                <th>Ngày đăng ký</th>
+                <th>Trạng thái</th>
+                <th>Email</th>
                 <th>SĐT</th>
                 <th>Địa chỉ</th>
             </tr>
@@ -120,7 +122,7 @@
                         </div>
                     </td>
                     <td style="font-weight: bold;">
-                        <a href="user-detail?id=${u.id}"
+                        <a href="user-manager?action=detail&id=${u.id}"
                            style="color: #1b6e76; text-decoration: none; transition: 0.2s;"
                            onmouseover="this.style.textDecoration='underline'"
                            onmouseout="this.style.textDecoration='none'">

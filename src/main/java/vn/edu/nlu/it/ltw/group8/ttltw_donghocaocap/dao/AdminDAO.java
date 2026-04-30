@@ -3,10 +3,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ProductSpecification;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -605,6 +602,50 @@ public class AdminDAO {
             if (rs.next()) return rs.getInt(1);
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
+    }
+
+    public User getUserById(int id) {
+        String query = "SELECT u.*, (SELECT Street FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet FROM Users u WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("UserID"));
+                u.setUsername(rs.getString("Username"));
+                u.setFullName(rs.getString("FullName"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+                u.setStatus(rs.getString("Status"));
+                u.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                u.setAddress(rs.getString("DefaultStreet"));
+                return u;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    public UserShoppingStats getCustomerStats(int userId) {
+        UserShoppingStats stats = new UserShoppingStats();
+        String query = "SELECT " +
+                "COUNT(*) AS TotalOrders, " +
+                "SUM(CASE WHEN Status != 'Cancelled' THEN TotalAmount ELSE 0 END) AS TotalSpent, " +
+                "COUNT(CASE WHEN Status = 'Completed' THEN 1 END) AS CompletedOrders, " +
+                "COUNT(CASE WHEN Status = 'Cancelled' THEN 1 END) AS CancelledOrders " +
+                "FROM Orders WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                stats.setTotalOrders(rs.getInt("TotalOrders"));
+                stats.setTotalSpent(rs.getDouble("TotalSpent"));
+                stats.setCompletedCount(rs.getInt("CompletedOrders"));
+                stats.setCancelledCount(rs.getInt("CancelledOrders"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return stats;
     }
     }
 
