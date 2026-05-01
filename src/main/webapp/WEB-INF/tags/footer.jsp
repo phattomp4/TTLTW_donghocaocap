@@ -51,3 +51,39 @@
         </div>
     </div>
 </footer>
+
+<script>
+    function toggleFavoriteCardAjax(event, pid, btnElement) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        fetch('${pageContext.request.contextPath}/toggle-favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'pid=' + pid
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để lưu sản phẩm!");
+                    window.location.href = "${pageContext.request.contextPath}/login.jsp";
+                    return;
+                }
+
+                const countHeader = document.getElementById("favCountHeader");
+                let currentCount = parseInt(countHeader.innerText) || 0;
+
+                if (data === "added") {
+                    btnElement.style.color = "#d0011b";
+                    btnElement.classList.add("active");
+                    if (countHeader) countHeader.innerText = currentCount + 1;
+
+                } else if (data === "removed") {
+                    btnElement.style.color = "#ccc";
+                    btnElement.classList.remove("active");
+                    if (countHeader) countHeader.innerText = Math.max(0, currentCount - 1);
+                }
+            })
+            .catch(error => console.error("Lỗi:", error));
+    }
+</script>
