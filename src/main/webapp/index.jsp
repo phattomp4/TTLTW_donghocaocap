@@ -126,7 +126,10 @@
             <c:forEach items="${listFeatured}" var="p">
                 <div class="swiper-slide">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -162,8 +165,10 @@
             <c:forEach items="${listBestSeller}" var="p">
                 <div class="swiper-slide">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
-                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
                         </a>
@@ -200,7 +205,10 @@
                 <c:forEach items="${listLuxury}" var="p">
                     <li class="luxury-card swiper-slide">
                         <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-                        <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                        <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
+                            <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                                 <img src="${p.imageUrl}" alt="${p.name}">
                                 <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -254,7 +262,10 @@
             <c:forEach items="${listMen}" var="p">
                 <div class="link-product js-item-men">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -280,7 +291,10 @@
             <c:forEach items="${listWomen}" var="p">
                 <div class="link-product js-item-women">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
-                    <div class="Product ${isOut ? 'out-of-stock' : ''}">
+                    <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
