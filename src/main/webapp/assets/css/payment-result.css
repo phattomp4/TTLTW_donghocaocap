@@ -1,0 +1,128 @@
+/* --- CẤU TRÚC CHUNG --- */
+.result-wrapper {
+    max-width: 700px;
+    margin: 150px auto 50px;
+    padding: 0 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.result-card {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    padding: 50px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+}
+
+
+.status-icon {
+    font-size: 80px;
+    margin-bottom: 25px;
+    display: block;
+}
+
+.result-card h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.result-card .message {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.order-details {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: left;
+    margin-bottom: 35px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #ddd;
+    padding-bottom: 8px;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.detail-label {
+    color: #888;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #333;
+    font-weight: 600;
+}
+
+.action-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-result {
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 14px;
+    transition: 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-home {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-home:hover {
+    background: #e0e0e0;
+}
+
+.btn-repay {
+    background: #1a1a1a;
+    color: #c5a059;
+    border: 1px solid #c5a059;
+}
+
+.btn-repay:hover {
+    background: #c5a059;
+    color: #fff;
+}
+
+
+.status-success .status-bar { background: #28a745; }
+.status-success .status-icon { color: #28a745; }
+
+.status-failed .status-bar { background: #d0011b; }
+.status-failed .status-icon { color: #d0011b; }
+
+.status-warning .status-bar { background: #ffc107; }
+.status-warning .status-icon { color: #ffc107; }
+
+.status-error .status-bar { background: #6c757d; }
+.status-error .status-icon { color: #6c757d; }

@@ -1,5 +1,4 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
