@@ -485,12 +485,12 @@ public class UserDAO {
     }
 
     // hàm đổi mật khẩu
-    public void updatePassword(int userId, String newPasswordHash) {
+    public void updatePassword(int userId, String newPassword) {
         String query = "UPDATE users SET PasswordHash = ? WHERE UserID = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
-            ps.setString(1, newPasswordHash);
+            ps.setString(1, BCrypt.hashpw(newPassword, BCrypt.gensalt(12)));
             ps.setInt(2, userId);
             ps.executeUpdate();
         } catch (Exception e) {

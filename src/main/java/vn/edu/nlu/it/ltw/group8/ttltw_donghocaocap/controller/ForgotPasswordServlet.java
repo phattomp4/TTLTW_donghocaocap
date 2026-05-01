@@ -5,7 +5,6 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.EmailUtil;
-
 import java.io.IOException;
 
 @WebServlet(name = "ForgotPasswordServlet", urlPatterns = {"/forgotPassword"})
@@ -30,15 +29,23 @@ public class ForgotPasswordServlet extends HttpServlet {
         if ("send_code".equals(action)) {
             String accountInfo = request.getParameter("account_info");
             if (accountInfo != null) accountInfo = accountInfo.trim();
+            Long lastSent = (Long) session.getAttribute("lastSentTime");
+            long currentTime = System.currentTimeMillis();
+            long waitTime = 120 * 1000;
 
-            if (dao.checkEmailExist(accountInfo) != null) {
+            if (lastSent != null && (currentTime - lastSent) < waitTime) {
+                long secondsLeft = (waitTime - (currentTime - lastSent)) / 1000;
+                request.setAttribute("error", "Thao tác quá nhanh! Vui lòng đợi " + secondsLeft + " giây để gửi lại.");
+                step = "true".equals(request.getParameter("isResend")) ? 2 : 1;
+            } else if (dao.checkEmailExist(accountInfo) != null) {
                 String code = String.valueOf((int) (Math.random() * 900000) + 100000);
                 boolean sent = EmailUtil.sendOTP(accountInfo, code);
 
                 if (sent) {
                     session.setAttribute("resetOTP", code);
                     session.setAttribute("resetAccount", accountInfo);
-                    session.setAttribute("otpExpiry", System.currentTimeMillis() + (2 * 60 * 1000));
+                    session.setAttribute("otpExpiry", currentTime + (2 * 60 * 1000));
+                    session.setAttribute("lastSentTime", currentTime);
 
                     if ("true".equals(request.getParameter("isResend"))) {
                         request.setAttribute("success", "Mã xác thực mới đã được gửi!");
@@ -88,7 +95,7 @@ public class ForgotPasswordServlet extends HttpServlet {
                     session.removeAttribute("resetOTP");
                     session.removeAttribute("resetAccount");
                     session.removeAttribute("otpExpiry");
-
+                    session.removeAttribute("lastSentTime");
                     request.setAttribute("success", "Đã đổi mật khẩu thành công! Mời bạn đăng nhập.");
                     request.getRequestDispatcher("/login.jsp").forward(request, response);
                     return;

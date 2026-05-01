@@ -19,17 +19,30 @@ public class LoadMoreReviewsServlet extends HttpServlet {
             int pid = Integer.parseInt(request.getParameter("pid"));
             int offset = Integer.parseInt(request.getParameter("offset"));
 
-            ReviewDAO reviewDAO = new ReviewDAO();
-            List<Review> listReviews = reviewDAO.getReviewsWithPagination(pid, offset, 10);
+            int filterStar = 0;
+            String starParam = request.getParameter("star");
+            if (starParam != null && !starParam.isEmpty()) {
+                filterStar = Integer.parseInt(starParam);
+            }
 
-            // truyền dữ liệu sang file jsp nhỏ để render HTML
+            boolean hasImage = false;
+            String hasImageParam = request.getParameter("hasImage");
+            if (hasImageParam != null && !hasImageParam.isEmpty()) {
+                hasImage = Boolean.parseBoolean(hasImageParam);
+            }
+
+            ReviewDAO reviewDAO = new ReviewDAO();
+
+            List<Review> listReviews = reviewDAO.getReviewsWithPaginationAndFilter(pid, offset, 10, filterStar, hasImage);
+
             request.setAttribute("listReviews", listReviews);
-            request.setAttribute("pid", pid); // truyền theo id sản phẩm để dùng cho form xóa
+            request.setAttribute("pid", pid);
 
             request.getRequestDispatcher("review-fragment.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }

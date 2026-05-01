@@ -32,9 +32,13 @@
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #343a40; color: white; }
 
-        /* Status Form */
-        select { padding: 5px; border-radius: 4px; border: 1px solid #ddd; }
+        /* Status Form & Search */
+        select, input[type="text"] { padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; outline: none; }
         .btn-update { background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+        .search-container { position: relative; display: inline-block; }
+        .search-container i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+        .search-container input { padding-left: 32px; width: 220px; }
     </style>
 </head>
 <body>
@@ -67,13 +71,38 @@
         </div>
     </div>
 
-    <h2 style="border-bottom: 2px solid #333; padding-bottom: 10px;">Quản lý đơn hàng</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+        <h2 style="margin: 0; border: none; padding: 0;">Quản lý đơn hàng</h2>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" onkeyup="filterOrders()" placeholder="Nhập mã đơn hoặc SĐT...">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="statusFilter" style="font-weight: bold; color: #555; margin: 0;">
+                    <i class="fa-solid fa-filter"></i> Lọc:
+                </label>
+                <select id="statusFilter" onchange="filterOrders()" style="cursor: pointer;">
+                    <option value="all">Tất cả đơn hàng</option>
+                    <option value="Pending">Chờ duyệt</option>
+                    <option value="Processing">Đang chuẩn bị</option>
+                    <option value="Shipping">Đang giao</option>
+                    <option value="Completed">Hoàn thành</option>
+                    <option value="Cancelled">Hủy đơn</option>
+                    <option value="Request Cancel">Yêu cầu hủy</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <table>
         <thead>
         <tr>
             <th>ID</th>
             <th>Ngày đặt</th>
-            <th>Khách hàng (ID)</th>
+            <th>Khách hàng</th>
             <th>Tổng tiền</th>
             <th>Thanh toán</th>
             <th>Trạng thái hiện tại</th>
@@ -82,35 +111,33 @@
         </thead>
         <tbody>
         <c:forEach items="${listOrders}" var="o">
-            <tr>
+            <tr class="order-row" data-status="${o.status}" data-id="${o.orderId}" data-phone="${o.phone}">
                 <td><b>#${o.orderId}</b></td>
                 <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
-                <td>User #${o.userId}</td>
+                <td>
+                    User #${o.userId}
+                    <br><small style="color: #666;"><i class="fa-solid fa-phone" style="font-size: 10px;"></i> ${o.phone}</small>
+                </td>
                 <td style="color: #d0011b; font-weight: bold;">
                     <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
                 </td>
                 <td>${o.paymentMethod}</td>
                 <td>
-                            <span style="font-weight: bold;
-                                color: ${o.status == 'Completed' ? 'green' : (o.status == 'Cancelled' ? 'red' : 'blue')}">
-                                    ${o.status}
-                            </span>
+                    <span style="font-weight: bold; color: ${o.status == 'Completed' ? 'green' : (o.status == 'Cancelled' ? 'red' : 'blue')}">
+                            ${o.status}
+                    </span>
                 </td>
                 <td>
                     <c:choose>
-                        <%-- TRƯỜNG HỢP 1: Đơn đang yêu cầu hủy -> Hiện nút Duyệt/Từ chối --%>
                         <c:when test="${o.status == 'Request Cancel'}">
                             <div style="display: flex; gap: 5px; margin-bottom: 5px;">
                                 <a href="${pageContext.request.contextPath}/admin/dashboard?action=approveCancel&id=${o.orderId}"
-                                   class="btn-update"
-                                   style="background: #28a745; text-decoration: none; padding: 5px 10px; color: white; border-radius: 4px;"
+                                   class="btn-update" style="background: #28a745; text-decoration: none; padding: 5px 10px; color: white; border-radius: 4px;"
                                    onclick="return confirm('Xác nhận hủy đơn và hoàn kho?');">
                                     <i class="fa-solid fa-check"></i> Duyệt
                                 </a>
-
                                 <a href="${pageContext.request.contextPath}/admin/dashboard?action=rejectCancel&id=${o.orderId}"
-                                   class="btn-update"
-                                   style="background: #dc3545; text-decoration: none; padding: 5px 10px; color: white; border-radius: 4px;"
+                                   class="btn-update" style="background: #dc3545; text-decoration: none; padding: 5px 10px; color: white; border-radius: 4px;"
                                    onclick="return confirm('Từ chối hủy yêu cầu này?');">
                                     <i class="fa-solid fa-xmark"></i> Từ chối
                                 </a>
@@ -118,13 +145,12 @@
                             <span style="font-size: 12px; color: orange;">Khách yêu cầu hủy</span>
                         </c:when>
 
-                        <%-- TRƯỜNG HỢP 2: Các trạng thái khác -> Hiện Dropdown như cũ --%>
                         <c:otherwise>
                             <form action="dashboard" method="POST" style="display: flex; gap: 5px;">
                                 <input type="hidden" name="action" value="update_status">
                                 <input type="hidden" name="orderId" value="${o.orderId}">
 
-                                <select name="status" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
+                                <select name="status">
                                     <option value="Pending" ${o.status == 'Pending' ? 'selected' : ''}>Chờ duyệt</option>
                                     <option value="Processing" ${o.status == 'Processing' ? 'selected' : ''}>Đang chuẩn bị</option>
                                     <option value="Shipping" ${o.status == 'Shipping' ? 'selected' : ''}>Đang giao</option>
@@ -140,12 +166,34 @@
                         <i class="fa-solid fa-eye"></i> Xem chi tiết
                     </a>
                 </td>
-
             </tr>
         </c:forEach>
         </tbody>
-    </table>
-</div>
+    </table> </div> <script>
+    function filterOrders() {
+        const selectedStatus = document.getElementById('statusFilter').value;
+        const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.order-row');
+
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            const rowId = row.getAttribute('data-id').toLowerCase();
+            const rowPhone = (row.getAttribute('data-phone') || "").toLowerCase();
+
+            // Lọc trạng thái
+            const matchStatus = (selectedStatus === 'all' || rowStatus === selectedStatus);
+
+            // Tìm kiếm ID hoặc Số điện thoại
+            const matchSearch = (searchText === '' || rowId.includes(searchText) || rowPhone.includes(searchText));
+
+            if (matchStatus && matchSearch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

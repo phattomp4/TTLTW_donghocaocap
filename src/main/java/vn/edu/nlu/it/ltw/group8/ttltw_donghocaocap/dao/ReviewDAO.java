@@ -3,7 +3,6 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Review;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ReviewReply;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,7 +80,6 @@ public class ReviewDAO {
                 "LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-
             ps.setInt(1, productId);
             ps.setInt(2, limit);
             ps.setInt(3, offset);
@@ -185,5 +183,80 @@ public class ReviewDAO {
             if (rs.next()) return rs.getInt(1);
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
+    }
+
+    // kiểm tra User đã từng đánh giá sản phẩm này chưa
+    public Review getMyReview(int userId, int productId) {
+        String query = "SELECT * FROM Reviews WHERE UserID = ? AND ProductID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Review r = new Review();
+                r.setId(rs.getInt("ReviewID"));
+                r.setRating(rs.getInt("Rating"));
+                r.setComment(rs.getString("Comment"));
+                r.setImageUrl(rs.getString("ImageUrl"));
+                return r;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    // chỉnh sửa đánh giá
+    public boolean updateReview(int reviewId, int rating, String comment, String imageUrl) {
+        // nếu không up ảnh mới thì giữ nguyên ảnh cũ
+        String query = imageUrl != null
+                ? "UPDATE Reviews SET Rating = ?, Comment = ?, ImageUrl = ? WHERE ReviewID = ?"
+                : "UPDATE Reviews SET Rating = ?, Comment = ? WHERE ReviewID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, rating);
+            ps.setString(2, comment);
+            if (imageUrl != null) {
+                ps.setString(3, imageUrl);
+                ps.setInt(4, reviewId);
+            } else {
+                ps.setInt(3, reviewId);
+            }
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    // lấy danh sách kèm theo bộ lọc
+    public List<Review> getReviewsWithPaginationAndFilter(int productId, int offset, int limit, int filterStar, boolean hasImage) {
+        List<Review> list = new ArrayList<>();
+        // câu SQL động dựa vào bộ lọc
+        StringBuilder query = new StringBuilder("SELECT r.*, u.Username, u.Avatar FROM Reviews r JOIN Users u ON r.UserID = u.UserID WHERE r.ProductID = ? ");
+        if (filterStar > 0) query.append("AND r.Rating = ? ");
+        if (hasImage) query.append("AND r.ImageUrl IS NOT NULL AND r.ImageUrl != '' ");
+        query.append("ORDER BY r.CreatedAt DESC LIMIT ? OFFSET ?");
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query.toString())) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, productId);
+            if (filterStar > 0) ps.setInt(paramIndex++, filterStar);
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex++, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Review review = new Review();
+                review.setId(rs.getInt("ReviewID"));
+                review.setUserId(rs.getInt("UserID"));
+                review.setRating(rs.getInt("Rating"));
+                review.setComment(rs.getString("Comment"));
+                review.setImageUrl(rs.getString("ImageUrl"));
+                review.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                review.setUsername(rs.getString("Username"));
+                review.setUserAvatar(rs.getString("Avatar"));
+                review.setLikes(rs.getInt("Likes"));
+                review.setReplies(getRepliesByReviewId(review.getId()));
+                list.add(review);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
 }

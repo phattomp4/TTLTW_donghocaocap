@@ -43,10 +43,15 @@ public class DetailServlet extends HttpServlet {
                 request.setAttribute("canReview", canReview);
 
                 ReviewDAO reviewDAO = new ReviewDAO();
+                if (user != null) {
+                    Review myReview = reviewDAO.getMyReview(user.getId(), pid);
+                    request.setAttribute("myReview", myReview);
+                    // nếu myReview != null, nghĩa là khách đã đánh giá rồi, hiện form chỉnh sửa thay vì thêm mới
+                }
                 int totalReviews = reviewDAO.countReviewsByProductId(pid);
                 request.setAttribute("totalReviews", totalReviews);
 
-                List<Review> listReviews = reviewDAO.getReviewsWithPagination(pid, 0, 10);
+                List<Review> listReviews = reviewDAO.getReviewsWithPaginationAndFilter(pid, 0, 10, 0, false);
                 request.setAttribute("listReviews", listReviews);
 
                 boolean isFavorite = false;
