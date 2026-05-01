@@ -1,4 +1,5 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.filter;
+
 import java.io.IOException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.FavoriteDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 
@@ -42,6 +44,9 @@ public class AutoLoginFilter implements Filter {
                 User userRemember = dao.getUserByToken(token);
                 if (userRemember != null) {
                     session.setAttribute("acc", userRemember);
+                    FavoriteDAO favDao = new FavoriteDAO();
+                    int favCount = favDao.countFavorites(userRemember.getId());
+                    session.setAttribute("favCount", favCount);
                 }
             }
         }
@@ -50,13 +55,15 @@ public class AutoLoginFilter implements Filter {
         boolean isLoginRequest = requestURI.endsWith("login.jsp") || requestURI.endsWith("login");
         boolean isRegisterRequest = requestURI.endsWith("register.jsp") || requestURI.endsWith("register");
         boolean isForgotRequest = requestURI.endsWith("userpass.jsp") || requestURI.endsWith("forgotPassword");
+
         if (isLoggedIn && (isLoginRequest || isRegisterRequest || isForgotRequest)) {
             res.sendRedirect("home");
             return;
         }
+
         chain.doFilter(request, response);
     }
+
     public void init(FilterConfig filterConfig) throws ServletException {}
     public void destroy() {}
-    }
-
+}

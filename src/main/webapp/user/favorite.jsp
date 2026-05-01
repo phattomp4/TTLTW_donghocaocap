@@ -5,6 +5,12 @@
 <html>
 <head>
     <title>Sản phẩm yêu thích</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/GioHang.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp"/>
@@ -38,15 +44,37 @@
                 <form action="add-to-cart" method="GET" style="margin-top: 15px;">
                     <input type="hidden" name="pid" value="${p.id}">
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" style="width: 100%; padding: 8px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
-                        Thêm vào giỏ
-                    </button>
+                    <button type="submit" class="btn-add-cart" style="background: #fff; border: 1px solid #d0011b; color: #d0011b; padding: 10px 20px; cursor: pointer;"><i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ</button>
                 </form>
             </div>
         </c:forEach>
     </div>
 </div>
+<script>
+    function toggleFavoriteAjax(pid) {
+        fetch('${pageContext.request.contextPath}/toggle-favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'pid=' + pid
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để thực hiện thao tác này!");
+                    window.location.href = "${pageContext.request.contextPath}/login.jsp";
+                    return;
+                }
 
+                const countHeader = document.getElementById("favCountHeader");
+                if (countHeader && data === "removed") {
+                    let currentCount = parseInt(countHeader.innerText) || 0;
+                    countHeader.innerText = Math.max(0, currentCount - 1);
+                }
+
+            })
+            .catch(error => console.error("Lỗi khi xóa sản phẩm yêu thích:", error));
+    }
+</script>
 <jsp:include page="../WEB-INF/tags/footer.jsp"/>
 </body>
 </html>

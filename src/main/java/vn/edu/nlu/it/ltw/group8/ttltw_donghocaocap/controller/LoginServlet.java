@@ -3,6 +3,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.FavoriteDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
@@ -70,6 +71,9 @@ public class LoginServlet extends HttpServlet {
 
             session.setAttribute("acc", user);
             session.setMaxInactiveInterval(60 * 60);
+            FavoriteDAO favDao = new FavoriteDAO();
+            int favCount = favDao.countFavorites(user.getId());
+            session.setAttribute("favCount", favCount);
 
             if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
@@ -87,7 +91,6 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("home");
             }
         } else {
-           // fix: đăng nhập sai, dùng session tối ưu
             Integer failedCount = (Integer) session.getAttribute("failedAttempts");
             if (failedCount == null) failedCount = 0;
             failedCount++;
@@ -103,7 +106,7 @@ public class LoginServlet extends HttpServlet {
             }
 
             session.setAttribute("mess", errorMsg);
-            response.sendRedirect("login"); // fix: Redirect để khi F5 không trừ số lần đăng nhập sai
+            response.sendRedirect("login");
         }
     }
 
@@ -124,6 +127,8 @@ public class LoginServlet extends HttpServlet {
                 session.removeAttribute("failedAttempts");
                 session.removeAttribute("lockTime");
 
+                FavoriteDAO favDao = new FavoriteDAO();
+
                 if (existingUser != null) {
                     if (!"Active".equals(existingUser.getStatus())) {
                         dao.activateAccount(existingUser.getVerificationToken());
@@ -131,6 +136,9 @@ public class LoginServlet extends HttpServlet {
                     }
 
                     session.setAttribute("acc", existingUser);
+
+                    int favCount = favDao.countFavorites(existingUser.getId());
+                    session.setAttribute("favCount", favCount);
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
                     if (redirectUrl != null) {
@@ -150,6 +158,10 @@ public class LoginServlet extends HttpServlet {
 
                     User newUser = dao.checkEmailExist(googleEmail);
                     session.setAttribute("acc", newUser);
+
+                    int favCount = favDao.countFavorites(newUser.getId());
+                    session.setAttribute("favCount", favCount);
+
                     response.sendRedirect("home");
                 }
             }

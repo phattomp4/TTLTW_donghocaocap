@@ -47,22 +47,44 @@ public class FavoriteDAO {
 
     public List<Product> getFavoriteProducts(int userId) {
         List<Product> list = new ArrayList<>();
-        String query = "SELECT p.* FROM Products p JOIN Favorites f ON p.id = f.ProductID WHERE f.UserID = ? ORDER BY f.CreatedAt DESC";
+        String query = "SELECT p.* FROM Products p JOIN Favorites f ON p.ProductID = f.ProductID WHERE f.UserID = ? ORDER BY f.CreatedAt DESC";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("ProductID"));
+                p.setName(rs.getString("Name"));
+                p.setCurrentPrice(rs.getDouble("CurrentPrice"));
+                p.setOriginalPrice(rs.getDouble("OriginalPrice"));
+                p.setImageUrl(rs.getString("ImageUrl"));
+                p.setStockQuantity(rs.getInt("StockQuantity"));
+
+                list.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("LỖI LẤY DANH SÁCH YÊU THÍCH: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countFavorites(int userId) {
+        String query = "SELECT COUNT(*) FROM Favorites WHERE UserID = ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Product p = new Product();
-                p.setId(rs.getInt("id"));
-                p.setName(rs.getString("name"));
-                p.setCurrentPrice(rs.getDouble("currentPrice"));
-                p.setOriginalPrice(rs.getDouble("originalPrice"));
-                p.setImageUrl(rs.getString("imageUrl"));
-                p.setStockQuantity(rs.getInt("stockQuantity"));
-                list.add(p);
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-        } catch (Exception e) { e.printStackTrace(); }
-        return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
