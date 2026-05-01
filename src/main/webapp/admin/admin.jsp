@@ -42,6 +42,9 @@
                 </a>
             </li>
             <li>
+                <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
+            </li>
+            <li>
                 <a class="nav-link" data-page="page-settings">
                     <i class="fas fa-cog"></i>
                     Cài đặt

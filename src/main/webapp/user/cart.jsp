@@ -78,7 +78,13 @@
             </c:forEach>
             </tbody>
         </table>
-
+        <div class="voucher-input" style="margin-bottom: 20px; text-align: right;">
+            <form action="cart" method="GET">
+                <input type="text" name="voucherCode" placeholder="Nhập mã giảm giá..." style="padding: 8px; border: 1px solid #ddd;">
+                <button type="submit" style="padding: 8px 15px; background: #1b6e76; color: white; border: none; cursor: pointer;">Áp dụng</button>
+            </form>
+            <p style="color: #d0011b;">${voucherMessage}</p>
+        </div>
         <div class="cart-summary">
             <div style="background: #fdfdfd; padding: 20px; border: 1px solid #eee; display: inline-block; min-width: 300px; text-align: right;">
                 <p>Tạm tính: <b><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></b></p>

@@ -1,5 +1,6 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -7,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Voucher;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +70,23 @@ public class CartServlet extends HttpServlet {
         }
 
 
-        String voucher = request.getParameter("voucherCode");
+        String voucherCode = request.getParameter("voucherCode");
         double discount = 0;
-        if ("GIAM10".equals(voucher)) {
-            discount = totalMoney * 0.1;
-            request.setAttribute("voucherMessage", "Áp dụng mã GIAM10 thành công!");
-        } else if (voucher != null && !voucher.isEmpty()) {
-            request.setAttribute("voucherMessage", "Mã giảm giá không hợp lệ.");
+        AdminDAO adminDAO = new AdminDAO();
+
+        if (voucherCode != null && !voucherCode.isEmpty()) {
+            Voucher v = adminDAO.getVoucherByCode(voucherCode);
+            if (v != null && v.isValid(totalMoney)) {
+                if (v.getDiscountType().equals("Percent")) {
+                    discount = totalMoney * (v.getDiscountValue() / 100);
+                } else {
+                    discount = v.getDiscountValue();
+                }
+                session.setAttribute("appliedVoucher", v);
+                session.setAttribute("discount", discount);
+            } else {
+                request.setAttribute("voucherMessage", "Mã không hợp lệ hoặc hết hạn");
+            }
         }
 
         request.setAttribute("totalMoney", totalMoney);

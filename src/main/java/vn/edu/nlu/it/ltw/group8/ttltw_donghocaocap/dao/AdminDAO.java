@@ -647,6 +647,134 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return stats;
     }
+    public boolean addVoucher(Voucher voucher) {
+        String sql = "INSERT INTO vouchers (Code, DiscountType, DiscountValue, MaxDiscount, UsageLimit, StartDate, EndDate) VALUES (?,?,?,?,?,?,?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, voucher.getCode());
+            ps.setString(2, voucher.getDiscountType());
+            ps.setDouble(3, voucher.getDiscountValue());
+            ps.setDouble(4, voucher.getMaxDiscount());
+            ps.setInt(5, voucher.getUsageLimit());
+            ps.setTimestamp(6, voucher.getStartDate());
+            ps.setTimestamp(7, voucher.getEndDate());
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void saveVoucherHistory(int voucherId, int userId, int orderId) {
+        String sqlInsert = "INSERT INTO voucher_history (VoucherID, UserID, OrderID) VALUES (?, ?, ?)";
+        String sqlUpdate = "UPDATE vouchers SET UsedCount = UsedCount + 1 WHERE VoucherID = ?";
+
+        Connection conn = null;
+        try {
+            conn = new DBContext().getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
+                psInsert.setInt(1, voucherId);
+                psInsert.setInt(2, userId);
+                psInsert.setInt(3, orderId);
+                psInsert.executeUpdate();
+            }
+
+            try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                psUpdate.setInt(1, voucherId);
+                psUpdate.executeUpdate();
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null) {
+                try { conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    public List<VoucherUsageDTO> getUsageHistory() {
+        List<VoucherUsageDTO> list = new ArrayList<>();
+        String sql = "SELECT v.Code, u.Username, h.UsedAt, o.TotalAmount " +
+                "FROM voucher_history h " +
+                "JOIN vouchers v ON h.VoucherID = v.VoucherID " +
+                "JOIN Users u ON h.UserID = u.UserID " +
+                "JOIN Orders o ON h.OrderID = o.OrderID " +
+                "ORDER BY h.UsedAt DESC";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                VoucherUsageDTO dto = new VoucherUsageDTO();
+                dto.setCode(rs.getString("Code"));
+                dto.setUsername(rs.getString("Username"));
+                dto.setUsedAt(rs.getTimestamp("UsedAt"));
+                dto.setOrderTotal(rs.getDouble("TotalAmount"));
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    public Voucher getVoucherByCode(String code) {
+        String sql = "SELECT * FROM vouchers WHERE Code = ? AND StartDate <= NOW() AND EndDate >= NOW() AND UsedCount < UsageLimit";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Voucher v = new Voucher();
+                v.setId(rs.getInt("VoucherID"));
+                v.setCode(rs.getString("Code"));
+                v.setDiscountType(rs.getString("DiscountType"));
+                v.setDiscountValue(rs.getDouble("DiscountValue"));
+                v.setMaxDiscount(rs.getDouble("MaxDiscount"));
+                v.setUsageLimit(rs.getInt("UsageLimit"));
+                v.setUsedCount(rs.getInt("UsedCount"));
+                return v;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+    public List<VoucherUsageDTO> getVoucherHistoryByUserId(int userId) {
+        List<VoucherUsageDTO> list = new ArrayList<>();
+        String sql = "SELECT v.Code, h.UsedAt, o.TotalAmount " +
+                "FROM voucher_history h " +
+                "JOIN vouchers v ON h.VoucherID = v.VoucherID " +
+                "JOIN Orders o ON h.OrderID = o.OrderID " +
+                "WHERE h.UserID = ? " +
+                "ORDER BY h.UsedAt DESC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                VoucherUsageDTO dto = new VoucherUsageDTO();
+                dto.setCode(rs.getString("Code"));
+                dto.setUsedAt(rs.getTimestamp("UsedAt"));
+                dto.setOrderTotal(rs.getDouble("TotalAmount"));
+                list.add(dto);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
     }
 
 

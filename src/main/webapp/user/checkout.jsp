@@ -110,19 +110,22 @@
             </div>
 
             <p>Tạm tính: <span><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></span></p>
+
+            <c:if test="${discount > 0}">
+                <p>Giảm giá: <span style="color: green;">- <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/></span></p>
+            </c:if>
+
             <p>Phí vận chuyển: <span style="color: green;">Miễn phí</span></p>
 
             <p style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 18px; font-weight: bold; color: #d0011b;">
-                Tổng cộng: <span><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></span>
+                Tổng cộng: <span><fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/></span>
             </p>
 
             <c:choose>
-                <%-- Nếu có địa chỉ -> Hiện nút Đặt hàng --%>
                 <c:when test="${not empty listAddress}">
                     <button type="submit" class="btn-checkout">ĐẶT HÀNG NGAY</button>
                 </c:when>
 
-                <%-- Nếu KHÔNG có địa chỉ -> Hiện nút yêu cầu thêm --%>
                 <c:otherwise>
                     <button type="button" onclick="document.getElementById('modalAddAddr').style.display='flex'"
                             class="btn-checkout" style="background: #999; cursor: pointer;">
