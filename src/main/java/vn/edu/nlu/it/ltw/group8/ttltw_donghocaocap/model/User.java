@@ -16,14 +16,14 @@ public class User  implements Serializable {
     private String address;
     private String avatar;
     private String status;
-    //them truong de them chuc nang kich hoat
     private String verificationToken;
     private Timestamp verificationExpiry;
+    private Timestamp createdAt;
 
     public User() {
     }
 
-    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry) {
+    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry, Timestamp createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -37,6 +37,7 @@ public class User  implements Serializable {
         this.status = status;
         this.verificationToken = verificationToken;
         this.verificationExpiry = verificationExpiry;
+        this.createdAt = createdAt;
     }
 
     public int getId() {
@@ -141,5 +142,13 @@ public class User  implements Serializable {
 
     public void setVerificationExpiry(Timestamp verificationExpiry) {
         this.verificationExpiry = verificationExpiry;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }
