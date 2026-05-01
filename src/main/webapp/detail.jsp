@@ -341,24 +341,31 @@
             .then(data => {
                 if (data === "unauthorized") {
                     alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
-                    window.location.href = "login.jsp"; // Chuyển hướng tới trang đăng nhập
+                    window.location.href = "login.jsp";
                     return;
                 }
 
                 const icon = document.getElementById("heartIcon");
                 const btn = document.getElementById("btnFavorite");
                 const text = document.getElementById("favText");
+                const countHeader = document.getElementById("favCountHeader");
+                let currentCount = parseInt(countHeader.innerText) || 0;
 
                 if (data === "added") {
                     icon.classList.remove("fa-regular");
                     icon.classList.add("fa-solid");
                     btn.style.color = "#d0011b";
                     text.innerText = "Đã yêu thích";
+
+                    countHeader.innerText = currentCount + 1;
+
                 } else if (data === "removed") {
                     icon.classList.remove("fa-solid");
                     icon.classList.add("fa-regular");
                     btn.style.color = "#333";
                     text.innerText = "Lưu yêu thích";
+
+                    countHeader.innerText = Math.max(0, currentCount - 1);
                 }
             });
     }
