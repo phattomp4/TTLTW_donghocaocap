@@ -647,6 +647,102 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return stats;
     }
+
+    public List<Banner> getAdminAllBanners() {
+        List<Banner> list = new ArrayList<>();
+        String query = "SELECT * FROM banners ORDER BY SortOrder ASC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Banner b = new Banner();
+                b.setId(rs.getInt("BannerID"));
+                b.setImageUrl(rs.getString("ImageURL"));
+                b.setSortOrder(rs.getInt("SortOrder"));
+                b.setActive(rs.getBoolean("IsActive"));
+                b.setLinkUrl(rs.getString("LinkURL")); // Cột mới bổ sung
+                b.setStartDate(rs.getTimestamp("StartDate")); // Cột mới bổ sung
+                b.setEndDate(rs.getTimestamp("EndDate")); // Cột mới bổ sung
+                list.add(b);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
+
+    public boolean insertBanner(Banner b) {
+        String query = "INSERT INTO banners (ImageURL, SortOrder, IsActive, LinkURL, StartDate, EndDate) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, b.getImageUrl());
+            ps.setInt(2, b.getSortOrder());
+            ps.setBoolean(3, b.isActive());
+            ps.setString(4, b.getLinkUrl());
+            ps.setTimestamp(5, b.getStartDate() != null ? new Timestamp(b.getStartDate().getTime()) : null);
+            ps.setTimestamp(6, b.getEndDate() != null ? new Timestamp(b.getEndDate().getTime()) : null);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean updateBanner(Banner b) {
+        String query = "UPDATE banners SET ImageURL=?, IsActive=?, LinkURL=?, StartDate=?, EndDate=? WHERE BannerID=?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, b.getImageUrl());
+            ps.setBoolean(2, b.isActive());
+            ps.setString(3, b.getLinkUrl());
+            ps.setTimestamp(4, b.getStartDate() != null ? new Timestamp(b.getStartDate().getTime()) : null);
+            ps.setTimestamp(5, b.getEndDate() != null ? new Timestamp(b.getEndDate().getTime()) : null);
+            ps.setInt(6, b.getId());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public void updateBannerOrder(int bannerId, int newOrder) {
+        String query = "UPDATE banners SET SortOrder = ? WHERE BannerID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, newOrder);
+            ps.setInt(2, bannerId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+
+    public boolean deleteBanner(int bannerId) {
+        String query = "DELETE FROM banners WHERE BannerID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, bannerId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+
+    public boolean updateCategoryStatus(int catId, boolean isActive) {
+        String query = "UPDATE categories SET IsActive = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setBoolean(1, isActive);
+            ps.setInt(2, catId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean updateCategoryOrder(int catId, int newOrder) {
+        String query = "UPDATE categories SET SortOrder = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, newOrder);
+            ps.setInt(2, catId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+}
+
 
 
