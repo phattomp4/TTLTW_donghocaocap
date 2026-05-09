@@ -10,7 +10,6 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -82,7 +81,6 @@ public class LoginServlet extends HttpServlet {
                 String newToken = java.util.UUID.randomUUID().toString();
                 dao.refreshVerificationToken(user.getEmail(), newToken);
                 vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.util.EmailUtil.sendActivationEmail(user.getEmail(), newToken);
-
                 out.write("INFO|Tài khoản chưa kích hoạt. Mã mới đã được gửi vào Email!");
                 return;
             }
@@ -90,16 +88,16 @@ public class LoginServlet extends HttpServlet {
             session.removeAttribute("failedAttempts");
             session.removeAttribute("lockTime");
             session.setAttribute("acc", user);
-            session.setMaxInactiveInterval(60 * 60);
+
             FavoriteDAO favDao = new FavoriteDAO();
-            int favCount = favDao.countFavorites(user.getId());
-            session.setAttribute("favCount", favCount);
+            session.setAttribute("favCount", favDao.countFavorites(user.getId()));
 
             if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
                 dao.updateRememberToken(user.getUsername(), token);
                 Cookie tokenCookie = new Cookie("remember_token", token);
                 tokenCookie.setMaxAge(60 * 60 * 24 * 7);
+                tokenCookie.setPath("/");
                 response.addCookie(tokenCookie);
             }
 
@@ -114,57 +112,50 @@ public class LoginServlet extends HttpServlet {
             failedCount++;
             session.setAttribute("failedAttempts", failedCount);
 
+            String errorMsg;
             if (failedCount >= 5) {
                 session.setAttribute("lockTime", System.currentTimeMillis() + (15 * 60 * 1000));
-                out.write("ERROR|Sai quá 5 lần. Tài khoản bị khóa 15 phút.");
+                errorMsg = "Sai quá 5 lần. Tài khoản bị khóa 15 phút.";
+                out.write("ERROR|" + errorMsg);
             } else {
-                out.write("ERROR|Sai mật khẩu! Bạn còn " + (5 - failedCount) + " lần thử.");
+                errorMsg = "Sai mật khẩu! Bạn còn " + (5 - failedCount) + " lần thử.";
+                out.write("ERROR|" + errorMsg);
             }
-
             session.setAttribute("mess", errorMsg);
-            response.sendRedirect("login");
         }
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
         String code = request.getParameter("code");
         try {
             String accessToken = GoogleLoginServlet.getToken(code);
-            GoogleAccount acc = GoogleLoginServlet.getUserInfo(accessToken);
-            if (acc != null) {
+            GoogleAccount googleAcc = GoogleLoginServlet.getUserInfo(accessToken);
+            if (googleAcc != null) {
                 UserDAO dao = new UserDAO();
-                User existingUser = dao.checkEmailExist(acc.getEmail());
+                User existingUser = dao.checkEmailExist(googleAcc.getEmail());
                 HttpSession session = request.getSession();
-                session.removeAttribute("failedAttempts");
-                session.removeAttribute("lockTime");
-
                 FavoriteDAO favDao = new FavoriteDAO();
 
                 if (existingUser != null) {
                     if (!"Active".equals(existingUser.getStatus())) {
                         dao.activateAccount(existingUser.getVerificationToken());
-                        existingUser = dao.checkEmailExist(acc.getEmail());
+                        existingUser = dao.checkEmailExist(googleAcc.getEmail());
                     }
                     session.setAttribute("acc", existingUser);
-
-                    int favCount = favDao.countFavorites(existingUser.getId());
-                    session.setAttribute("favCount", favCount);
+                    session.setAttribute("favCount", favDao.countFavorites(existingUser.getId()));
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
                     response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
                 } else {
-                    String autoUsername = acc.getEmail().substring(0, acc.getEmail().indexOf("@"));
+                    String autoUsername = googleAcc.getEmail().substring(0, googleAcc.getEmail().indexOf("@"));
                     String randomPassword = java.util.UUID.randomUUID().toString();
                     String googleToken = "GOOGLE_" + java.util.UUID.randomUUID().toString();
-                    dao.signup(autoUsername, randomPassword, acc.getName(), acc.getEmail(), "", googleToken);
+                    dao.signup(autoUsername, randomPassword, googleAcc.getName(), googleAcc.getEmail(), "", googleToken);
                     dao.activateAccount(googleToken);
 
-                    User newUser = dao.checkEmailExist(googleEmail);
+                    User newUser = dao.checkEmailExist(googleAcc.getEmail());
                     session.setAttribute("acc", newUser);
-
-                    int favCount = favDao.countFavorites(newUser.getId());
-                    session.setAttribute("favCount", favCount);
+                    session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
 
                     response.sendRedirect("home");
                 }

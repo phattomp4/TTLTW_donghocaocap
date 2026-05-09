@@ -3,10 +3,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ProductSpecification;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -73,7 +70,6 @@ public class AdminDAO {
         return list;
     }
 
-    // 5. CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
     public void updateOrderStatus(int orderId, String status) {
         String query = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
         try {
@@ -208,7 +204,6 @@ public class AdminDAO {
                 list.add(p);
             }
         } catch (Exception e) {
-            // In lỗi ra console để debug (Xem Output cửa sổ bên dưới nếu vẫn lỗi)
             System.out.println("Lỗi getAllProducts: " + e.getMessage());
             e.printStackTrace();
         } finally {
@@ -316,7 +311,7 @@ public class AdminDAO {
             ps.setDouble(5, p.getCurrentPrice());
             ps.setInt(6, p.getStockQuantity());
             ps.setBoolean(7, p.isLuxury());
-            ps.setInt(8, p.getId()); // ID để WHERE
+            ps.setInt(8, p.getId());
             ps.executeUpdate();
 
             if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
@@ -489,5 +484,265 @@ public class AdminDAO {
         return list;
     }
 
+    public boolean updateOrderStatusWithLog(int OrderID, String nextStatus){
+        String queryCheck = "SELECT Status FROM Orders WHERE OrderID = ?";
+        String queryUpdate = "Update Orders SET Status = ? WHERE OrderID = ?";
+        try{
+            String currentStatus = "";
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement preparedStatementCheck = conn.prepareStatement(queryCheck);
+            preparedStatementCheck.setInt(1, OrderID);
+            ResultSet resultSet = preparedStatementCheck.executeQuery();
+            if(resultSet.next()){
+                currentStatus = resultSet.getString("Status");
+            }
+
+            if("Completed".equals(currentStatus) || "Cancelled".equals(currentStatus)){
+                return false;
+            }
+
+            PreparedStatement preparedStatementUpdate = conn.prepareStatement(queryUpdate);
+            preparedStatementUpdate.setString(1, nextStatus);
+            preparedStatementUpdate.setInt(2, OrderID);
+            preparedStatementUpdate.executeQuery();
+
+            if("Cancelled".equals(nextStatus)){
+                String queryReturn = "SELECT ProductID, Quantity FROM OrderDetails WHERE OrderID = ?";
+                PreparedStatement preparedStatementReturn = conn.prepareStatement(queryReturn);
+                preparedStatementReturn.setInt(1, OrderID);
+                ResultSet resultSetReturn = preparedStatementReturn.executeQuery();
+
+                String queryUpdateStock = "UPDATE Products SET StockQuantity = StockQuantity + ? WHERE ProductID = ?";
+                PreparedStatement preparedStatementStock = conn.prepareStatement(queryUpdateStock);
+
+                while(resultSetReturn.next()){
+                    preparedStatementStock.setInt(1, resultSetReturn.getInt("Quantity"));
+                    preparedStatementStock.setInt(2, resultSetReturn.getInt("ProductID"));
+                    preparedStatementStock.addBatch();
+                }
+                preparedStatementStock.executeBatch();
+            }
+            conn.commit();
+            return true;
+        }
+        catch (Exception e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public List<User> getUsersWithPagination(int offset, int limit, String keyword) {
+        List<User> list = new ArrayList<>();
+        String query = "SELECT u.*, " +
+                "(SELECT Street FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
+                "FROM Users u WHERE Role != 'Admin'";
+
+        if (keyword != null && !keyword.isEmpty()) {
+            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+        }
+
+        query += " ORDER BY UserID DESC LIMIT ? OFFSET ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            int paramIdx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String key = "%" + keyword + "%";
+                ps.setString(paramIdx++, key);
+                ps.setString(paramIdx++, key);
+                ps.setString(paramIdx++, key);
+            }
+            ps.setInt(paramIdx++, limit);
+            ps.setInt(paramIdx, offset);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("UserID"));
+                u.setUsername(rs.getString("Username"));
+                u.setFullName(rs.getString("FullName"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+
+                u.setStatus(rs.getString("Status"));
+                u.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+                u.setAddress(rs.getString("DefaultStreet") != null ? rs.getString("DefaultStreet") : "Chưa thiết lập");
+                list.add(u);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int getTotalUsersCount(String keyword) {
+        String query = "SELECT COUNT(*) FROM Users WHERE Role != 'Admin'";
+        if (keyword != null && !keyword.isEmpty()) {
+            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+        }
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            if (keyword != null && !keyword.isEmpty()) {
+                String key = "%" + keyword + "%";
+                ps.setString(1, key);
+                ps.setString(2, key);
+                ps.setString(3, key);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public User getUserById(int id) {
+        String query = "SELECT u.*, (SELECT Street FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet FROM Users u WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("UserID"));
+                u.setUsername(rs.getString("Username"));
+                u.setFullName(rs.getString("FullName"));
+                u.setEmail(rs.getString("Email"));
+                u.setPhone(rs.getString("Phone"));
+                u.setStatus(rs.getString("Status"));
+                u.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                u.setAddress(rs.getString("DefaultStreet"));
+                return u;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    public UserShoppingStats getCustomerStats(int userId) {
+        UserShoppingStats stats = new UserShoppingStats();
+        String query = "SELECT " +
+                "COUNT(*) AS TotalOrders, " +
+                "SUM(CASE WHEN Status != 'Cancelled' THEN TotalAmount ELSE 0 END) AS TotalSpent, " +
+                "COUNT(CASE WHEN Status = 'Completed' THEN 1 END) AS CompletedOrders, " +
+                "COUNT(CASE WHEN Status = 'Cancelled' THEN 1 END) AS CancelledOrders " +
+                "FROM Orders WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                stats.setTotalOrders(rs.getInt("TotalOrders"));
+                stats.setTotalSpent(rs.getDouble("TotalSpent"));
+                stats.setCompletedCount(rs.getInt("CompletedOrders"));
+                stats.setCancelledCount(rs.getInt("CancelledOrders"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return stats;
+    }
+
+    public List<Banner> getAdminAllBanners() {
+        List<Banner> list = new ArrayList<>();
+        String query = "SELECT * FROM banners ORDER BY SortOrder ASC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Banner b = new Banner();
+                b.setId(rs.getInt("BannerID"));
+                b.setImageUrl(rs.getString("ImageURL"));
+                b.setSortOrder(rs.getInt("SortOrder"));
+                b.setActive(rs.getBoolean("IsActive"));
+                b.setLinkUrl(rs.getString("LinkURL")); // Cột mới bổ sung
+                b.setStartDate(rs.getTimestamp("StartDate")); // Cột mới bổ sung
+                b.setEndDate(rs.getTimestamp("EndDate")); // Cột mới bổ sung
+                list.add(b);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public boolean insertBanner(Banner b) {
+        String query = "INSERT INTO banners (ImageURL, SortOrder, IsActive, LinkURL, StartDate, EndDate) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, b.getImageUrl());
+            ps.setInt(2, b.getSortOrder());
+            ps.setBoolean(3, b.isActive());
+            ps.setString(4, b.getLinkUrl());
+            ps.setTimestamp(5, b.getStartDate() != null ? new Timestamp(b.getStartDate().getTime()) : null);
+            ps.setTimestamp(6, b.getEndDate() != null ? new Timestamp(b.getEndDate().getTime()) : null);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean updateBanner(Banner b) {
+        String query = "UPDATE banners SET ImageURL=?, IsActive=?, LinkURL=?, StartDate=?, EndDate=? WHERE BannerID=?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, b.getImageUrl());
+            ps.setBoolean(2, b.isActive());
+            ps.setString(3, b.getLinkUrl());
+            ps.setTimestamp(4, b.getStartDate() != null ? new Timestamp(b.getStartDate().getTime()) : null);
+            ps.setTimestamp(5, b.getEndDate() != null ? new Timestamp(b.getEndDate().getTime()) : null);
+            ps.setInt(6, b.getId());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public void updateBannerOrder(int bannerId, int newOrder) {
+        String query = "UPDATE banners SET SortOrder = ? WHERE BannerID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, newOrder);
+            ps.setInt(2, bannerId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+
+    public boolean deleteBanner(int bannerId) {
+        String query = "DELETE FROM banners WHERE BannerID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, bannerId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+
+    public boolean updateCategoryStatus(int catId, boolean isActive) {
+        String query = "UPDATE categories SET IsActive = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setBoolean(1, isActive);
+            ps.setInt(2, catId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean updateCategoryOrder(int catId, int newOrder) {
+        String query = "UPDATE categories SET SortOrder = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, newOrder);
+            ps.setInt(2, catId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
 }
+
+
 

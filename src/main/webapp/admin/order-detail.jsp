@@ -11,18 +11,21 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f6f9; }
 
+        /* Sidebar */
         .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; }
         .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; }
         .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 25px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
-
+        /* Content */
         .content { margin-left: 250px; padding: 20px; width: 100%; }
 
+        /* Detail Box */
         .detail-box { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
         .detail-row:last-child { border-bottom: none; }
 
+        /* Table Sản phẩm */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
         th { background: #f8f9fa; }
@@ -109,6 +112,54 @@
         </b>
         </div>
     </div>
+
+    <div class="detail-box" style="border-left: 5px solid #17a2b8;">
+        <h3><i class="fa-solid fa-pen-to-square"></i> 3. Cập nhật trạng thái đơn hàng</h3>
+
+        <c:choose>
+            <c:when test="${order.status == 'Request Cancel'}">
+                <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 5px solid #ffc107; border-radius: 4px;">
+                    <p style="margin: 0 0 15px 0; color: #856404; font-weight: bold;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Khách hàng đang yêu cầu hủy đơn hàng này!
+                    </p>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="dashboard?action=approveCancel&id=${order.orderId}&source=detail_page"
+                           style="background: #28a745; text-decoration: none; padding: 8px 15px; color: white; border-radius: 4px; display: inline-block; font-weight: bold;"
+                           onclick="return confirm('Xác nhận hủy đơn và hoàn kho?');">
+                            <i class="fa-solid fa-check"></i> Duyệt hủy
+                        </a>
+                        <a href="dashboard?action=rejectCancel&id=${order.orderId}&source=detail_page"
+                           style="background: #dc3545; text-decoration: none; padding: 8px 15px; color: white; border-radius: 4px; display: inline-block; font-weight: bold;"
+                           onclick="return confirm('Từ chối yêu cầu hủy này?');">
+                            <i class="fa-solid fa-xmark"></i> Từ chối
+                        </a>
+                    </div>
+                </div>
+            </c:when>
+
+            <c:otherwise>
+                <form action="dashboard" method="POST" style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
+                    <input type="hidden" name="action" value="update_status">
+                    <input type="hidden" name="orderId" value="${order.orderId}">
+
+                    <input type="hidden" name="source" value="detail_page">
+
+                    <select name="status" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; min-width: 200px;">
+                        <option value="Pending" ${order.status == 'Pending' ? 'selected' : ''}>Chờ duyệt</option>
+                        <option value="Processing" ${order.status == 'Processing' ? 'selected' : ''}>Đang chuẩn bị</option>
+                        <option value="Shipping" ${order.status == 'Shipping' ? 'selected' : ''}>Đang giao</option>
+                        <option value="Completed" ${order.status == 'Completed' ? 'selected' : ''}>Hoàn thành</option>
+                        <option value="Cancelled" ${order.status == 'Cancelled' ? 'selected' : ''}>Hủy đơn</option>
+                    </select>
+
+                    <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                    </button>
+                </form>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
 </div>
 
 </body>
