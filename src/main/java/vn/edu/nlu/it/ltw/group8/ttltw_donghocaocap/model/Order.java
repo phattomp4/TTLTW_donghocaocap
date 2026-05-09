@@ -13,7 +13,6 @@ public class Order {
     private String paymentStatus;
     private String status;
     private String phone;
-    // xu ly thanh toan
     private String transactionId;
     private Timestamp paymentDate;
 
