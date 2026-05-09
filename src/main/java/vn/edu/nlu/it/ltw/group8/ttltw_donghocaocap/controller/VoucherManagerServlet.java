@@ -29,10 +29,11 @@ public class VoucherManagerServlet extends HttpServlet {
         double value = Double.parseDouble(request.getParameter("discountValue"));
         double max = Double.parseDouble(request.getParameter("maxDiscount"));
         int limit = Integer.parseInt(request.getParameter("usageLimit"));
+        double minOrderValue = Double.parseDouble(request.getParameter("minOrderValue"));
         Timestamp start = Timestamp.valueOf(request.getParameter("startDate").replace("T", " ") + ":00");
         Timestamp end = Timestamp.valueOf(request.getParameter("endDate").replace("T", " ") + ":00");
 
-        Voucher v = new Voucher(0, code, type, value, max, limit, 0, start, end);
+        Voucher v = new Voucher(0, code, type, value, max, limit, 0,start, end, minOrderValue);
         AdminDAO dao = new AdminDAO();
         if(dao.addVoucher(v)) {
             response.sendRedirect("voucher-manager?status=success");

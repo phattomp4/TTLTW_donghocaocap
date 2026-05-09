@@ -13,10 +13,11 @@ public class Voucher {
     private int usedCount;
     private Timestamp startDate;
     private Timestamp endDate;
+    private double minOrderValue;
 
     public Voucher(){}
 
-    public Voucher(int id, String code, String discountType, double discountValue, double maxDiscount, int usageLimit, int usedCount, Timestamp startDate, Timestamp endDate) {
+    public Voucher(int id, String code, String discountType, double discountValue, double maxDiscount, int usageLimit, int usedCount, Timestamp startDate, Timestamp endDate, double minOrderValue) {
         this.id = id;
         this.code = code;
         this.discountType = discountType;
@@ -26,6 +27,7 @@ public class Voucher {
         this.usedCount = usedCount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.minOrderValue = minOrderValue;
     }
 
     public int getId() {
@@ -100,9 +102,25 @@ public class Voucher {
         this.endDate = endDate;
     }
 
-    public boolean isValid(double totalMoney){
+    public double getMinOrderValue() {
+        return minOrderValue;
+    }
+
+    public void setMinOrderValue(double minOrderValue) {
+        this.minOrderValue = minOrderValue;
+    }
+
+    public String validateVoucher(double orderTotal) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        return usedCount < usageLimit && now.after(startDate) && now.before(endDate);
+        if (startDate == null || endDate == null) {
+            return "Voucher đang bị lỗi dữ liệu hệ thống, không thể sử dụng.";
+        }
+        if (now.before(startDate)) return "Voucher chưa đến thời gian sử dụng.";
+        if (now.after(endDate)) return "Voucher đã hết hạn.";
+        if (usedCount >= usageLimit) return "Voucher đã hết lượt sử dụng.";
+        if (orderTotal < minOrderValue) return "Đơn hàng chưa đạt giá trị tối thiểu là " + minOrderValue + "đ.";
+
+        return "OK";
     }
 
 }
