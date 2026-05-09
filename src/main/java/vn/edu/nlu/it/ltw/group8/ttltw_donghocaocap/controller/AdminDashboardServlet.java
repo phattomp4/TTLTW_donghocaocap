@@ -1,4 +1,4 @@
-  package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
+package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,11 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO; // IMPORT DAO THỐNG KÊ
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product; // IMPORT PRODUCT
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/admin/dashboard"})
 public class AdminDashboardServlet extends HttpServlet {
@@ -45,16 +48,31 @@ public class AdminDashboardServlet extends HttpServlet {
             response.sendRedirect("dashboard");
             return;
         }
+
         AdminDAO dao = new AdminDAO();
+        StatisticDAO statDao = new StatisticDAO();
+
+
         double revenue = dao.getTotalRevenue();
         int totalOrders = dao.countOrders();
         int totalUsers = dao.countUsers();
         List<Order> listOrders = dao.getAllOrders();
 
+
+        Map<String, Integer> orderStats = statDao.getOrderStatusStats();
+        List<Product> lowStockList = statDao.getLowStockProducts();
+        List<Order> recentOrders = statDao.getRecentOrders(5);
+
+
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("totalUsers", totalUsers);
         request.setAttribute("listOrders", listOrders);
+
+        // Attribute mới
+        request.setAttribute("orderStats", orderStats);
+        request.setAttribute("lowStockList", lowStockList);
+        request.setAttribute("recentOrders", recentOrders);
 
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }
