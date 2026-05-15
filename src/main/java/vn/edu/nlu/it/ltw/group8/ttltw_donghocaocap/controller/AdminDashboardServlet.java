@@ -8,10 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
-//import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product; 
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
 
 import java.io.IOException;
 import java.util.List;
@@ -66,8 +66,6 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("totalUsers", totalUsers);
         request.setAttribute("listOrders", listOrders);
-
-        // Attribute mới
         request.setAttribute("orderStats", orderStats);
         request.setAttribute("lowStockList", lowStockList);
         request.setAttribute("recentOrders", recentOrders);
