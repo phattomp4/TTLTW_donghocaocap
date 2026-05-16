@@ -276,38 +276,63 @@
                     <h2>Danh sách khách hàng</h2>
                     <table>
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên Khách hàng</th>
-                                <th>Email</th>
-                                <th>Số điện thoại</th>
-                                <th>Ngày đăng ký</th>
-                                <th>Hành động</th>
-                            </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Khách hàng</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Quyền hạn</th> <th>Hành động</th>
+                        </tr>
                         </thead>
                         <tbody>
+                        <c:forEach items="${listUser}" var="user">
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.fullName}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phone}</td>
+                                <td>
+                                    <form action="update-user-role" method="POST" style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                        <input type="hidden" name="userId" value="${user.id}">
+                                        <select name="role" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer;">
+                                            <option value="User" ${user.role == 'User' ? 'selected' : ''}>Khách hàng</option>
+                                            <option value="Staff" ${user.role == 'Staff' ? 'selected' : ''}>Nhân viên</option>
+                                            <option value="Admin" ${user.role == 'Admin' ? 'selected' : ''}>Admin</option>
+                                        </select>
+                                        <button type="submit" class="btn-icon edit" title="Cập nhật quyền" style="border: none; background: none; cursor: pointer;">
+                                            <i class="fas fa-save" style="color: #28a745;"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </c:forEach>
+
+                        <%-- Đoạn mẫu hiển thị tĩnh (Nếu chưa chạy controller thì dùng cái này để test giao diện) --%>
+                        <c:if test="${empty listUser}">
                             <tr>
                                 <td>1</td>
                                 <td>Nguyễn Văn A</td>
                                 <td>nguyenvana@email.com</td>
                                 <td>0901234567</td>
-                                <td>11/11/2025</td>
                                 <td>
-                                    <button class="btn-icon edit"><i class="fas fa-edit"></i></button>
+                                    <form action="update-user-role" method="POST" style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                        <input type="hidden" name="userId" value="1">
+                                        <select name="role" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <option value="User" selected>Khách hàng</option>
+                                            <option value="Staff">Nhân viên</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                        <button type="submit" style="border: none; background: none; cursor: pointer;"><i class="fas fa-save" style="color: #28a745;"></i></button>
+                                    </form>
+                                </td>
+                                <td>
                                     <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Trần Thị B</td>
-                                <td>tranthib@email.com</td>
-                                <td>0907654321</td>
-                                <td>10/11/2025</td>
-                                <td>
-                                    <button class="btn-icon edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                        </c:if>
                         </tbody>
                     </table>
                 </div>

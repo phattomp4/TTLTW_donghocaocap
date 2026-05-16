@@ -828,6 +828,21 @@ public class AdminDAO {
             e.printStackTrace();
         }
     }
+
+    public boolean updateUserRole(int userId, String newRole) {
+        String sql = "UPDATE Users SET Role = ? WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newRole);
+            ps.setInt(2, userId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     }
 
 
