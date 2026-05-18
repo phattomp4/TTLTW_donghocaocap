@@ -744,7 +744,7 @@ public class AdminDAO {
 
             if (rs.next()) {
                 Voucher v = new Voucher();
-                v.setId(rs.getInt("id"));
+                v.setVoucherID(rs.getInt("id"));
                 v.setCode(rs.getString("code"));
                 v.setDiscountType(rs.getString("discountType"));
                 v.setDiscountValue(rs.getDouble("discountValue"));
@@ -856,9 +856,9 @@ public class AdminDAO {
                 b.setImageUrl(rs.getString("ImageURL"));
                 b.setSortOrder(rs.getInt("SortOrder"));
                 b.setActive(rs.getBoolean("IsActive"));
-                b.setLinkUrl(rs.getString("LinkURL")); // Cột mới bổ sung
-                b.setStartDate(rs.getTimestamp("StartDate")); // Cột mới bổ sung
-                b.setEndDate(rs.getTimestamp("EndDate")); // Cột mới bổ sung
+                b.setLinkUrl(rs.getString("LinkURL"));
+                b.setStartDate(rs.getTimestamp("StartDate"));
+                b.setEndDate(rs.getTimestamp("EndDate"));
                 list.add(b);
             }
         } catch (Exception e) { e.printStackTrace(); }

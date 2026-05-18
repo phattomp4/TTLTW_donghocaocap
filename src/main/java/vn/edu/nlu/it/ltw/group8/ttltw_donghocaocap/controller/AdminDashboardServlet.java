@@ -9,7 +9,6 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
@@ -23,16 +22,17 @@ public class AdminDashboardServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AdminDAO adminDao = new AdminDAO();
+        String action = request.getParameter("action");
+        AdminDAO dao = new AdminDAO();
 
         if ("approveCancel".equals(action) || "rejectCancel".equals(action)) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
 
                 if ("approveCancel".equals(action)) {
-                    adminDao.updateOrderStatusWithLog(orderId, "Cancelled");
+                    dao.updateOrderStatusWithLog(orderId, "Cancelled");
                 } else if ("rejectCancel".equals(action)) {
-                    adminDao.updateOrderStatus(orderId, "Shipping");
+                    dao.updateOrderStatus(orderId, "Shipping");
                 }
 
                 String source = request.getParameter("source");
@@ -47,20 +47,16 @@ public class AdminDashboardServlet extends HttpServlet {
             }
         }
 
-        AdminDAO dao = new AdminDAO();
         StatisticDAO statDao = new StatisticDAO();
-
 
         double revenue = dao.getTotalRevenue();
         int totalOrders = dao.countOrders();
         int totalUsers = dao.countUsers();
         List<Order> listOrders = dao.getAllOrders();
 
-
         Map<String, Integer> orderStats = statDao.getOrderStatusStats();
         List<Product> lowStockList = statDao.getLowStockProducts();
         List<Order> recentOrders = statDao.getRecentOrders(5);
-
 
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);
