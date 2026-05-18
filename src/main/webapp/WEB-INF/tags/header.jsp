@@ -2,13 +2,11 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <style>
-    /* Container của avatar */
     .profile-dropdown {
         position: relative;
         display: inline-block;
     }
 
-    /* Nút Avatar */
     .profile-avatar-btn {
         background: none;
         border: none;
@@ -31,7 +29,6 @@
         border-color: #1b6e76;
     }
 
-    /* Menu Dropdown */
     .dropdown-menu {
         display: none;
         position: absolute;
@@ -46,12 +43,10 @@
         animation: fadeIn 0.2s;
     }
 
-    /* Class này sẽ được JS thêm vào để hiện menu */
     .dropdown-menu.show {
         display: block;
     }
 
-    /* Style bên trong menu */
     .menu-header {
         padding: 15px;
         border-bottom: 1px solid #f0f0f0;
@@ -229,6 +224,15 @@
             </li>
 
             <li>
+                <a href="${pageContext.request.contextPath}/favorite-list" title="Sản phẩm yêu thích" style="color: #333; font-size: 22px; margin-right: 20px; text-decoration: none; display: inline-flex; align-items: center; transition: 0.2s; position: relative;" onmouseover="this.style.color='#d0011b'" onmouseout="this.style.color='#333'">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="fav-count" id="favCountHeader" style="position: absolute; top: -8px; right: -12px; background: #d0011b; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
+                        ${sessionScope.favCount != null ? sessionScope.favCount : 0}
+                    </span>
+                </a>
+            </li>
+
+            <li>
                 <c:if test="${sessionScope.acc == null}">
                     <div class="container-button-login" style="text-align:center">
                         <a href="${pageContext.request.contextPath}/login.jsp" class="button button-login">
@@ -293,7 +297,6 @@
             }
         }
 
-        // click bất kỳ đâu trên màn hình để đóng menu
         window.onclick = function(event) {
             if (!event.target.closest('.profile-avatar-btn')) {
                 var dropdowns = document.getElementsByClassName("dropdown-menu");

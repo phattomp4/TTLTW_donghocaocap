@@ -34,14 +34,18 @@ public class ReviewServlet extends HttpServlet {
             String pidStr = request.getParameter("productId");
             String ratingStr = request.getParameter("rating");
             String comment = request.getParameter("comment");
+            String reviewIdStr = request.getParameter("reviewId");
 
-            if (pidStr == null || ratingStr == null || comment == null || comment.trim().isEmpty()) {
-                response.getWriter().write("Vui lòng nhập đầy đủ số sao và nội dung đánh giá.");
+            if (pidStr == null || comment == null || comment.trim().isEmpty()) {
+                response.getWriter().write("Vui lòng nhập nội dung đánh giá.");
                 return;
             }
 
             int productId = Integer.parseInt(pidStr);
-            int rating = Integer.parseInt(ratingStr);
+            int rating = 0;
+            if (ratingStr != null && !ratingStr.isEmpty()) {
+                rating = Integer.parseInt(ratingStr);
+            }
 
             OrderDAO orderDAO = new OrderDAO();
             if (!orderDAO.checkUserBoughtProduct(user.getId(), productId)) {
@@ -51,8 +55,7 @@ public class ReviewServlet extends HttpServlet {
 
             String imageUrl = null;
             Part filePart = request.getPart("reviewImage");
-
-            // Xử lý Cloudinary an toàn (Bỏ qua nếu bị lỗi API key)
+          
             if (filePart != null && filePart.getSize() > 0) {
                 try {
                     Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -61,7 +64,7 @@ public class ReviewServlet extends HttpServlet {
                             "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4"
                     ));
                     byte[] fileBytes = filePart.getInputStream().readAllBytes();
-                    Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("folder", "vvp_store_reviews"));
+                    Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("folder", "reviews"));
                     imageUrl = (String) uploadResult.get("secure_url");
                 } catch (Exception e) {
                     System.out.println("Lỗi Cloudinary (Bỏ qua ảnh): " + e.getMessage());
@@ -69,12 +72,21 @@ public class ReviewServlet extends HttpServlet {
             }
 
             ReviewDAO reviewDAO = new ReviewDAO();
-            boolean success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
+            boolean success = false;
+
+            if (reviewIdStr != null && !reviewIdStr.isEmpty()) {
+                int existingReviewId = Integer.parseInt(reviewIdStr);
+                success = reviewDAO.updateReview(existingReviewId, rating, comment, imageUrl);
+            } else {
+                if (reviewDAO.getMyReview(user.getId(), productId) != null) {
+                    response.getWriter().write("Bạn đã đánh giá sản phẩm này rồi! Vui lòng chọn tính năng chỉnh sửa.");
+                    return;
+                }
+                success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
+            }
 
             if (success) {
                 response.getWriter().write("success|" + (imageUrl != null ? imageUrl : ""));
-            } else {
-                response.getWriter().write("Lỗi Database: Không thể lưu đánh giá.");
             }
 
         } catch (Exception e) {

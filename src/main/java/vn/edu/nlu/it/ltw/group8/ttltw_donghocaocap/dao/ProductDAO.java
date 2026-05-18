@@ -19,7 +19,7 @@ public class ProductDAO {
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // Hàm hỗ trợ map dữ liệu từ ResultSet sang Object (để đỡ viết lại nhiều lần)
+    // hàm hỗ trợ map dữ liệu từ ResultSet sang Object (để đỡ viết lại nhiều lần)
     private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
         return new Product(
                 rs.getInt("ProductID"),
