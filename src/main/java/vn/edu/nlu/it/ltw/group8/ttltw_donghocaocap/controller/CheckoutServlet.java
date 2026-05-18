@@ -1,6 +1,5 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
-
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
@@ -38,22 +37,10 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        UserDAO userDAO = new UserDAO();
-        List<UserAddress> listAddress = userDAO.getAddresses(acc.getId());
-        request.setAttribute("listAddress", listAddress);
-
-        double totalMoney = 0;
-        for (CartItem item : cart) {
-            totalMoney += item.getTotalPrice();
-        }
-
         Double discount = (Double) session.getAttribute("discount");
         if (discount == null) discount = 0.0;
 
-        request.setAttribute("totalMoney", totalMoney);
-        request.setAttribute("discount", discount);
-        request.setAttribute("finalTotal", totalMoney - discount);
-        prepareCheckoutData(request, acc, cart);
+        prepareCheckoutData(request, acc, cart, discount);
 
         request.getRequestDispatcher("user/checkout.jsp").forward(request, response);
     }
@@ -64,27 +51,14 @@ public class CheckoutServlet extends HttpServlet {
         User acc = (User) session.getAttribute("acc");
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
-
         if (acc == null || cart == null || cart.isEmpty()) {
             response.sendRedirect("home");
             return;
         }
 
-        String action = request.getParameter("action");
         AdminDAO adminDAO = new AdminDAO();
         OrderDAO orderDAO = new OrderDAO();
-        String addressIdRaw = request.getParameter("addressId");
-        String paymentMethod = request.getParameter("paymentMethod");
-
-        if (addressIdRaw == null || addressIdRaw.isEmpty()) {
-            handleError(request, response, acc, cart, "Vui lòng chọn địa chỉ nhận hàng!");
-            return;
-        }
-
-        if (paymentMethod == null || paymentMethod.isEmpty()) {
-            handleError(request, response, acc, cart, "Vui lòng chọn phương thức thanh toán!");
-            return;
-        }
+        String action = request.getParameter("action");
 
         double totalMoney = 0;
         for (CartItem item : cart) {
@@ -114,55 +88,49 @@ public class CheckoutServlet extends HttpServlet {
                             discountAmount = v.getMaxDiscount();
                         }
                     }
-
                     session.setAttribute("appliedVoucher", v);
                     session.setAttribute("discount", discountAmount);
                     request.setAttribute("voucherSuccess", "Áp dụng mã thành công!");
                 }
             }
-
             doGet(request, response);
             return;
         }
 
-
         String addressIdRaw = request.getParameter("addressId");
         String paymentMethod = request.getParameter("paymentMethod");
 
+        if (addressIdRaw == null || addressIdRaw.isEmpty()) {
+            handleError(request, response, acc, cart, "Vui lòng chọn địa chỉ nhận hàng!");
+            return;
+        }
+
+        if (paymentMethod == null || paymentMethod.isEmpty()) {
+            handleError(request, response, acc, cart, "Vui lòng chọn phương thức thanh toán!");
+            return;
+        }
+
         Double discount = (Double) session.getAttribute("discount");
         if (discount == null) discount = 0.0;
-
-        try {
-            int addressId = Integer.parseInt(addressIdRaw);
-            double finalTotal = totalMoney - discount;
-
-            boolean result = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, finalTotal, discount);
-
-            if (result) {
-
-                Voucher appliedVoucher = (Voucher) session.getAttribute("appliedVoucher");
-                if (appliedVoucher != null) {
-
-
-                    int newOrderId = 0;
-
-                    adminDAO.processVoucherAfterOrder(acc.getId(), appliedVoucher.getCode(), newOrderId, finalTotal);
-                }
-
-        double discount = 0; // chua co voucher
         double finalAmount = totalMoney - discount;
 
         try {
             int addressId = Integer.parseInt(addressIdRaw);
-            OrderDAO orderDAO = new OrderDAO();
 
             int orderId = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, finalAmount, discount);
 
             if (orderId > 0) {
+                Voucher appliedVoucher = (Voucher) session.getAttribute("appliedVoucher");
+                if (appliedVoucher != null) {
+                    adminDAO.processVoucherAfterOrder(acc.getId(), appliedVoucher.getCode(), orderId, finalAmount);
+                }
+
+
                 session.removeAttribute("cart");
                 session.removeAttribute("cartCount");
                 session.removeAttribute("appliedVoucher");
                 session.removeAttribute("discount");
+
 
                 if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                     String vnpayUrl = VNPayService.createPaymentUrl(finalAmount, orderId, request);
@@ -182,7 +150,7 @@ public class CheckoutServlet extends HttpServlet {
         }
     }
 
-    private void prepareCheckoutData(HttpServletRequest request, User acc, List<CartItem> cart) {
+    private void prepareCheckoutData(HttpServletRequest request, User acc, List<CartItem> cart, Double discount) {
         UserDAO userDAO = new UserDAO();
         List<UserAddress> listAddress = userDAO.getAddresses(acc.getId());
 
@@ -190,14 +158,17 @@ public class CheckoutServlet extends HttpServlet {
         for (CartItem item : cart) {
             totalMoney += item.getTotalPrice();
         }
+        if (discount == null) discount = 0.0;
 
         request.setAttribute("listAddress", listAddress);
         request.setAttribute("totalMoney", totalMoney);
-        request.setAttribute("finalTotal", totalMoney);
+        request.setAttribute("discount", discount);
+        request.setAttribute("finalTotal", totalMoney - discount);
     }
 
     private void handleError(HttpServletRequest request, HttpServletResponse response, User acc, List<CartItem> cart, String errorMsg) throws ServletException, IOException {
-        prepareCheckoutData(request, acc, cart);
+        Double discount = (Double) request.getSession().getAttribute("discount");
+        prepareCheckoutData(request, acc, cart, discount);
         request.setAttribute("error", errorMsg);
         request.getRequestDispatcher("user/checkout.jsp").forward(request, response);
     }

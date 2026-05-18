@@ -4,7 +4,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 import java.sql.Timestamp;
 
 public class Voucher {
-    private int id;
+    private int VoucherID;
     private String code;
     private String discountType;
     private double discountValue;
@@ -17,8 +17,8 @@ public class Voucher {
 
     public Voucher(){}
 
-    public Voucher(int id, String code, String discountType, double discountValue, double maxDiscount, int usageLimit, int usedCount, Timestamp startDate, Timestamp endDate, double minOrderValue) {
-        this.id = id;
+    public Voucher(int VoucherID, String code, String discountType, double discountValue, double maxDiscount, int usageLimit, int usedCount, Timestamp startDate, Timestamp endDate, double minOrderValue) {
+        this.VoucherID = VoucherID;
         this.code = code;
         this.discountType = discountType;
         this.discountValue = discountValue;
@@ -30,12 +30,12 @@ public class Voucher {
         this.minOrderValue = minOrderValue;
     }
 
-    public int getId() {
-        return id;
+    public int getVoucherID() {
+        return VoucherID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setVoucherID(int VoucherID) {
+        this.VoucherID = VoucherID;
     }
 
     public String getCode() {
