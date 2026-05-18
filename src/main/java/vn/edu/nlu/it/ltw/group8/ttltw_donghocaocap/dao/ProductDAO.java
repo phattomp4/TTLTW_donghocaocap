@@ -36,6 +36,23 @@ public class ProductDAO {
         );
     }
 
+    public List<Product> getAllProducts() {
+        List<Product> list = new ArrayList<>();
+        String query = "SELECT * FROM Products ORDER BY CreatedAt DESC";
+
+        try (Connection connection = new DBContext().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                list.add(mapResultSetToProduct(resultSet));
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tại hàm getAllProducts: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     public List<Product> getMenProducts() {
         List<Product> list = new ArrayList<>();
