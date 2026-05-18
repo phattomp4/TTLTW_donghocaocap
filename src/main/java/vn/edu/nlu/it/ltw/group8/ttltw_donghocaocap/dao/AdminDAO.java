@@ -647,6 +647,202 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return stats;
     }
+    public boolean addVoucher(Voucher voucher) {
+        String sql = "INSERT INTO vouchers (Code, DiscountType, DiscountValue, MaxDiscount, UsageLimit, StartDate, EndDate) VALUES (?,?,?,?,?,?,?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, voucher.getCode());
+            ps.setString(2, voucher.getDiscountType());
+            ps.setDouble(3, voucher.getDiscountValue());
+            ps.setDouble(4, voucher.getMaxDiscount());
+            ps.setInt(5, voucher.getUsageLimit());
+            ps.setTimestamp(6, voucher.getStartDate());
+            ps.setTimestamp(7, voucher.getEndDate());
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void saveVoucherHistory(int voucherId, int userId, int orderId) {
+        String sqlInsert = "INSERT INTO voucher_history (VoucherID, UserID, OrderID) VALUES (?, ?, ?)";
+        String sqlUpdate = "UPDATE vouchers SET UsedCount = UsedCount + 1 WHERE VoucherID = ?";
+
+        Connection conn = null;
+        try {
+            conn = new DBContext().getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
+                psInsert.setInt(1, voucherId);
+                psInsert.setInt(2, userId);
+                psInsert.setInt(3, orderId);
+                psInsert.executeUpdate();
+            }
+
+            try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                psUpdate.setInt(1, voucherId);
+                psUpdate.executeUpdate();
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null) {
+                try { conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    public List<VoucherUsageDTO> getUsageHistory() {
+        List<VoucherUsageDTO> list = new ArrayList<>();
+        String sql = "SELECT v.Code, u.Username, h.UsedAt, o.TotalAmount " +
+                "FROM voucher_history h " +
+                "JOIN vouchers v ON h.VoucherID = v.VoucherID " +
+                "JOIN Users u ON h.UserID = u.UserID " +
+                "JOIN Orders o ON h.OrderID = o.OrderID " +
+                "ORDER BY h.UsedAt DESC";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                VoucherUsageDTO dto = new VoucherUsageDTO();
+                dto.setCode(rs.getString("Code"));
+                dto.setUsername(rs.getString("Username"));
+                dto.setUsedAt(rs.getTimestamp("UsedAt"));
+                dto.setOrderTotal(rs.getDouble("TotalAmount"));
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    public Voucher getVoucherByCode(String code) {
+        String sql = "SELECT * FROM vouchers WHERE code = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Voucher v = new Voucher();
+                v.setId(rs.getInt("id"));
+                v.setCode(rs.getString("code"));
+                v.setDiscountType(rs.getString("discountType"));
+                v.setDiscountValue(rs.getDouble("discountValue"));
+                v.setMaxDiscount(rs.getDouble("maxDiscount"));
+                v.setUsageLimit(rs.getInt("usageLimit"));
+                v.setUsedCount(rs.getInt("usedCount"));
+                v.setStartDate(rs.getTimestamp("startDate"));
+                v.setEndDate(rs.getTimestamp("endDate"));
+                v.setMinOrderValue(rs.getDouble("minOrderValue"));
+
+                return v;
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi truy vấn Voucher: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public List<VoucherUsageDTO> getVoucherHistoryByUserId(int userId) {
+        List<VoucherUsageDTO> list = new ArrayList<>();
+        String sql = "SELECT v.Code, h.UsedAt, o.TotalAmount " +
+                "FROM voucher_history h " +
+                "JOIN vouchers v ON h.VoucherID = v.VoucherID " +
+                "JOIN Orders o ON h.OrderID = o.OrderID " +
+                "WHERE h.UserID = ? " +
+                "ORDER BY h.UsedAt DESC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                VoucherUsageDTO dto = new VoucherUsageDTO();
+                dto.setCode(rs.getString("Code"));
+                dto.setUsedAt(rs.getTimestamp("UsedAt"));
+                dto.setOrderTotal(rs.getDouble("TotalAmount"));
+                list.add(dto);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    public boolean hasUserUsedVoucher(int userId, String code) {
+        String sql = "SELECT COUNT(*) FROM voucher_usage_history WHERE user_id = ? AND code = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setString(2, code);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public void processVoucherAfterOrder(int userId, String code, int orderId, double orderTotal) {
+        String updateVoucherSql = "UPDATE vouchers SET used_count = used_count + 1 WHERE code = ?";
+        String insertHistorySql = "INSERT INTO voucher_usage_history (code, user_id, order_id, order_total, used_at) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = new DBContext().getConnection()) {
+
+            try (PreparedStatement ps1 = conn.prepareStatement(updateVoucherSql)) {
+                ps1.setString(1, code);
+                ps1.executeUpdate();
+            }
+
+            try (PreparedStatement ps2 = conn.prepareStatement(insertHistorySql)) {
+                ps2.setString(1, code);
+                ps2.setInt(2, userId);
+                ps2.setInt(3, orderId);
+                ps2.setDouble(4, orderTotal);
+                ps2.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                ps2.executeUpdate();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean updateUserRole(int userId, String newRole) {
+        String sql = "UPDATE Users SET Role = ? WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newRole);
+            ps.setInt(2, userId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public List<Banner> getAdminAllBanners() {
         List<Banner> list = new ArrayList<>();
