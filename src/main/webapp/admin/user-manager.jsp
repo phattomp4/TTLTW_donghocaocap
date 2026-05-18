@@ -43,6 +43,11 @@
         .badge-active { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .badge-locked { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
+        /* Select styling for role */
+        .role-select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; background: #fff; font-size: 13px; cursor: pointer; outline: none; }
+        .btn-save-role { background: #28a745; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-left: 5px; transition: 0.2s; }
+        .btn-save-role:hover { background: #218838; }
+
         /* Pagination */
         .page-link {
             padding: 8px 16px;
@@ -72,7 +77,7 @@
     <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
     <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager" class="active"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-
+    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
     <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
     <a href="category-manager"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
@@ -88,6 +93,16 @@
         </form>
     </div>
 
+    <c:if test="${not empty param.msg}">
+        <div style="padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: bold;
+                    ${param.msg == 'success' ? 'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : 'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'}">
+            <c:choose>
+                <c:when test="${param.msg == 'success'}"><i class="fa-solid fa-circle-check"></i> Cập nhật quyền hạn thành công!</c:when>
+                <c:otherwise><i class="fa-solid fa-circle-xmark"></i> Cập nhật quyền hạn thất bại!</c:otherwise>
+            </c:choose>
+        </div>
+    </c:if>
+
     <div class="table-container">
         <table>
             <thead>
@@ -96,7 +111,7 @@
                 <th style="width: 60px;">Avatar</th>
                 <th>Tên tài khoản</th>
                 <th>Họ và tên</th>
-                <th>Ngày đăng ký</th>
+                <th>Quyền hạn</th> <th>Ngày đăng ký</th>
                 <th>Trạng thái</th>
                 <th>Email</th>
                 <th>SĐT</th>
@@ -106,7 +121,7 @@
             <tbody>
             <c:if test="${empty listUsers}">
                 <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px; color: #777;">
+                    <td colspan="10" style="text-align: center; padding: 40px; color: #777;">
                         <i class="fa-solid fa-user-slash" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
                         Không tìm thấy khách hàng nào.
                     </td>
@@ -118,7 +133,7 @@
                     <td><b>#${u.id}</b></td>
                     <td>
                         <div class="avatar-circle">
-                                ${u.username.substring(0, 1).toUpperCase()}
+                                ${u.username != null && u.username.length() > 0 ? u.username.substring(0, 1).toUpperCase() : "U"}
                         </div>
                     </td>
                     <td style="font-weight: bold;">
@@ -130,6 +145,20 @@
                         </a>
                     </td>
                     <td>${u.fullName}</td>
+
+                    <td>
+                        <form action="update-user-role" method="POST" style="display: flex; align-items: center; margin: 0;">
+                            <input type="hidden" name="userId" value="${u.id}">
+                            <select name="role" class="role-select">
+                                <option value="User" ${u.role == 'User' ? 'selected' : ''}>Khách hàng</option>
+                                <option value="Staff" ${u.role == 'Staff' ? 'selected' : ''}>Nhân viên</option>
+                                <option value="Admin" ${u.role == 'Admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                            <button type="submit" class="btn-save-role" title="Lưu thay đổi">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                        </form>
+                    </td>
 
                     <td style="font-size: 13px; color: #555;">
                         <fmt:formatDate value="${u.createdAt}" pattern="dd/MM/yyyy"/>
@@ -148,7 +177,7 @@
 
                     <td style="font-size: 13px;">${u.email}</td>
                     <td style="font-size: 13px;">${u.phone}</td>
-                    <td style="color: #666; font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <td style="color: #666; font-size: 12px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${u.address}">
                             ${u.address}
                     </td>
                 </tr>

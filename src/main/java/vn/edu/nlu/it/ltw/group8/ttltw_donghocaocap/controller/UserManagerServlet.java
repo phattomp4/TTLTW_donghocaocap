@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.UserShoppingStats;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.VoucherUsageDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +22,7 @@ public class UserManagerServlet extends HttpServlet {
         AdminDAO dao = new AdminDAO();
         String action = request.getParameter("action");
         OrderDAO orderDAO = new OrderDAO();
+        VoucherUsageDTO voucherUsageDTO = new VoucherUsageDTO();
         if ("detail".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             User user = dao.getUserById(id);
@@ -28,6 +30,8 @@ public class UserManagerServlet extends HttpServlet {
 
             List<Order> userOrders = orderDAO.getOrdersByUserId(id);
 
+            List<VoucherUsageDTO> userVouchers = dao.getVoucherHistoryByUserId(id);
+            request.setAttribute("userVouchers", userVouchers);
             request.setAttribute("user", user);
             request.setAttribute("stats", stats);
             request.getRequestDispatcher("/admin/user-detail.jsp").forward(request, response);

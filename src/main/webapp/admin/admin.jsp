@@ -19,51 +19,42 @@
         <span>WatchAdmin</span>
     </div>
 
-    <ul class="sidebar-nav">
-        <li>
-            <a class="nav-link active" data-page="page-dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                Bảng điều khiển
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-products">
-                <i class="fas fa-box"></i>
-                Quản lý Sản phẩm
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-orders">
-                <i class="fas fa-receipt"></i>
-                Quản lý Đơn hàng
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-users">
-                <i class="fas fa-users"></i>
-                Quản lý Khách hàng
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-banners">
-                <i class="fas fa-images"></i>
-                Quản lý Banner
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-menus">
-                <i class="fas fa-th-list"></i>
-                Quản lý Menu
-            </a>
-        </li>
-        <li>
-            <a class="nav-link" data-page="page-settings">
-                <i class="fas fa-cog"></i>
-                Cài đặt
-            </a>
-        </li>
-    </ul>
-</nav>
+        <ul class="sidebar-nav">
+            <li>
+                <a class="nav-link active" data-page="page-dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Bảng điều khiển
+                </a>
+            </li>
+            <li>
+                <a class="nav-link" data-page="page-products">
+                    <i class="fas fa-box"></i>
+                    Quản lý Sản phẩm
+                </a>
+            </li>
+            <li>
+                <a class="nav-link" data-page="page-orders">
+                    <i class="fas fa-receipt"></i>
+                    Quản lý Đơn hàng
+                </a>
+            </li>
+            <li>
+                <a class="nav-link" data-page="page-users">
+                    <i class="fas fa-users"></i>
+                    Quản lý Khách hàng
+                </a>
+            </li>
+            <li>
+                <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
+            </li>
+            <li>
+                <a class="nav-link" data-page="page-settings">
+                    <i class="fas fa-cog"></i>
+                    Cài đặt
+                </a>
+            </li>
+        </ul>
+    </nav>
 
 <div class="main-wrapper">
 
@@ -248,40 +239,70 @@
             </div>
         </div>
 
-        <div id="page-menus" class="page-content">
-            <div class="page-header">
-                <h1>Quản lý Menu chính</h1>
-            </div>
-            <div class="data-table">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Danh mục</th>
-                        <th>Vị trí</th>
-                        <th>Trạng thái</th>
-                        <th>Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody id="menu-list-body">
-                    <c:forEach items="${listCats}" var="c">
-                        <c:if test="${c.parentId == 0}">
-                            <tr data-id="${c.id}">
-                                <td><strong>${c.name}</strong></td>
-                                <td>${c.sortOrder}</td>
+                <div class="data-table">
+                    <h2>Danh sách khách hàng</h2>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Khách hàng</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Quyền hạn</th> <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach items="${listUser}" var="user">
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.fullName}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phone}</td>
                                 <td>
-                                    <label class="switch">
-                                        <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCat(${c.id}, this.checked)">
-                                        <span class="slider round"></span>
-                                    </label>
+                                    <form action="update-user-role" method="POST" style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                        <input type="hidden" name="userId" value="${user.id}">
+                                        <select name="role" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer;">
+                                            <option value="User" ${user.role == 'User' ? 'selected' : ''}>Khách hàng</option>
+                                            <option value="Staff" ${user.role == 'Staff' ? 'selected' : ''}>Nhân viên</option>
+                                            <option value="Admin" ${user.role == 'Admin' ? 'selected' : ''}>Admin</option>
+                                        </select>
+                                        <button type="submit" class="btn-icon edit" title="Cập nhật quyền" style="border: none; background: none; cursor: pointer;">
+                                            <i class="fas fa-save" style="color: #28a745;"></i>
+                                        </button>
+                                    </form>
                                 </td>
                                 <td>
-                                    <button class="btn-icon edit" onclick="editMenu(${c.id})"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </c:forEach>
+
+                        <%-- Đoạn mẫu hiển thị tĩnh (Nếu chưa chạy controller thì dùng cái này để test giao diện) --%>
+                        <c:if test="${empty listUser}">
+                            <tr>
+                                <td>1</td>
+                                <td>Nguyễn Văn A</td>
+                                <td>nguyenvana@email.com</td>
+                                <td>0901234567</td>
+                                <td>
+                                    <form action="update-user-role" method="POST" style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                        <input type="hidden" name="userId" value="1">
+                                        <select name="role" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <option value="User" selected>Khách hàng</option>
+                                            <option value="Staff">Nhân viên</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                        <button type="submit" style="border: none; background: none; cursor: pointer;"><i class="fas fa-save" style="color: #28a745;"></i></button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
                         </c:if>
-                    </c:forEach>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
