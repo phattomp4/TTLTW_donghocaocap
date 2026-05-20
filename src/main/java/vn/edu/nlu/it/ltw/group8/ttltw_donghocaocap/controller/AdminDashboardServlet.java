@@ -6,11 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
 
 import java.io.IOException;
@@ -23,8 +20,11 @@ public class AdminDashboardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         AdminDAO adminDao = new AdminDAO();
+        StatisticDAO statDao = new StatisticDAO();
 
-        if ("approveCancel".equals(action) || "rejectCancel".equals(action)) {
+        String action = request.getParameter("action");
+
+        if (action != null && ("approveCancel".equals(action) || "rejectCancel".equals(action))) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
 
@@ -46,20 +46,14 @@ public class AdminDashboardServlet extends HttpServlet {
             }
         }
 
-        AdminDAO dao = new AdminDAO();
-        StatisticDAO statDao = new StatisticDAO();
-
-
-        double revenue = dao.getTotalRevenue();
-        int totalOrders = dao.countOrders();
-        int totalUsers = dao.countUsers();
-        List<Order> listOrders = dao.getAllOrders();
-
+        double revenue = adminDao.getTotalRevenue();
+        int totalOrders = adminDao.countOrders();
+        int totalUsers = adminDao.countUsers();
+        List<Order> listOrders = adminDao.getAllOrders();
 
         Map<String, Integer> orderStats = statDao.getOrderStatusStats();
         List<Product> lowStockList = statDao.getLowStockProducts();
         List<Order> recentOrders = statDao.getRecentOrders(5);
-
 
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);

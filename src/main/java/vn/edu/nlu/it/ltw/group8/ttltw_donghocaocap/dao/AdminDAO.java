@@ -938,6 +938,51 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return false;
     }
+    public List<Product> getProductsByPage(int index, int pageSize) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM Products LIMIT ? OFFSET ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, pageSize);
+            ps.setInt(2, (index - 1) * pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setBrandId(rs.getInt("brand_id"));
+                p.setName(rs.getString("name"));
+                p.setSku(rs.getString("sku"));
+                p.setDescription(rs.getString("description"));
+                p.setOriginalPrice(rs.getDouble("original_price"));
+                p.setCurrentPrice(rs.getDouble("current_price"));
+                p.setImageUrl(rs.getString("image_url"));
+                p.setStockQuantity(rs.getInt("stock_quantity"));
+                p.setSoldQuantity(rs.getInt("sold_quantity"));
+                p.setLuxury(rs.getBoolean("is_luxury"));
+
+                list.add(p);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int getTotalProducts() {
+        String sql = "SELECT COUNT(*) FROM Products";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
 
 

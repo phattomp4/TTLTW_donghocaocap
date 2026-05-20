@@ -64,6 +64,27 @@
         .btn-feature:hover { background: #ffc107; color: white; }
         .btn-feature.active { background: #ffc107; color: white; box-shadow: inset 0 3px 5px rgba(0,0,0,0.125); border-color: #ffb300; }
 
+        /* Style phân trang đồng bộ */
+        .page-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: #333;
+            border-radius: 4px;
+            transition: all 0.3s;
+            background: white;
+            font-weight: 500;
+        }
+        .page-link.active {
+            background-color: #1b6e76;
+            color: white;
+            border-color: #1b6e76;
+        }
+        .page-link:hover:not(.active) {
+            background-color: #f1f1f1;
+            border-color: #ccc;
+        }
+
         .toast-msg {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0;
         }
@@ -77,9 +98,10 @@
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
     <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager" class="active"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-
+    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
     <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
     <a href="category-manager"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
@@ -116,8 +138,9 @@
             <tbody>
             <c:if test="${empty listProducts}">
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 30px; color: #777;">
-                        Chưa có sản phẩm nào. Hãy bấm "Thêm sản phẩm mới".
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #777;">
+                        <i class="fa-solid fa-box-open" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                        Không tìm thấy sản phẩm nào phù hợp.
                     </td>
                 </tr>
             </c:if>
@@ -191,6 +214,38 @@
             </tbody>
         </table>
     </div>
+
+    <c:if test="${totalPages > 1}">
+        <div class="pagination" style="display: flex; justify-content: center; margin-top: 25px; gap: 8px;">
+
+            <c:set var="startPage" value="${currentPage - 1}" />
+            <c:set var="endPage" value="${currentPage + 1}" />
+
+            <c:if test="${startPage < 1}">
+                <c:set var="startPage" value="1" />
+                <c:set var="endPage" value="${totalPages < 3 ? totalPages : 3}" />
+            </c:if>
+
+            <c:if var="isLast" test="${endPage > totalPages}">
+                <c:set var="endPage" value="${totalPages}" />
+                <c:set var="startPage" value="${totalPages - 2 < 1 ? 1 : totalPages - 2}" />
+            </c:if>
+
+            <c:if test="${currentPage > 1}">
+                <a href="product-manager?page=${currentPage - 1}&keyword=${searchKeyword}" class="page-link">&laquo; Trước</a>
+            </c:if>
+
+            <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                <a href="product-manager?page=${i}&keyword=${searchKeyword}"
+                   class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+            </c:forEach>
+
+            <c:if test="${currentPage < totalPages}">
+                <a href="product-manager?page=${currentPage + 1}&keyword=${searchKeyword}" class="page-link">Sau &raquo;</a>
+            </c:if>
+
+        </div>
+    </c:if>
 </div>
 
 <div id="toastBox" class="toast-msg">Thông báo...</div>

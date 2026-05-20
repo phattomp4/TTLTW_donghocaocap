@@ -72,7 +72,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (user == null) {
-            out.write("ERROR|Tài khoản không tồn tại!");
+            out.write("ERROR|Tài khoản hoặc mật khẩu không chính xác!");
             return;
         }
 
@@ -102,8 +102,18 @@ public class LoginServlet extends HttpServlet {
             }
 
             String redirectUrl = (String) session.getAttribute("redirect_url");
-            String target = (redirectUrl != null) ? redirectUrl : "home";
-            if (redirectUrl != null) session.removeAttribute("redirect_url");
+            String target = "";
+
+            if (redirectUrl != null && !redirectUrl.contains("login") && !redirectUrl.contains("register")) {
+                target = redirectUrl;
+                session.removeAttribute("redirect_url");
+            } else {
+                if ("Admin".equalsIgnoreCase(user.getRole())) {
+                    target = request.getContextPath() + "/admin/dashboard";
+                } else {
+                    target = request.getContextPath() + "/home";
+                }
+            }
 
             out.write("SUCCESS|" + target);
         } else {
@@ -118,7 +128,7 @@ public class LoginServlet extends HttpServlet {
                 errorMsg = "Sai quá 5 lần. Tài khoản bị khóa 15 phút.";
                 out.write("ERROR|" + errorMsg);
             } else {
-                errorMsg = "Sai mật khẩu! Bạn còn " + (5 - failedCount) + " lần thử.";
+                errorMsg = "Mật khẩu không chính xác! Bạn còn " + (5 - failedCount) + " lần thử.";
                 out.write("ERROR|" + errorMsg);
             }
             session.setAttribute("mess", errorMsg);
@@ -145,7 +155,7 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("favCount", favDao.countFavorites(existingUser.getId()));
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
-                    response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
+                    response.sendRedirect(redirectUrl != null ? redirectUrl : request.getContextPath() + "/home");
                 } else {
                     String autoUsername = googleAcc.getEmail().substring(0, googleAcc.getEmail().indexOf("@"));
                     String randomPassword = java.util.UUID.randomUUID().toString();
@@ -157,7 +167,7 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("acc", newUser);
                     session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
 
-                    response.sendRedirect("home");
+                    response.sendRedirect(request.getContextPath() + "/home");
                 }
             }
         } catch (Exception e) {

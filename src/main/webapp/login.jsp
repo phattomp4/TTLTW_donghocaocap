@@ -115,7 +115,6 @@
             });
     }
 
-    // fix: dung ajax cho dang nhap
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -137,6 +136,7 @@
                 const [status, content] = data.split('|');
 
                 if (status === 'SUCCESS') {
+                    // Nhận đường dẫn tuyệt đối chuẩn xác từ Server và chuyển hướng
                     window.location.href = content;
                 } else {
                     msgArea.innerText = content;
@@ -145,7 +145,7 @@
                     msgArea.style.color = (status === 'INFO') ? '#01579b' : '#c62828';
 
                     btn.disabled = false;
-                    btn.innerText = "Đăng Nhập";
+                    btn.innerText = "Đang Nhập";
                 }
             })
             .catch(() => {
