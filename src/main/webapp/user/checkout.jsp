@@ -262,73 +262,30 @@
                         </span>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Phí vận chuyển</span>
+            <p>Tạm tính: <span><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></span></p>
 
-                        <span style="color: #28a745; font-weight: bold;">
-                            Miễn phí
-                        </span>
-                    </div>
+            <c:if test="${discount > 0}">
+                <p>Giảm giá: <span style="color: green;">- <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/></span></p>
+            </c:if>
 
-                    <div class="total-row"
-                         style="display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #eee; font-weight: bold;">
+            <p>Phí vận chuyển: <span style="color: green;">Miễn phí</span></p>
 
-                        <span style="font-size: 18px;">
-                            Tổng cộng
-                        </span>
+            <p style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 18px; font-weight: bold; color: #d0011b;">
+                Tổng cộng: <span><fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/></span>
+            </p>
 
-                        <span style="font-size: 22px; color: #d0011b;">
-                            <fmt:formatNumber value="${totalMoney}"
-                                              type="currency"
-                                              currencySymbol="₫"/>
-                        </span>
+            <c:choose>
+                <c:when test="${not empty listAddress}">
+                    <button type="submit" class="btn-checkout">ĐẶT HÀNG NGAY</button>
+                </c:when>
 
-                    </div>
-
-                </div>
-
-                <input type="hidden" name="totalAmount" value="${totalMoney}">
-
-                <c:choose>
-
-                    <c:when test="${not empty listAddress}">
-
-                        <button type="submit"
-                                class="btn-checkout"
-                                style="width: 100%; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 25px; cursor: pointer; text-transform: uppercase; transition: 0.3s;">
-
-                            XÁC NHẬN ĐẶT HÀNG
-                        </button>
-
-                    </c:when>
-
-                    <c:otherwise>
-
-                        <button type="button"
-                                onclick="openModal()"
-                                class="btn-checkout"
-                                style="width: 100%; background: #999; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; margin-top: 25px; cursor: pointer;">
-
-                            VUI LÒNG THÊM ĐỊA CHỈ
-                        </button>
-
-                    </c:otherwise>
-
-                </c:choose>
-
-                <div style="text-align: center; margin-top: 15px;">
-
-                    <img src="https://sandbox.vnpayment.vn/paymentv2/Images/cart/vnpay_logo.png"
-                         style="height: 20px; opacity: 0.5;"
-                         alt="Secure Payment">
-
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;">
-                        Thông tin của bạn được bảo mật tuyệt đối
-                    </p>
-
-                </div>
-
-            </div>
+                <c:otherwise>
+                    <button type="button" onclick="document.getElementById('modalAddAddr').style.display='flex'"
+                            class="btn-checkout" style="background: #999; cursor: pointer;">
+                        VUI LÒNG THÊM ĐỊA CHỈ
+                    </button>
+                </c:otherwise>
+            </c:choose>
         </div>
 
     </form>
