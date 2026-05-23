@@ -104,17 +104,19 @@ public class LoginServlet extends HttpServlet {
             String redirectUrl = (String) session.getAttribute("redirect_url");
             String target = "";
 
-            if (redirectUrl != null && !redirectUrl.contains("login") && !redirectUrl.contains("register")) {
+            if (redirectUrl != null && !redirectUrl.trim().isEmpty()
+                    && !redirectUrl.contains("login")
+                    && !redirectUrl.contains("register")
+                    && redirectUrl.startsWith("http")) {
                 target = redirectUrl;
                 session.removeAttribute("redirect_url");
             } else {
-                if ("Admin".equalsIgnoreCase(user.getRole())) {
+                if (user.getRole() != null && "Admin".equalsIgnoreCase(user.getRole())) {
                     target = request.getContextPath() + "/admin/dashboard";
                 } else {
                     target = request.getContextPath() + "/home";
                 }
             }
-
             out.write("SUCCESS|" + target);
         } else {
             Integer failedCount = (Integer) session.getAttribute("failedAttempts");
@@ -155,24 +157,33 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("favCount", favDao.countFavorites(existingUser.getId()));
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
-                    response.sendRedirect(redirectUrl != null ? redirectUrl : request.getContextPath() + "/home");
+                    if (redirectUrl != null && !redirectUrl.contains("login") && !redirectUrl.contains("register") && redirectUrl.startsWith("http")) {
+                        session.removeAttribute("redirect_url");
+                        response.sendRedirect(redirectUrl);
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/home");
+                    }
                 } else {
-                    String autoUsername = googleAcc.getEmail().substring(0, googleAcc.getEmail().indexOf("@"));
-                    String randomPassword = java.util.UUID.randomUUID().toString();
-                    String googleToken = "GOOGLE_" + java.util.UUID.randomUUID().toString();
-                    dao.signup(autoUsername, randomPassword, googleAcc.getName(), googleAcc.getEmail(), "", googleToken);
-                    dao.activateAccount(googleToken);
+                    User googleUser = new User();
+                    googleUser.setEmail(googleAcc.getEmail());
+                    googleUser.setFullName(googleAcc.getName());
+                    googleUser.setAvatar(googleAcc.getPicture());
+
+                    dao.insertGoogleUser(googleUser);
 
                     User newUser = dao.checkEmailExist(googleAcc.getEmail());
-                    session.setAttribute("acc", newUser);
-                    session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
+                    if (newUser != null) {
+                        session.setAttribute("acc", newUser);
+                        session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
+                    }
 
                     response.sendRedirect(request.getContextPath() + "/home");
                 }
             }
         } catch (Exception e) {
+            System.out.println(">>> LỖI XỬ LÝ ĐĂNG NHẬP GOOGLE TẠI SERVLET:");
             e.printStackTrace();
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
         }
     }
 }

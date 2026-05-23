@@ -17,14 +17,14 @@ public class Product {
     private int stockQuantity;
     private int soldQuantity;
     private boolean isLuxury;
-
+    private int isActive;
     private List<String> imageList = new ArrayList<>();
 
     private Map<String, String> specifications = new HashMap<>();
 
     public Product() {}
 
-    public Product(int id, int brandId, String name, String sku, String description, double originalPrice, double currentPrice, String imageUrl, int stockQuantity, int soldQuantity, boolean isLuxury) {
+    public Product(int id, int brandId, String name, String sku, String description, double originalPrice, double currentPrice, String imageUrl, int stockQuantity, int soldQuantity, boolean isLuxury, int isActive) {
         this.id = id;
         this.brandId = brandId;
         this.name = name;
@@ -36,8 +36,8 @@ public class Product {
         this.stockQuantity = stockQuantity;
         this.soldQuantity = soldQuantity;
         this.isLuxury = isLuxury;
+        this.isActive = isActive;
     }
-
 
     public int getId() {
         return id;
@@ -125,6 +125,14 @@ public class Product {
 
     public void setLuxury(boolean luxury) {
         isLuxury = luxury;
+    }
+
+    public int getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(int isActive) {
+        this.isActive = isActive;
     }
 
     public List<String> getImageList() {

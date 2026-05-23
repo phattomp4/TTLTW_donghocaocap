@@ -32,7 +32,8 @@ public class ProductDAO {
                 rs.getString("ImageURL"),
                 rs.getInt("StockQuantity"),
                 rs.getInt("SoldQuantity"),
-                rs.getBoolean("IsLuxury")
+                rs.getBoolean("IsLuxury"),
+                rs.getInt("is_active")
         );
     }
 
@@ -520,6 +521,99 @@ public class ProductDAO {
             ps.setInt(2, productId);
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    public boolean insertProduct(Product p) {
+        String query = "INSERT INTO Products (BrandID, Name, SKU, Description, OriginalPrice, CurrentPrice, ImageURL, StockQuantity, SoldQuantity, IsLuxury, is_active) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 1)";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, p.getBrandId());
+            ps.setString(2, p.getName());
+            ps.setString(3, p.getSku());
+            ps.setString(4, p.getDescription());
+            ps.setDouble(5, p.getOriginalPrice());
+            ps.setDouble(6, p.getCurrentPrice());
+            ps.setString(7, p.getImageUrl());
+            ps.setInt(8, p.getStockQuantity());
+            ps.setBoolean(9, p.isLuxury());
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+
+    public boolean updateProduct(Product p) {
+        String query = "UPDATE Products SET BrandID=?, Name=?, SKU=?, Description=?, OriginalPrice=?, CurrentPrice=?, " +
+                "ImageURL=?, StockQuantity=?, IsLuxury=?, is_active=? WHERE ProductID=?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, p.getBrandId());
+            ps.setString(2, p.getName());
+            ps.setString(3, p.getSku());
+            ps.setString(4, p.getDescription());
+            ps.setDouble(5, p.getOriginalPrice());
+            ps.setDouble(6, p.getCurrentPrice());
+            ps.setString(7, p.getImageUrl());
+            ps.setInt(8, p.getStockQuantity());
+            ps.setBoolean(9, p.isLuxury());
+            ps.setInt(10, p.getIsActive());
+            ps.setInt(11, p.getId());
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+
+    public boolean deleteProduct(int productId) {
+        String query = "DELETE FROM Products WHERE ProductID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, productId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+
+    public boolean toggleProductStatus(int productId, int status) {
+        String query = "UPDATE Products SET is_active = ? WHERE ProductID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, status);
+            ps.setInt(2, productId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+
+    private void closeResources() {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
 

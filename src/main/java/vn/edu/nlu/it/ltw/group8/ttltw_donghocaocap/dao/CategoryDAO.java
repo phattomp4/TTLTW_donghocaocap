@@ -17,7 +17,7 @@ public class CategoryDAO {
 
     public List<Category> getCategoriesByParent(int parentId) {
         List<Category> list = new ArrayList<>();
-        String query = "SELECT * FROM categories WHERE ParentCategoryID = ? ORDER BY SortOrder ASC";
+        String query = "SELECT * FROM categories WHERE ParentCategoryID = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);

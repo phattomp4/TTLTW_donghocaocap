@@ -52,6 +52,10 @@
         th { background: #343a40; color: white; text-transform: uppercase; font-size: 14px; }
         tr:hover { background-color: #f9f9f9; }
 
+        /* Style CSS bổ sung cho dòng sản phẩm bị ẩn */
+        tr.product-hidden { background-color: #fafafa; opacity: 0.65; }
+        tr.product-hidden:hover { background-color: #f2f2f2; }
+
         .prod-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
 
         .btn-action { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-right: 5px; display: inline-block; border: none; cursor: pointer; transition: 0.2s;}
@@ -64,7 +68,11 @@
         .btn-feature:hover { background: #ffc107; color: white; }
         .btn-feature.active { background: #ffc107; color: white; box-shadow: inset 0 3px 5px rgba(0,0,0,0.125); border-color: #ffb300; }
 
-        /* Style phân trang đồng bộ */
+        /* Style CSS mới cho nút Ẩn/Hiện sản phẩm */
+        .btn-status-toggle { background: #e2e3e5; color: #383d41; }
+        .btn-status-toggle.active { background: #d4edda; color: #155724; }
+        .btn-status-toggle:hover { background: #343a40; color: white; }
+
         .page-link {
             padding: 8px 16px;
             text-decoration: none;
@@ -132,7 +140,7 @@
                 <th>Giá bán</th>
                 <th>Kho</th>
                 <th>Đã bán</th>
-                <th style="text-align: center; width: 180px;">Hành động</th>
+                <th style="text-align: center; width: 220px;">Hành động</th>
             </tr>
             </thead>
             <tbody>
@@ -146,7 +154,7 @@
             </c:if>
 
             <c:forEach items="${listProducts}" var="p">
-                <tr>
+                <tr class="${p.isActive != 1 ? 'product-hidden' : ''}">
                     <td><b>#${p.id}</b></td>
                     <td>
                         <c:choose>
@@ -167,6 +175,9 @@
                                onmouseout="this.style.color='#333'">
                                     ${p.name} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
                             </a>
+                            <c:if test="${p.isActive != 1}">
+                                <small style="color: #dc3545; font-style: italic; font-weight: normal; margin-left: 5px;">(Tạm ngưng kinh doanh)</small>
+                            </c:if>
                         </div>
                         <div style="font-size: 12px; color: #777;">
                             Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/>
@@ -196,6 +207,25 @@
                                 title="${p.isFeatured == 1 ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
                             <i class="${p.isFeatured == 1 ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                         </button>
+
+                        <c:choose>
+                            <c:when test="${p.isActive == 1}">
+                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=1"
+                                   class="btn-action btn-status-toggle active"
+                                   title="Sản phẩm đang hiển thị. Nhấn để Ẩn"
+                                   onclick="return confirm('Bạn có chắc chắn muốn TẠM ẨN sản phẩm này khỏi website không?')">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=0"
+                                   class="btn-action btn-status-toggle"
+                                   title="Sản phẩm đang bị ẩn. Nhấn để Hiện"
+                                   onclick="return confirm('Bạn muốn MỞ BÁN LẠI sản phẩm này trên website chứ?')">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </a>
+                            </c:otherwise>
+                        </c:choose>
 
                         <a href="product-form?id=${p.id}" class="btn-action btn-edit" title="Sửa">
                             <i class="fa-solid fa-pen-to-square"></i>
@@ -289,7 +319,6 @@
                 showToast('Lỗi kết nối Server!', 'error');
             });
     }
-
 
     function showToast(message, type) {
         const toast = document.getElementById("toastBox");
