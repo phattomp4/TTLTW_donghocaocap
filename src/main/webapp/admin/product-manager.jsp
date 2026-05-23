@@ -99,6 +99,26 @@
         .toast-msg.show { visibility: visible; opacity: 1; }
         .toast-msg.success { background-color: #28a745; }
         .toast-msg.error { background-color: #dc3545; }
+
+        tr.product-hidden { background-color: #fafafa; opacity: 0.65; }
+        tr.product-hidden:hover { background-color: #f2f2f2; }
+
+        .filter-select {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            outline: none;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .filter-select:focus { border-color: #1b6e76; }
+
+        .btn-status-toggle { background: #e2e3e5; color: #383d41; }
+        .btn-status-toggle.active { background: #d4edda; color: #155724; }
+        .btn-status-toggle:hover { background: #343a40; color: white; }
     </style>
 </head>
 <body>
@@ -262,23 +282,21 @@
             </c:if>
 
             <c:if test="${currentPage > 1}">
-                <a href="product-manager?page=${currentPage - 1}&keyword=${searchKeyword}" class="page-link">&laquo; Trước</a>
+                <a href="product-manager?page=${currentPage - 1}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}" class="page-link">&laquo; Trước</a>
             </c:if>
 
             <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                <a href="product-manager?page=${i}&keyword=${searchKeyword}"
+                <a href="product-manager?page=${i}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}"
                    class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
             </c:forEach>
 
             <c:if test="${currentPage < totalPages}">
-                <a href="product-manager?page=${currentPage + 1}&keyword=${searchKeyword}" class="page-link">Sau &raquo;</a>
+                <a href="product-manager?page=${currentPage + 1}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}" class="page-link">Sau &raquo;</a>
             </c:if>
 
         </div>
     </c:if>
-</div>
-
-<div id="toastBox" class="toast-msg">Thông báo...</div>
+</div> <div id="toastBox" class="toast-msg">Thông báo...</div>
 
 <script>
     function toggleFeatured(productId, newStatus) {

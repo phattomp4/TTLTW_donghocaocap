@@ -1039,6 +1039,130 @@ public class AdminDAO {
         }
         return false;
     }
+
+    public List<Product> getProductsWithFilter(String keyword, String gender, String brandId, String priceRange, int page, int pageSize) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM Products WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.append("AND (Name LIKE ? OR SKU LIKE ?) ");
+            params.add("%" + keyword.trim() + "%");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (gender != null && !gender.isEmpty()) {
+            if ("Men".equals(gender)) {
+                query.append("AND Name LIKE '%Nam%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ");
+            } else if ("Women".equals(gender)) {
+                query.append("AND Name LIKE '%Nữ%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ");
+            }
+        }
+
+        if (brandId != null && !brandId.isEmpty()) {
+            query.append("AND BrandID = ? ");
+            params.add(Integer.parseInt(brandId));
+        }
+
+        if (priceRange != null && !priceRange.isEmpty()) {
+            switch (priceRange) {
+                case "under1": query.append("AND CurrentPrice < 1000000 "); break;
+                case "1to5": query.append("AND CurrentPrice BETWEEN 1000000 AND 5000000 "); break;
+                case "5to15": query.append("AND CurrentPrice BETWEEN 5000000 AND 15000000 "); break;
+                case "over15": query.append("AND CurrentPrice > 15000000 "); break;
+            }
+        }
+
+        query.append("ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return list;
+    }
+
+    public int getTotalProductsWithFilter(String keyword, String gender, String brandId, String priceRange) {
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM Products WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.append("AND (Name LIKE ? OR SKU LIKE ?) ");
+            params.add("%" + keyword.trim() + "%");
+            params.add("%" + keyword.trim() + "%");
+        }
+        if (gender != null && !gender.isEmpty()) {
+            if ("Men".equals(gender)) query.append("AND Name LIKE '%Nam%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ");
+            else if ("Women".equals(gender)) query.append("AND Name LIKE '%Nữ%' AND Name NOT LIKE '%Dây%' AND Name NOT LIKE '%Hộp%' ");
+        }
+        if (brandId != null && !brandId.isEmpty()) {
+            query.append("AND BrandID = ? ");
+            params.add(Integer.parseInt(brandId));
+        }
+        if (priceRange != null && !priceRange.isEmpty()) {
+            switch (priceRange) {
+                case "under1": query.append("AND CurrentPrice < 1000000 "); break;
+                case "1to5": query.append("AND CurrentPrice BETWEEN 1000000 AND 5000000 "); break;
+                case "5to15": query.append("AND CurrentPrice BETWEEN 5000000 AND 15000000 "); break;
+                case "over15": query.append("AND CurrentPrice > 15000000 "); break;
+            }
+        }
+
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return 0;
+    }
+
+    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+        return new Product(
+                rs.getInt("ProductID"),
+                rs.getInt("BrandID"),
+                rs.getString("Name"),
+                rs.getString("SKU"),
+                rs.getString("Description"),
+                rs.getDouble("OriginalPrice"),
+                rs.getDouble("CurrentPrice"),
+                rs.getString("ImageURL"),
+                rs.getInt("StockQuantity"),
+                rs.getInt("SoldQuantity"),
+                rs.getBoolean("IsLuxury"),
+                rs.getInt("is_active")
+        );
+    }
+
+    private void closeResources() {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
