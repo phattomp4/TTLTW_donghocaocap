@@ -36,7 +36,7 @@ public class OrderDAO {
             if (rs.next()) {
                 orderId = rs.getInt(1);
             }
-            String sqlDetail = "INSERT INTO order_details (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
+            String sqlDetail = "INSERT INTO orderdetails (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
             String sqlUpdateProduct = "UPDATE products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ? AND StockQuantity >= ?";
 
             psDetail = conn.prepareStatement(sqlDetail);
@@ -111,7 +111,7 @@ public class OrderDAO {
         }
     }
     private void updateOrderStatusWithConn(Connection conn, int orderId, String status, String note) throws SQLException {
-        String sql = "INSERT INTO order_logs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
+        String sql = "INSERT INTO orderlogs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setString(2, status);
@@ -142,7 +142,7 @@ public class OrderDAO {
     }
 
     public void rollbackStock(int orderId) {
-        String sqlGetDetails = "SELECT ProductID, Quantity FROM order_details WHERE OrderID = ?";
+        String sqlGetDetails = "SELECT ProductID, Quantity FROM orderdetails WHERE OrderID = ?";
         String sqlUpdateStock = "UPDATE products SET StockQuantity = StockQuantity + ?, SoldQuantity = SoldQuantity - ? WHERE ProductID = ?";
 
         try (Connection conn = new DBContext().getConnection()) {
@@ -183,7 +183,7 @@ public class OrderDAO {
                 o.setUserId(rs.getInt("UserID"));
                 o.setOrderDate(rs.getTimestamp("OrderDate"));
                 o.setTotalAmount(rs.getDouble("TotalAmount"));
-                o.setStatus(rs.getString("Status")); // Quan trọng: Trạng thái đơn
+                o.setStatus(rs.getString("Status"));
                 o.setPaymentMethod(rs.getString("PaymentMethod"));
                 o.setPaymentStatus(rs.getString("PaymentStatus"));
                 list.add(o);
@@ -199,7 +199,7 @@ public class OrderDAO {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String query = "SELECT COUNT(*) FROM OrderDetails WHERE OrderID = ?";
+        String query = "SELECT COUNT(*) FROM orderdetails WHERE OrderID = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -216,7 +216,7 @@ public class OrderDAO {
         List<OrderDetail> list = new ArrayList<>();
         String query = "SELECT od.*, p.Name, " +
                 "(SELECT ImageURL FROM ProductImages WHERE ProductID = p.ProductID LIMIT 1) AS ImageURL " +
-                "FROM OrderDetails od " +
+                "FROM orderdetails od " +
                 "JOIN Products p ON od.ProductID = p.ProductID " +
                 "WHERE od.OrderID = ?";
 
@@ -295,7 +295,7 @@ public class OrderDAO {
 
     public void updateOrderStatus(int orderId, String newStatus, String note) {
         String updateOrder = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
-        String insertLog = "INSERT INTO OrderLogs (OrderID, Status, Note) VALUES (?, ?, ?)";
+        String insertLog = "INSERT INTO orderlogs (OrderID, Status, Note) VALUES (?, ?, ?)";
 
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
@@ -397,7 +397,7 @@ public class OrderDAO {
 
     public List<OrderLog> getOrderLog(int orderId){
         List<OrderLog> list = new ArrayList<>();
-        String sql = "SELECT * FROM OrderLogs WHERE OrderID = ? ORDER BY CreatedAt DESC";
+        String sql = "SELECT * FROM orderlogs WHERE OrderID = ? ORDER BY CreatedAt DESC";
         try (Connection conn = new DBContext().getConnection()){
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setInt(1, orderId);
@@ -419,9 +419,8 @@ public class OrderDAO {
         return list;
     }
 
-// hàm kiểm tra user đã mua và nhận thành công chưa
     public boolean checkUserBoughtProduct(int userId, int productId) {
-        String query = "SELECT COUNT(*) FROM OrderDetails od " +
+        String query = "SELECT COUNT(*) FROM orderdetails od " +
                 "JOIN Orders o ON od.OrderID = o.OrderID " +
                 "WHERE o.UserID = ? AND od.ProductID = ? AND o.Status = 'Completed'";
         try (Connection conn = new DBContext().getConnection();
