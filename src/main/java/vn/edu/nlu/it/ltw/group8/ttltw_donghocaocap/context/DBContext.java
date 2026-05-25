@@ -6,9 +6,9 @@ import java.sql.DriverManager;
 public class DBContext {
     public Connection getConnection() throws Exception {
 
-        String url = "jdbc:mysql://localhost:3306/DongHoCaoCap?useUnicode=true&characterEncoding=UTF-8";
+        String url = "jdbc:mysql://localhost:3306/donghocaocap?useUnicode=true&characterEncoding=UTF-8";
         String user = "root";
-        String pass = "";
+        String pass = "Totanphat56po";
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(url, user, pass);
     }
