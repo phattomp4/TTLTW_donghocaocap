@@ -119,6 +119,24 @@
         .btn-status-toggle { background: #e2e3e5; color: #383d41; }
         .btn-status-toggle.active { background: #d4edda; color: #155724; }
         .btn-status-toggle:hover { background: #343a40; color: white; }
+
+        tr.stock-warning {
+            background-color: #fff0f0 !important;
+        }
+        tr.stock-warning:hover {
+            background-color: #ffe3e3 !important;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -174,11 +192,16 @@
             </c:if>
 
             <c:forEach items="${listProducts}" var="p">
-                <tr class="${p.isActive != 1 ? 'product-hidden' : ''}">
+                <%-- Đã sửa chuẩn: gọi trực tiếp p.isActive và p.stockQuantity --%>
+                <c:set var="statusClass" value="${p.isActive != 1 ? 'product-hidden' : ''}" />
+                <c:set var="warningClass" value="${p.stockQuantity < 5 ? 'stock-warning' : ''}" />
+
+                <tr class="${statusClass} ${warningClass}">
                     <td><b>#${p.id}</b></td>
+
                     <td>
                         <c:choose>
-                            <c:when test="${p.imageUrl.startsWith('http')}">
+                            <c:when test="${not empty p.imageUrl && p.imageUrl.startsWith('http')}">
                                 <img src="${p.imageUrl}" class="prod-img" onerror="this.src='https://via.placeholder.com/60'">
                             </c:when>
                             <c:otherwise>
@@ -186,6 +209,7 @@
                             </c:otherwise>
                         </c:choose>
                     </td>
+
                     <td>
                         <div style="font-weight: bold;">
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"
@@ -193,44 +217,54 @@
                                style="color: #333; text-decoration: none; transition: 0.2s;"
                                onmouseover="this.style.color='#d0011b'"
                                onmouseout="this.style.color='#333'">
-                                    ${p.name} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
+                                <c:out value="${p.name}" default="Chưa có tên" />
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
                             </a>
                             <c:if test="${p.isActive != 1}">
                                 <small style="color: #dc3545; font-style: italic; font-weight: normal; margin-left: 5px;">(Tạm ngưng kinh doanh)</small>
                             </c:if>
                         </div>
                         <div style="font-size: 12px; color: #777;">
-                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/>
+                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="number"/> ₫
                         </div>
                     </td>
-                    <td><span style="background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 12px;">${p.sku}</span></td>
+
+                    <td><span style="background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 12px;"><c:out value="${p.sku}" default="N/A"/></span></td>
+
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${p.currentPrice}" type="number"/> ₫
                     </td>
+
+                        <%-- CỘT KHO HÀNG --%>
                     <td>
                         <c:choose>
-                            <c:when test="${p.stockQuantity > 0}">
-                                <span style="color: green; font-weight: bold;">${p.stockQuantity}</span>
+                            <c:when test="${p.stockQuantity <= 0}">
+                                <span style="color: red; font-weight: bold;">Hết hàng</span>
+                            </c:when>
+                            <c:when test="${p.stockQuantity < 5}">
+                                <span style="color: #d0011b; font-weight: bold;">${p.stockQuantity}</span>
+                                <span class="badge-danger" title="Hãy nhập thêm hàng sớm!"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết</span>
                             </c:when>
                             <c:otherwise>
-                                <span style="color: red; font-weight: bold;">Hết hàng</span>
+                                <span style="color: green; font-weight: bold;">${p.stockQuantity}</span>
                             </c:otherwise>
                         </c:choose>
                     </td>
+
                     <td>${p.soldQuantity}</td>
 
                     <td style="text-align: center; white-space: nowrap;">
-
-                        <button type="button" class="btn-action btn-feature ${p.isFeatured == 1 ? 'active' : ''}"
+                            <%-- ĐÃ SỬA CHUẨN: ${p.luxury} thay vì ${p.isLuxury} --%>
+                        <button type="button" class="btn-action btn-feature ${p.luxury ? 'active' : ''}"
                                 id="btn-feature-${p.id}"
-                                onclick="toggleFeatured(${p.id}, ${p.isFeatured == 1 ? 0 : 1})"
-                                title="${p.isFeatured == 1 ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
-                            <i class="${p.isFeatured == 1 ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                                onclick="toggleFeatured(${p.id}, ${p.luxury ? 0 : 1})"
+                                title="${p.luxury ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
+                            <i class="${p.luxury ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                         </button>
 
                         <c:choose>
                             <c:when test="${p.isActive == 1}">
-                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=1"
+                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=0"
                                    class="btn-action btn-status-toggle active"
                                    title="Sản phẩm đang hiển thị. Nhấn để Ẩn"
                                    onclick="return confirm('Bạn có chắc chắn muốn TẠM ẨN sản phẩm này khỏi website không?')">
@@ -238,7 +272,7 @@
                                 </a>
                             </c:when>
                             <c:otherwise>
-                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=0"
+                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=1"
                                    class="btn-action btn-status-toggle"
                                    title="Sản phẩm đang bị ẩn. Nhấn để Hiện"
                                    onclick="return confirm('Bạn muốn MỞ BÁN LẠI sản phẩm này trên website chứ?')">

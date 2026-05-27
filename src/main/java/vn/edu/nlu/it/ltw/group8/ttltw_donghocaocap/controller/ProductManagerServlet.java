@@ -19,67 +19,58 @@ public class ProductManagerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        AdminDAO adminDao = new AdminDAO();
+        AdminDAO adminDAO = new AdminDAO();
 
+        // 1. Xử lý chức năng ẩn hiện (toggleStatus) nếu có yêu cầu
         if ("toggleStatus".equals(action)) {
-            try {
-                int pid = Integer.parseInt(request.getParameter("pid"));
-                int currentStatus = Integer.parseInt(request.getParameter("status"));
+            int pid = Integer.parseInt(request.getParameter("pid"));
+            int status = Integer.parseInt(request.getParameter("status"));
+            adminDAO.toggleProductStatus(pid, status); // Cập nhật trạng thái xuống DB
 
-                int newStatus = (currentStatus == 1) ? 0 : 1;
-
-                adminDao.toggleProductStatus(pid, newStatus);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            String keyword = request.getParameter("keyword") != null ? request.getParameter("keyword") : "";
-            String gender = request.getParameter("gender") != null ? request.getParameter("gender") : "";
-            String brandId = request.getParameter("brandId") != null ? request.getParameter("brandId") : "";
-            String priceRange = request.getParameter("priceRange") != null ? request.getParameter("priceRange") : "";
-            String page = request.getParameter("page") != null ? request.getParameter("page") : "1";
-
-            response.sendRedirect("product-manager?page=" + page + "&keyword=" + keyword + "&gender=" + gender + "&brandId=" + brandId + "&priceRange=" + priceRange);
+            // Sau khi xử lý xong, redirect về lại trang quản lý để tránh trùng lặp dữ liệu
+            response.sendRedirect("product-manager");
             return;
         }
 
-        String keyword = request.getParameter("keyword");
-        String gender = request.getParameter("gender");
-        String brandId = request.getParameter("brandId");
-        String priceRange = request.getParameter("priceRange");
-
+        // 2. Xử lý Phân trang và Bộ lọc hiển thị dữ liệu
+        // 2. Xử lý Phân trang và Bộ lọc hiển thị dữ liệu
         int pageSize = 10;
         int currentPage = 1;
+
         String pageRaw = request.getParameter("page");
         if (pageRaw != null && !pageRaw.isEmpty()) {
-            try {
-                currentPage = Integer.parseInt(pageRaw);
-            } catch (NumberFormatException e) {
-                currentPage = 1;
-            }
+            currentPage = Integer.parseInt(pageRaw);
         }
 
-        List<Product> list = adminDao.getProductsWithFilter(keyword, gender, brandId, priceRange, currentPage, pageSize);
+// Lấy tham số và lọc sạch giá trị rác
+        String keyword = request.getParameter("keyword");
+        if (keyword == null || keyword.trim().isEmpty() || keyword.equalsIgnoreCase("null")) keyword = "";
 
-        int totalProducts = adminDao.getTotalProductsWithFilter(keyword, gender, brandId, priceRange);
+        String gender = request.getParameter("gender");
+        if (gender == null || gender.trim().isEmpty() || gender.equalsIgnoreCase("null")) gender = "0";
 
+        String brandId = request.getParameter("brandId");
+        if (brandId == null || brandId.trim().isEmpty() || brandId.equalsIgnoreCase("null")) brandId = "0";
+
+        String priceRange = request.getParameter("priceRange");
+        if (priceRange == null || priceRange.trim().isEmpty() || priceRange.equalsIgnoreCase("null")) priceRange = "0";
+        // Lấy danh sách sản phẩm theo bộ lọc và phân trang từ AdminDAO hoàn chỉnh đã sửa
+        List<Product> listProducts = adminDAO.getProductsWithFilter(keyword, gender, brandId, priceRange, currentPage, pageSize);
+
+        // Tính toán tổng số lượng sản phẩm thỏa mãn điều kiện lọc để chia trang
+        int totalProducts = adminDAO.getTotalProductsWithFilter(keyword, gender, brandId, priceRange);
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
-        if (totalPages == 0) {
-            totalPages = 1;
-        }
 
-        ProductDAO productDao = new ProductDAO();
-        Map<String, String> brandMap = productDao.getAllBrandsWithLogo();
+        // 3. Đẩy toàn bộ biến lên Request để file JSP nhận diện chuẩn xác 100%
+        request.setAttribute("listProducts", listProducts);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
 
-        request.setAttribute("listProducts", list);
-        request.setAttribute("brandMap", brandMap);
+        // Giữ lại trạng thái các bộ lọc để thanh phân trang không bị mất điều kiện tìm kiếm
         request.setAttribute("searchKeyword", keyword);
         request.setAttribute("selectedGender", gender);
         request.setAttribute("selectedBrand", brandId);
         request.setAttribute("selectedPrice", priceRange);
-
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
 
         request.getRequestDispatcher("/admin/product-manager.jsp").forward(request, response);
     }
