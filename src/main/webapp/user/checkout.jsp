@@ -92,8 +92,8 @@
                                         </div>
 
                                         <div style="color: #777; font-size: 13px; line-height: 1.5;">
-                                                ${addr.address}<br>
-                                                ${addr.city}
+                                                ${addr.streetDetail}, ${addr.ward}<br>
+                                                ${addr.district}, ${addr.province}
                                         </div>
 
                                     </label>
@@ -254,38 +254,47 @@
 
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Tạm tính</span>
-
                         <span>
-                            <fmt:formatNumber value="${totalMoney}"
-                                              type="currency"
-                                              currencySymbol="₫"/>
+                            <fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/>
                         </span>
                     </div>
 
-            <p>Tạm tính: <span><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></span></p>
+                    <c:if test="${discount > 0}">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Giảm giá</span>
+                            <span style="color: green;">
+                                - <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/>
+                            </span>
+                        </div>
+                    </c:if>
 
-            <c:if test="${discount > 0}">
-                <p>Giảm giá: <span style="color: green;">- <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/></span></p>
-            </c:if>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Phí vận chuyển</span>
+                        <span style="color: green;">Miễn phí</span>
+                    </div>
 
-            <p>Phí vận chuyển: <span style="color: green;">Miễn phí</span></p>
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 18px; font-weight: bold; color: #d0011b;">
+                        <span>Tổng cộng</span>
+                        <span>
+                            <fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/>
+                        </span>
+                    </div>
 
-            <p style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 18px; font-weight: bold; color: #d0011b;">
-                Tổng cộng: <span><fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/></span>
-            </p>
+                </div>
 
-            <c:choose>
-                <c:when test="${not empty listAddress}">
-                    <button type="submit" class="btn-checkout">ĐẶT HÀNG NGAY</button>
-                </c:when>
+                <div style="margin-top: 25px;">
+                    <c:choose>
+                        <c:when test="${not empty listAddress}">
+                            <button type="submit" class="btn-checkout" style="width: 100%; background: #1a1a1a; color: #c5a059; padding: 15px; border-radius: 8px; font-weight: bold; border: 1px solid #c5a059; cursor: pointer;">ĐẶT HÀNG NGAY</button>
+                        </c:when>
 
-                <c:otherwise>
-                    <button type="button" onclick="document.getElementById('modalAddAddr').style.display='flex'"
-                            class="btn-checkout" style="background: #999; cursor: pointer;">
-                        VUI LÒNG THÊM ĐỊA CHỈ
-                    </button>
-                </c:otherwise>
-            </c:choose>
+                        <c:otherwise>
+                            <button type="button" onclick="document.getElementById('modalAddAddr').style.display='flex'" class="btn-checkout" style="width: 100%; background: #999; color: white; padding: 15px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">VUI LÒNG THÊM ĐỊA CHỈ</button>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
+            </div>
         </div>
 
     </form>
@@ -408,15 +417,12 @@
     function openModal() {
         document.getElementById("modalAddAddr").style.display = "flex";
     }
-
     function closeModal() {
         document.getElementById("modalAddAddr").style.display = "none";
     }
-
     function selectAddress(id) {
         document.getElementById(id).checked = true;
     }
-
     function selectPayment(id) {
         document.getElementById(id).checked = true;
     }
