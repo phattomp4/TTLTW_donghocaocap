@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
 <c:set var="pName" value="${fn:toLowerCase(p.name)}" />
 <c:set var="isAccessory" value="${fn:contains(pName, 'dây') or fn:contains(pName, 'hộp') or fn:contains(pName, 'khóa') or fn:contains(pName, 'phụ kiện')}" />
