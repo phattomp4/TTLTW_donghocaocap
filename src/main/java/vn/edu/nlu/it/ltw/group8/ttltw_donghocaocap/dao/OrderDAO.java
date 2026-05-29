@@ -293,20 +293,25 @@ public class OrderDAO {
         return null;
     }
 
-    public void updateOrderStatus(int orderId, String newStatus, String note) {
-        String updateOrder = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
-        String insertLog = "INSERT INTO orderlogs (OrderID, Status, Note) VALUES (?, ?, ?)";
+    public boolean updateOrderStatus(int orderId, String newStatus, String note) {
+        String updateOrder = "UPDATE orders SET Status = ? WHERE OrderID = ?";
+        String insertLog = "INSERT INTO orderlogs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
+        String checkCOD = "SELECT PaymentMethod FROM orders WHERE OrderID = ?";
+        String updatePayment = "UPDATE orders SET PaymentStatus = 'Paid', payment_date = NOW() WHERE OrderID = ?";
 
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
 
-
             try (PreparedStatement psUpdate = conn.prepareStatement(updateOrder)) {
                 psUpdate.setString(1, newStatus);
                 psUpdate.setInt(2, orderId);
-                psUpdate.executeUpdate();
-            }
+                int rows = psUpdate.executeUpdate();
 
+                if (rows == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
 
             try (PreparedStatement psLog = conn.prepareStatement(insertLog)) {
                 psLog.setInt(1, orderId);
@@ -315,9 +320,37 @@ public class OrderDAO {
                 psLog.executeUpdate();
             }
 
+            if ("Completed".equalsIgnoreCase(newStatus)) {
+                String paymentMethod = "";
+                try (PreparedStatement psCheck = conn.prepareStatement(checkCOD)) {
+                    psCheck.setInt(1, orderId);
+                    try (ResultSet rs = psCheck.executeQuery()) {
+                        if (rs.next()) {
+                            paymentMethod = rs.getString("PaymentMethod");
+                        }
+                    }
+                }
+
+                if (paymentMethod != null && "COD".equalsIgnoreCase(paymentMethod.trim())) {
+                    try (PreparedStatement psPay = conn.prepareStatement(updatePayment)) {
+                        psPay.setInt(1, orderId);
+                        psPay.executeUpdate();
+                    }
+
+                    try (PreparedStatement psLogPay = conn.prepareStatement(insertLog)) {
+                        psLogPay.setInt(1, orderId);
+                        psLogPay.setString(2, "Paid");
+                        psLogPay.setString(3, "Hệ thống tự động: Đơn hàng COD đã giao thành công -> Xác nhận Đã thanh toán tiền mặt.");
+                        psLogPay.executeUpdate();
+                    }
+                }
+            }
+
             conn.commit();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
     public boolean requestCancelOrderSafe(int orderId, int userId) {

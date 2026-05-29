@@ -192,7 +192,6 @@
             </c:if>
 
             <c:forEach items="${listProducts}" var="p">
-                <%-- Đã sửa chuẩn: gọi trực tiếp p.isActive và p.stockQuantity --%>
                 <c:set var="statusClass" value="${p.isActive != 1 ? 'product-hidden' : ''}" />
                 <c:set var="warningClass" value="${p.stockQuantity < 5 ? 'stock-warning' : ''}" />
 
@@ -235,7 +234,6 @@
                         <fmt:formatNumber value="${p.currentPrice}" type="number"/> ₫
                     </td>
 
-                        <%-- CỘT KHO HÀNG --%>
                     <td>
                         <c:choose>
                             <c:when test="${p.stockQuantity <= 0}">
@@ -254,7 +252,7 @@
                     <td>${p.soldQuantity}</td>
 
                     <td style="text-align: center; white-space: nowrap;">
-                            <%-- ĐÃ SỬA CHUẨN: ${p.luxury} thay vì ${p.isLuxury} --%>
+
                         <button type="button" class="btn-action btn-feature ${p.luxury ? 'active' : ''}"
                                 id="btn-feature-${p.id}"
                                 onclick="toggleFeatured(${p.id}, ${p.luxury ? 0 : 1})"
