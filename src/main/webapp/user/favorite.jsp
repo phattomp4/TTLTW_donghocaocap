@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="../WEB-INF/tags/header.jsp"/>
-
 <div class="container" style="max-width: 1200px; margin: 40px auto; min-height: 50vh;">
     <h2 style="border-bottom: 2px solid #1b6e76; padding-bottom: 10px; color: #1b6e76;">Sản Phẩm Bạn Yêu Thích <i class="fa-solid fa-heart"></i></h2>
 

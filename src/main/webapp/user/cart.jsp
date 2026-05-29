@@ -26,7 +26,7 @@
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="container" style="margin-top: 5px; min-height: 500px; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 20px;">
     <h2>Giỏ hàng của bạn</h2>
     <%-- Kiểm tra nếu chưa có giỏ hàng thì... --%>

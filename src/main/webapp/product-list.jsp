@@ -55,7 +55,7 @@
 </head>
 <body>
 <jsp:include page="WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="layout-container">
 
     <div class="sidebar-filter">

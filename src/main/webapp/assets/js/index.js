@@ -96,26 +96,26 @@ if (document.querySelector('.card-wrapper')) {
 }
 
 
-// NÚT PROFILE
-const profileBtn = document.getElementById('profile-btn');
-const profileMenu = document.getElementById('profile-menu');
-
-if (profileBtn && profileMenu) {
-
-    profileBtn.addEventListener('click', () => {
-
-        profileMenu.classList.toggle('show');
-    });
-
-
-    window.addEventListener('click', (event) => {
-
-
-        if (!profileMenu.contains(event.target) && !profileBtn.contains(event.target)) {
-            profileMenu.classList.remove('show');
-        }
-    });
-}
+// // NÚT PROFILE
+// const profileBtn = document.getElementById('profile-btn');
+// const profileMenu = document.getElementById('profile-menu');
+//
+// if (profileBtn && profileMenu) {
+//
+//     profileBtn.addEventListener('click', () => {
+//
+//         profileMenu.classList.toggle('show');
+//     });
+//
+//
+//     window.addEventListener('click', (event) => {
+//
+//
+//         if (!profileMenu.contains(event.target) && !profileBtn.contains(event.target)) {
+//             profileMenu.classList.remove('show');
+//         }
+//     });
+// }
 
 
 //TAB SẢN PHẨM

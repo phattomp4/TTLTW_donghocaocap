@@ -14,9 +14,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="../WEB-INF/tags/header.jsp"/>
 
 <div class="container" style="max-width: 1200px; margin: 0 auto; padding-top: 150px;">

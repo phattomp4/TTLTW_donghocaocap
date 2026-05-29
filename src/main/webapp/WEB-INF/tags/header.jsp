@@ -193,7 +193,7 @@
                         <input type="hidden" name="type" value="search">
 
                         <input type="text" name="keyword"
-                               oninput="searchByName(this)"
+                               oninput="searchByName(this, '${pageContext.request.contextPath}')"
                                placeholder="Tìm kiếm..." required autocomplete="off">
 
                         <button type="submit" class="search-button">
@@ -239,7 +239,7 @@
 
                 <c:if test="${sessionScope.acc != null}">
                     <div class="profile-dropdown">
-                        <button id="profile-btn" class="profile-avatar-btn">
+                        <button id="avatar-btn-vvp" class="profile-avatar-btn" onclick="toggleProfileMenu(event)">
                             <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="Avatar">
                         </button>
 
@@ -285,25 +285,21 @@
 
     <script>
         function toggleProfileMenu(event) {
+            event.preventDefault();
             event.stopPropagation();
-
             var menu = document.getElementById("profile-menu");
             if (menu) {
                 menu.classList.toggle("show");
             }
         }
-
-        window.onclick = function(event) {
-            if (!event.target.closest('.profile-avatar-btn')) {
-                var dropdowns = document.getElementsByClassName("dropdown-menu");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+        document.addEventListener("click", function(event) {
+            var menu = document.getElementById("profile-menu");
+            var btn = document.querySelector(".profile-avatar-btn");
+            if (menu && menu.classList.contains('show')) {
+                if (!menu.contains(event.target) && btn && !btn.contains(event.target)) {
+                    menu.classList.remove('show');
                 }
             }
-        }
+        });
     </script>
-
 </header>

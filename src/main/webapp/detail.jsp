@@ -349,7 +349,7 @@
                 const btn = document.getElementById("btnFavorite");
                 const text = document.getElementById("favText");
                 const countHeader = document.getElementById("favCountHeader");
-                let currentCount = parseInt(countHeader.innerText) || 0;
+                let currentCount = parseInt(countHaeader.innerText) || 0;
 
                 if (data === "added") {
                     icon.classList.remove("fa-regular");
