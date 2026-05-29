@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <c:forEach items="${listSearch}" var="p">
-    <a href="detail?pid=${p.id}" class="live-search-item">
+    <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="live-search-item">
         <div class="live-search-img">
             <img src="${p.imageUrl}" alt="${p.name}">
         </div>

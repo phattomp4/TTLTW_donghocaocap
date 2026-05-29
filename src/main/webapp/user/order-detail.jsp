@@ -207,7 +207,7 @@
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="detail-container">
     <a href="order-history" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Trở về lịch sử</a>
 

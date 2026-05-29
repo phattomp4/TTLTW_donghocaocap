@@ -18,7 +18,7 @@
 </head>
 
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="../WEB-INF/tags/header.jsp"/>
 
 <div class="result-wrapper">

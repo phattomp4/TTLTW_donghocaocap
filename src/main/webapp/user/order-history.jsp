@@ -131,7 +131,7 @@
 <body>
 
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="order-container">
     <h2 style="border-left: 5px solid #1b6e76; padding-left: 10px;">Lịch sử đơn hàng</h2>
     <div class="order-tabs">

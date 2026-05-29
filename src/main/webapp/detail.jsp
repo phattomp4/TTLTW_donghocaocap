@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
 <c:set var="pName" value="${fn:toLowerCase(p.name)}" />
 <c:set var="isAccessory" value="${fn:contains(pName, 'dây') or fn:contains(pName, 'hộp') or fn:contains(pName, 'khóa') or fn:contains(pName, 'phụ kiện')}" />
@@ -349,7 +349,7 @@
                 const btn = document.getElementById("btnFavorite");
                 const text = document.getElementById("favText");
                 const countHeader = document.getElementById("favCountHeader");
-                let currentCount = parseInt(countHeader.innerText) || 0;
+                let currentCount = parseInt(countHaeader.innerText) || 0;
 
                 if (data === "added") {
                     icon.classList.remove("fa-regular");

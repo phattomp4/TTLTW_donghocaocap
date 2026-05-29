@@ -10,9 +10,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class VNPayService {
 
-    public static String vnp_TmnCode = ""; //them sau
-    public static String vnp_HashSecret = ""; // them sau
-    public static String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    public static String vnp_TmnCode = "9T69JJBB";
+    public static String vnp_HashSecret = "P1YJ91U4MU2NB3EQKPIQN6P6QD1K1RLC";
+    public static String vnp_Url = " https://sandbox.vnpayment.vn/paymentv2/vpcpay.html ";
 
 
     public static String createPaymentUrl(double amount, int orderId, HttpServletRequest request) {
@@ -23,7 +23,7 @@ public class VNPayService {
         long vnp_Amount = (long) (amount * 100);
         String vnp_TxnRef = String.valueOf(orderId);
         String vnp_OrderInfo = "Thanh toan don hang Luxury Watch #" + orderId;
-        String vnp_ReturnUrl = "http://localhost:8080/ttltw_donghocaocap/vnpay-return";
+        String vnp_ReturnUrl = "http://localhost:8080/TTLTW_donghocaocap/vnpay-return";
         String vnp_IpAddr = request.getRemoteAddr();
 
         Map<String, String> vnp_Params = new HashMap<>();
