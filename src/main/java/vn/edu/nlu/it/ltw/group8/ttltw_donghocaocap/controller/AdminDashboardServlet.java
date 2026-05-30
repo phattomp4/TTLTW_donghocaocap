@@ -28,9 +28,10 @@ public class AdminDashboardServlet extends HttpServlet {
         if ("approveCancel".equals(action) || "rejectCancel".equals(action)) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
-
                 if ("approveCancel".equals(action)) {
                     dao.updateOrderStatusWithLog(orderId, "Cancelled");
+                    OrderDAO orderDao = new OrderDAO();
+                    orderDao.rollbackStock(orderId);
                 } else if ("rejectCancel".equals(action)) {
                     dao.updateOrderStatus(orderId, "Shipping");
                 }
@@ -47,24 +48,67 @@ public class AdminDashboardServlet extends HttpServlet {
             }
         }
 
+        String period = request.getParameter("period");
+        if (period == null || period.trim().isEmpty()) {
+            period = "month";
+        }
+
         StatisticDAO statDao = new StatisticDAO();
 
-        double revenue = dao.getTotalRevenue();
-        int totalOrders = dao.countOrders();
+        double revenue = statDao.getRevenueByPeriod(period);
+        int totalOrders = statDao.countOrdersByPeriod(period);
         int totalUsers = dao.countUsers();
-        List<Order> listOrders = dao.getAllOrders();
+        int pendingProcessingCount = statDao.countPendingAndProcessingOrders();
+        int cancelRequestsCount = statDao.countOrderStatus("Request Cancel");
+        int lowStockCount = statDao.countLowStockProducts(3);
 
-        Map<String, Integer> orderStats = statDao.getOrderStatusStats();
-        List<Product> lowStockList = statDao.getLowStockProducts();
         List<Order> recentOrders = statDao.getRecentOrders(5);
+        List<Product> topSellingWatches = statDao.getTopSellingProducts(5);
+
+
+        Map<String, Double> revenueChartData = statDao.getRevenueTimelineData(period);
+        StringBuilder chartLabels = new StringBuilder();
+        StringBuilder chartData = new StringBuilder();
+        int index = 0;
+        for (Map.Entry<String, Double> entry : revenueChartData.entrySet()) {
+            if (index > 0) {
+                chartLabels.append(",");
+                chartData.append(",");
+            }
+            chartLabels.append("'").append(entry.getKey()).append("'");
+            chartData.append(entry.getValue());
+            index++;
+        }
+
+        Map<String, Double> brandChartData = statDao.getBrandRevenueShare();
+        StringBuilder brandLabels = new StringBuilder();
+        StringBuilder brandData = new StringBuilder();
+        index = 0;
+        for (Map.Entry<String, Double> entry : brandChartData.entrySet()) {
+            if (index > 0) {
+                brandLabels.append(",");
+                brandData.append(",");
+            }
+            brandLabels.append("'").append(entry.getKey()).append("'");
+            brandData.append(entry.getValue());
+            index++;
+        }
 
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("totalUsers", totalUsers);
-        request.setAttribute("listOrders", listOrders);
-        request.setAttribute("orderStats", orderStats);
-        request.setAttribute("lowStockList", lowStockList);
+
+        request.setAttribute("pendingProcessingCount", pendingProcessingCount);
+        request.setAttribute("cancelRequestsCount", cancelRequestsCount);
+        request.setAttribute("lowStockCount", lowStockCount);
+
         request.setAttribute("recentOrders", recentOrders);
+        request.setAttribute("topSellingWatches", topSellingWatches);
+
+        request.setAttribute("chartLabels", chartLabels.toString());
+        request.setAttribute("chartData", chartData.toString());
+        request.setAttribute("brandLabels", brandLabels.toString());
+        request.setAttribute("brandData", brandData.toString());
 
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }
