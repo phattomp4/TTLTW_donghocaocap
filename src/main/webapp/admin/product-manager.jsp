@@ -76,12 +76,14 @@
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="dashboard" ><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager" class="active"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-
+    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
     <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
     <a href="category-manager"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
+    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
