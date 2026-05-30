@@ -149,12 +149,12 @@
 
                             <div class="mt-auto">
                                 <p class="text-danger fw-bold mb-1" style="font-size: 17px;">
-                                    <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                    <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/>
                                 </p>
 
                                 <c:if test="${p.originalPrice > p.currentPrice}">
                                     <p class="text-muted text-decoration-line-through mb-1" style="font-size: 13px;">
-                                        <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                        <fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/>
                                     </p>
                                 </c:if>
 

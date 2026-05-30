@@ -49,7 +49,7 @@
     <div class="card-container">
         <div class="card" style="border-color: #28a745;">
             <h3><i class="fa-solid fa-sack-dollar"></i> TỔNG DOANH THU</h3>
-            <p><fmt:formatNumber value="${revenue}" type="currency" currencySymbol="₫"/></p>
+            <p><fmt:formatNumber value="${revenue}" pattern="#,##0 ₫"/></p>
         </div>
         <div class="card" style="border-color: #17a2b8;">
             <h3><i class="fa-solid fa-cart-shopping"></i> TỔNG ĐƠN HÀNG</h3>

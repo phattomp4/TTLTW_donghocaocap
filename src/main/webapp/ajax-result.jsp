@@ -10,7 +10,7 @@
         <div class="live-search-info">
             <p class="live-name">${p.name}</p>
             <p class="live-price">
-                <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/>
             </p>
         </div>
     </a>

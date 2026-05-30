@@ -136,9 +136,9 @@
                         </a>
                         <br />
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         <div class="Discount-row">
-                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         </div>
                         <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>
@@ -174,9 +174,9 @@
                         </a>
                         <br />
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         <div class="Discount-row">
-                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         </div>
                         <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>
@@ -215,9 +215,9 @@
                             </a>
                             <br />
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-                            <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                             <div class="Discount-row">
-                                <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                                <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                             </div>
                             <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                         </div>
@@ -272,9 +272,9 @@
                         </a>
                         <br />
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         <div class="Discount-row">
-                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         </div>
                         <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>
@@ -301,9 +301,9 @@
                         </a>
                         <br />
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"><p class="Item">${p.name}</p></a>
-                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                        <p class="PriceOfPoduct"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         <div class="Discount-row">
-                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></p>
+                            <p class="Discount"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫" maxFractionDigits="0"/></p>
                         </div>
                         <p class="Sold">${isOut ? 'Tạm hết hàng' : 'Đã bán ' += p.soldQuantity}</p>
                     </div>

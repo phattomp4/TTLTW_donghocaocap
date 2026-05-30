@@ -111,7 +111,7 @@
                     <br><small style="color: #666;"><i class="fa-solid fa-phone" style="font-size: 10px;"></i> ${o.phone}</small>
                 </td>
                 <td style="color: #d0011b; font-weight: bold;">
-                    <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
+                    <fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/>
                 </td>
                 <td>${o.paymentMethod}</td>
                 <td>

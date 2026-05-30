@@ -302,7 +302,7 @@
                         <b style="font-size: 16px;">${d.product.name}</b>
                         <p style="margin: 5px 0; color: #777; font-size: 13px;">Số lượng: x${d.quantity}</p>
                         <div style="font-weight: bold; color: #d0011b;">
-                            <fmt:formatNumber value="${d.priceAtPurchase}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${d.priceAtPurchase}" pattern="#,##0 ₫"/>
                         </div>
                     </div>
                 </div>
@@ -318,12 +318,12 @@
     </div>
 
     <div style="text-align: right; background: #fdfdfd; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-        <p>Tạm tính: <fmt:formatNumber value="${order.totalAmount + order.discountAmount}" type="currency" currencySymbol="₫"/></p>
+        <p>Tạm tính: <fmt:formatNumber value="${order.totalAmount + order.discountAmount}" pattern="#,##0 ₫"/></p>
         <c:if test="${order.discountAmount > 0}">
-            <p>Giảm giá voucher: <span style="color: green;">-<fmt:formatNumber value="${order.discountAmount}" type="currency" currencySymbol="₫"/></span></p>
+            <p>Giảm giá voucher: <span style="color: green;">-<fmt:formatNumber value="${order.discountAmount}" pattern="#,##0 ₫"/></span></p>
         </c:if>
         <h3 style="color: #d0011b; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 10px;">
-            Tổng thanh toán: <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
+            Tổng thanh toán: <fmt:formatNumber value="${order.totalAmount}" pattern="#,##0 ₫"/>
         </h3>
     </div>
 </div>

@@ -254,7 +254,7 @@
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Tạm tính</span>
                         <span>
-                            <fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${totalMoney}" pattern="#,##0 ₫"/>
                         </span>
                     </div>
 
@@ -262,7 +262,7 @@
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                             <span>Giảm giá</span>
                             <span style="color: green;">
-                                - <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/>
+                                - <fmt:formatNumber value="${discount}" pattern="#,##0 ₫"/>
                             </span>
                         </div>
                     </c:if>
@@ -275,7 +275,7 @@
                     <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 18px; font-weight: bold; color: #d0011b;">
                         <span>Tổng cộng</span>
                         <span>
-                            <fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${finalTotal}" pattern="#,##0 ₫"/>
                         </span>
                     </div>
 
