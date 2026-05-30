@@ -63,7 +63,7 @@ public class WarehouseServlet extends HttpServlet {
             String[] productIds = request.getParameterValues("productIds[]");
             String[] quantities = request.getParameterValues("quantities[]");
             String[] prices = request.getParameterValues("prices[]");
-            
+
             if (productIds != null) {
                 for (int i = 0; i < productIds.length; i++) {
                     if (productIds[i] != null && !productIds[i].isEmpty()) {
