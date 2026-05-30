@@ -538,6 +538,52 @@ public class ProductDAO {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-}
 
+    // Lấy danh sách tồn kho có Phân trang, Tìm kiếm và Sắp xếp
+    public List<Product> getInventoryProducts(String keyword, String sortType, int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM Products WHERE Name LIKE ? ";
+
+        // Xử lý các chiến lược sắp xếp
+        if ("name_asc".equals(sortType)) {
+            sql += "ORDER BY Name ASC ";
+        } else if ("stock_desc".equals(sortType)) {
+            sql += "ORDER BY StockQuantity DESC ";
+        } else if ("newest".equals(sortType)) {
+            sql += "ORDER BY ProductID DESC "; // Mới nhất dựa theo ID
+        } else {
+            // Default: Cảnh báo tồn kho lên đầu (Dưới 5 chiếc xếp trước, số lượng 0 lên đầu tiên)
+            sql += "ORDER BY (StockQuantity < 5) DESC, StockQuantity ASC, ProductID DESC ";
+        }
+
+        sql += "LIMIT ? OFFSET ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, limit);
+            ps.setInt(3, offset);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToProduct(rs));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // Đếm tổng số sản phẩm để chia số trang
+    public int countInventoryProducts(String keyword) {
+        String sql = "SELECT COUNT(*) FROM Products WHERE Name LIKE ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+}
 
