@@ -38,7 +38,7 @@
                 </a>
                 <h4 style="font-size: 15px; margin: 10px 0; height: 40px; overflow: hidden;"><a href="detail?pid=${p.id}" style="text-decoration: none; color: #333;">${p.name}</a></h4>
                 <div style="color: #d0011b; font-weight: bold;">
-                    <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/>
+                    <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/>
                 </div>
 
                 <form action="add-to-cart" method="GET" style="margin-top: 15px;">

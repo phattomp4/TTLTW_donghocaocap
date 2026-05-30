@@ -167,7 +167,7 @@
                     <td><b>#${o.orderId}</b></td>
                     <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/>
                     </td>
 
                     <td>

@@ -60,14 +60,14 @@
                             <p style="color: #888; font-size: 13px; margin: 0;">Mã: #${item.product.id}</p>
                         </div>
                     </td>
-                    <td><fmt:formatNumber value="${item.product.currentPrice}" type="currency" currencySymbol="₫"/></td>
+                    <td><fmt:formatNumber value="${item.product.currentPrice}" pattern="#,##0 ₫"/></td>
                     <td>
                         <a href="cart?action=dec&pid=${item.product.id}" class="btn-qty">-</a>
                         <span style="margin: 0 10px; font-weight: bold;">${item.quantity}</span>
                         <a href="cart?action=inc&pid=${item.product.id}" class="btn-qty">+</a>
                     </td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${item.totalPrice}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${item.totalPrice}" pattern="#,##0 ₫"/>
                     </td>
                     <td>
                         <a href="cart?action=delete&pid=${item.product.id}" class="btn-delete" onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?')">
@@ -87,12 +87,12 @@
         </div>
         <div class="cart-summary">
             <div style="background: #fdfdfd; padding: 20px; border: 1px solid #eee; display: inline-block; min-width: 300px; text-align: right;">
-                <p>Tạm tính: <b><fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/></b></p>
+                <p>Tạm tính: <b><fmt:formatNumber value="${totalMoney}" pattern="#,##0 ₫"/></b></p>
                 <c:if test="${discount > 0}">
-                    <p>Giảm giá: <b style="color: green;">- <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/></b></p>
+                    <p>Giảm giá: <b style="color: green;">- <fmt:formatNumber value="${discount}" pattern="#,##0 ₫"/></b></p>
                 </c:if>
                 <h3 style="color: #d0011b; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
-                    Tổng cộng: <fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/>
+                    Tổng cộng: <fmt:formatNumber value="${finalTotal}" pattern="#,##0 ₫"/>
                 </h3>
 
                 <a href="${pageContext.request.contextPath}/checkout" class="checkout-btn">Tiến hành thanh toán</a>

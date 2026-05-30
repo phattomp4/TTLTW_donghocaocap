@@ -75,7 +75,7 @@
                 <div class="card sales">
                     <div class="card-icon"><i class="fas fa-dollar-sign"></i></div>
                     <h3>Tổng doanh thu</h3>
-                    <p><fmt:formatNumber value="${revenue}" type="currency" currencySymbol="₫"/></p>
+                    <p><fmt:formatNumber value="${revenue}" pattern="#,##0 ₫"/></p>
                 </div>
                 <div class="card orders">
                     <div class="card-icon"><i class="fas fa-receipt"></i></div>
@@ -111,7 +111,7 @@
                         <tr>
                             <td>#${o.orderId}</td>
                             <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
-                            <td><fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/></td>
+                            <td><fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/></td>
                             <td>${o.paymentMethod}</td>
                             <td>
                                 <span class="status ${o.status.toLowerCase()}">${o.status}</span>
@@ -151,7 +151,7 @@
                             <td>${p.id}</td>
                             <td><img src="${p.imageUrl}" alt="Product" class="product-image-small" onerror="this.src='https://via.placeholder.com/50'"></td>
                             <td>${p.name}</td>
-                            <td><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/></td>
+                            <td><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/></td>
                             <td>${p.stockQuantity}</td>
                             <td><span class="status ${p.luxury ? 'luxury' : 'normal'}">${p.luxury ? 'Luxury' : 'Thường'}</span></td>
                             <td>
@@ -189,7 +189,7 @@
                             <td>#${o.orderId}</td>
                             <td>User #${o.userId}</td>
                             <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
-                            <td><fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/></td>
+                            <td><fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/></td>
                             <td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td>
                             <td>
                                 <button class="btn-icon view" onclick="location.href='order-detail?id=${o.orderId}'"><i class="fas fa-eye"></i></button>

@@ -146,12 +146,12 @@
                             </a>
                         </div>
                         <div style="font-size: 12px; color: #777;">
-                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/>
+                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/>
                         </div>
                     </td>
                     <td><span style="background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 12px;">${p.sku}</span></td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/>
                     </td>
                     <td>
                         <c:choose>

@@ -108,7 +108,7 @@
                             <tr>
                                 <td class="fw-bold">#ORD-${o.id}</td>
                                 <td class="text-danger fw-bold">
-                                    <fmt:formatNumber value="${o.totalMoney}" type="currency" currencySymbol="₫"/>
+                                    <fmt:formatNumber value="${o.totalMoney}" pattern="#,##0 ₫"/>
                                 </td>
                                 <td>
                                         <span class="badge

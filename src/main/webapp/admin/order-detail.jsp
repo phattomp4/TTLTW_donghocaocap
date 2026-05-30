@@ -97,10 +97,10 @@
                         <b>${d.product.name}</b><br>
                         <small style="color:#777">Mã SP: #${d.productId}</small>
                     </td>
-                    <td><fmt:formatNumber value="${d.priceAtPurchase}" type="currency" currencySymbol="₫"/></td>
+                    <td><fmt:formatNumber value="${d.priceAtPurchase}" pattern="#,##0 ₫"/></td>
                     <td>x${d.quantity}</td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${d.priceAtPurchase * d.quantity}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${d.priceAtPurchase * d.quantity}" pattern="#,##0 ₫"/>
                     </td>
                 </tr>
             </c:forEach>
@@ -109,7 +109,7 @@
 
         <div style="text-align: right; margin-top: 20px; font-size: 18px;">
             Tổng tiền đơn hàng: <b style="color: #d0011b; font-size: 24px;">
-            <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
+            <fmt:formatNumber value="${order.totalAmount}" pattern="#,##0 ₫"/>
         </b>
         </div>
     </div>

@@ -136,7 +136,7 @@
                         <td><strong>${h.username}</strong></td>
                         <td><fmt:formatDate value="${h.usedAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                         <td style="color: #d0011b; font-weight: bold;">
-                            <fmt:formatNumber value="${h.orderTotal}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${h.orderTotal}" pattern="#,##0 ₫"/>
                         </td>
                     </tr>
                 </c:forEach>

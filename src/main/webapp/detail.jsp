@@ -55,8 +55,8 @@
         <p style="color: #666;">Mã SP: <strong>${p.sku}</strong> | Tình trạng: <strong>${p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}</strong></p>
 
         <div class="price-box" style="margin: 20px 0;">
-            <span style="color: #d0011b; font-size: 28px; font-weight: bold;"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/></span>
-            <span style="text-decoration: line-through; color: #888; margin-left: 15px;"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/></span>
+            <span style="color: #d0011b; font-size: 28px; font-weight: bold;"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/></span>
+            <span style="text-decoration: line-through; color: #888; margin-left: 15px;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/></span>
         </div>
 
         <div class="specs-table" style="margin-top: 40px;">
