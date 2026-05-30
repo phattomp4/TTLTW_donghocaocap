@@ -228,19 +228,19 @@
                     <div class="timeline-bar" style="width: ${progress}%;"></div>
                 </div>
 
-                <div class="step ${progress >= 0 ? 'active' : ''}">
+                <div class="step ${progress >= 0.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-clipboard-list"></i></div>
                     <p>Đã đặt hàng</p>
                 </div>
-                <div class="step ${progress >= 33 ? 'active' : ''}">
+                <div class="step ${progress >= 33.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-box-open"></i></div>
                     <p>Đã xác nhận</p>
                 </div>
-                <div class="step ${progress >= 66 ? 'active' : ''}">
+                <div class="step ${progress >= 66.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-truck-fast"></i></div>
                     <p>Đang giao</p>
                 </div>
-                <div class="step ${progress == 100 ? 'active' : ''}">
+                <div class="step ${progress == 100.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-house-circle-check"></i></div>
                     <p>Hoàn thành</p>
                 </div>
@@ -259,7 +259,7 @@
             <h4><i class="fa-solid fa-location-dot"></i> Địa chỉ nhận hàng</h4>
             <p><b>${address.name}</b></p>
             <p><i class="fa-solid fa-phone" style="font-size: 12px; width: 15px;"></i> ${address.phone}</p>
-            <p><i class="fa-solid fa-map" style="font-size: 12px; width: 15px;"></i> ${address.address} <c:if test="${not empty address.city}"> - ${address.city}</c:if></p>
+            <p><i class="fa-solid fa-map" style="font-size: 12px; width: 15px;"></i> ${address.streetDetail}, ${address.ward}, ${address.district}, ${address.province}</p>
         </div>
 
         <div class="info-card">
