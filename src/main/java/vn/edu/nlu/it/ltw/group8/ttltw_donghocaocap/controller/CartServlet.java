@@ -1,7 +1,9 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO; // IMPORT CART_DAO
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User; // IMPORT USER
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,7 +13,6 @@ import jakarta.servlet.http.HttpSession;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Voucher;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "CartServlet", urlPatterns = {"/cart"})
@@ -20,80 +21,78 @@ public class CartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+        User user = (User) session.getAttribute("acc");
 
-        if (cart == null) {
-            cart = new ArrayList<>();
-            session.setAttribute("cart", cart);
-        }
-
-
-        String action = request.getParameter("action");
-        if (action != null) {
-            int pid = Integer.parseInt(request.getParameter("pid"));
-
-
-            CartItem target = null;
-            for (CartItem item : cart) {
-                if (item.getProduct().getId() == pid) {
-                    target = item;
-                    break;
-                }
-            }
-
-            if (target != null) {
-                if ("delete".equals(action)) {
-                    cart.remove(target);
-                } else if ("inc".equals(action)) {
-                    target.setQuantity(target.getQuantity() + 1);
-                } else if ("dec".equals(action)) {
-                    if (target.getQuantity() > 1) {
-                        target.setQuantity(target.getQuantity() - 1);
-                    } else {
-                        cart.remove(target);
-                    }
-                }
-            }
-
-
-            int totalCount = 0;
-            for (CartItem item : cart) totalCount += item.getQuantity();
-            session.setAttribute("cartCount", totalCount);
-            response.sendRedirect("cart");
+        if (user == null) {
+            response.sendRedirect("login");
             return;
         }
 
+        CartDAO cartDao = new CartDAO();
+        String action = request.getParameter("action");
 
+        if (action != null) {
+            try {
+                int pid = Integer.parseInt(request.getParameter("pid"));
+
+                if ("update".equals(action)) {
+                    int quantity = Integer.parseInt(request.getParameter("quantity"));
+                    if (quantity > 0) {
+                        updateCartQuantityDirect(user.getId(), pid, quantity);
+                    } else {
+                        removeCartItemDirect(user.getId(), pid);
+                    }
+                } else if ("delete".equals(action)) {
+                    removeCartItemDirect(user.getId(), pid);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        List<CartItem> cart = cartDao.getCartByUserId(user.getId());
+
+        // Tính tổng tiền và tổng số lượng sản phẩm mới nhất
         double totalMoney = 0;
+        int totalCount = 0;
         for (CartItem item : cart) {
             totalMoney += item.getTotalPrice();
+            totalCount += item.getQuantity();
         }
 
 
-        String voucherCode = request.getParameter("voucherCode");
+        session.setAttribute("cart", cart);
+        session.setAttribute("cartCount", totalCount);
+
+
         double discount = 0;
-        AdminDAO adminDAO = new AdminDAO();
+        String voucherCode = request.getParameter("voucherCode");
+        AdminDAO adminDao = new AdminDAO();
 
-        if (voucherCode != null && !voucherCode.isEmpty()) {
-            Voucher v = adminDAO.getVoucherByCode(voucherCode);
-
+        if (voucherCode != null && !voucherCode.trim().isEmpty()) {
+            Voucher v = adminDao.getVoucherByCode(voucherCode);
             if (v != null) {
-                String checkStatus = v.validateVoucher(totalMoney);
-
-                if ("OK".equals(checkStatus)) {
-                    if (v.getDiscountType().equals("Percent")) {
-                        discount = totalMoney * (v.getDiscountValue() / 100);
-                        if (v.getMaxDiscount() > 0 && discount > v.getMaxDiscount()) {
-                            discount = v.getMaxDiscount();
-                        }
+                String validateMsg = v.validateVoucher(totalMoney);
+                if ("OK".equals(validateMsg)) {
+                    if (adminDao.hasUserUsedVoucher(user.getId(), voucherCode)) {
+                        request.setAttribute("voucherMessage", "Bạn đã sử dụng mã giảm giá này rồi!");
+                        session.removeAttribute("appliedVoucher");
+                        session.removeAttribute("discount");
                     } else {
-                        discount = v.getDiscountValue();
+                        if ("Fixed".equals(v.getDiscountType())) {
+                            discount = v.getDiscountValue();
+                        } else if ("Percent".equals(v.getDiscountType())) {
+                            discount = totalMoney * (v.getDiscountValue() / 100);
+                            if (v.getMaxDiscount() > 0 && discount > v.getMaxDiscount()) {
+                                discount = v.getMaxDiscount();
+                            }
+                        }
+                        session.setAttribute("appliedVoucher", v);
+                        session.setAttribute("discount", discount);
+                        request.setAttribute("voucherMessage", "Áp dụng mã giảm giá thành công!");
                     }
-                    session.setAttribute("appliedVoucher", v);
-                    session.setAttribute("discount", discount);
-                    request.setAttribute("voucherMessage", "Áp dụng mã thành công!");
                 } else {
-                    request.setAttribute("voucherMessage", checkStatus);
+                    request.setAttribute("voucherMessage", validateMsg);
                     session.removeAttribute("appliedVoucher");
                     session.removeAttribute("discount");
                 }
@@ -126,5 +125,26 @@ public class CartServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
+    }
+
+    private void updateCartQuantityDirect(int userId, int productId, int quantity) {
+        String sql = "UPDATE CartItems SET Quantity = ? WHERE UserID = ? AND ProductID = ?";
+        try (java.sql.Connection conn = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext().getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, userId);
+            ps.setInt(3, productId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void removeCartItemDirect(int userId, int productId) {
+        String sql = "DELETE FROM CartItems WHERE UserID = ? AND ProductID = ?";
+        try (java.sql.Connection conn = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext().getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }
