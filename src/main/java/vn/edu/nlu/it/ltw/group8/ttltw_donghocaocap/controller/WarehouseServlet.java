@@ -18,27 +18,63 @@ public class WarehouseServlet extends HttpServlet {
         ProductDAO productDao = new ProductDAO();
         WarehouseDAO warehouseDao = new WarehouseDAO();
 
-        // Lấy danh sách sản phẩm cho Bảng theo dõi và Dropdown nhập kho
-        List<Product> listProducts = productDao.getAllProducts(); // chưa có hàm này
-        // Lấy lịch sử biến động
+        String keyword = request.getParameter("keyword");
+        if (keyword == null) keyword = "";
+
+        String sort = request.getParameter("sort");
+        if (sort == null) sort = "default";
+
+        int page = 1;
+        int pageSize = 10;
+        try {
+            if (request.getParameter("page") != null) {
+                page = Integer.parseInt(request.getParameter("page"));
+            }
+        } catch (Exception e) { page = 1; }
+
+        int offset = (page - 1) * pageSize;
+
+        List<Product> listProducts = productDao.getInventoryProducts(keyword, sort, offset, pageSize);
+        int totalProducts = productDao.countInventoryProducts(keyword);
+        int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
+
+        List<Product> allProducts = productDao.getAllProducts();
+
         List<Map<String, Object>> history = warehouseDao.getInventoryHistory();
 
         request.setAttribute("listProducts", listProducts);
+        request.setAttribute("allProducts", allProducts); // Dùng cho datalist
         request.setAttribute("history", history);
+
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("searchKeyword", keyword);
+        request.setAttribute("currentSort", sort);
+
         request.getRequestDispatcher("/admin/warehouse.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if ("import".equals(action)) {
-            int productId = Integer.parseInt(request.getParameter("productId"));
-            int quantity = Integer.parseInt(request.getParameter("quantity"));
-            double price = Double.parseDouble(request.getParameter("importPrice"));
+        WarehouseDAO dao = new WarehouseDAO();
 
-            WarehouseDAO dao = new WarehouseDAO();
-            dao.importProduct(productId, quantity, price);
+        if ("importMulti".equals(action)) {
+            String[] productIds = request.getParameterValues("productIds[]");
+            String[] quantities = request.getParameterValues("quantities[]");
+            String[] prices = request.getParameterValues("prices[]");
+            
+            if (productIds != null) {
+                for (int i = 0; i < productIds.length; i++) {
+                    if (productIds[i] != null && !productIds[i].isEmpty()) {
+                        int pId = Integer.parseInt(productIds[i]);
+                        int qty = Integer.parseInt(quantities[i]);
+                        double price = Double.parseDouble(prices[i]);
 
+                        dao.importProduct(pId, qty, price);
+                    }
+                }
+            }
             response.sendRedirect("warehouse?msg=success");
         }
     }
