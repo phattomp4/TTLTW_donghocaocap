@@ -26,13 +26,25 @@
     </style>
 </head>
 <body>
+
 <jsp:include page="../WEB-INF/tags/header.jsp" />
 <script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
+<c:if test="${not empty cartErrorMsg}">
+    <script>
+        alert('${cartErrorMsg}');
+    </script>
+</c:if>
 <div class="container" style="margin-top: 5px; min-height: 500px; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 20px;">
 
     <h3 style="font-size: 1.5em; font-weight: bold; border-bottom: 2px solid #1b6e76; padding-bottom: 10px; color: #1b6e76; margin-bottom: 40px;">
         Giỏ Hàng Của Bạn <i class="fa-solid fa-cart-shopping"></i>
     </h3>
+
+    <c:if test="${not empty error}">
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb; font-weight: bold;">
+            <i class="fa-solid fa-circle-exclamation"></i> ${error}
+        </div>
+    </c:if>
 
     <%-- Kiểm tra nếu chưa có giỏ hàng thì hiển thị giao diện trống --%>
     <c:if test="${empty sessionScope.cart}">
@@ -70,9 +82,9 @@
                     </td>
                     <td><fmt:formatNumber value="${item.product.currentPrice}" pattern="#,##0 ₫"/></td>
                     <td>
-                        <a href="cart?action=dec&pid=${item.product.id}" class="btn-qty">-</a>
+                        <a href="cart?action=update&pid=${item.product.id}&quantity=${item.quantity - 1}" class="btn-qty">-</a>
                         <span style="margin: 0 10px; font-weight: bold;">${item.quantity}</span>
-                        <a href="cart?action=inc&pid=${item.product.id}" class="btn-qty">+</a>
+                        <a href="cart?action=update&pid=${item.product.id}&quantity=${item.quantity + 1}" class="btn-qty">+</a>
                     </td>
                     <td style="color: #d0011b; font-weight: bold;">
                         <fmt:formatNumber value="${item.totalPrice}" pattern="#,##0 ₫"/>

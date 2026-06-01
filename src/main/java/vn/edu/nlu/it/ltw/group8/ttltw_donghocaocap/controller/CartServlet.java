@@ -1,9 +1,9 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO; // IMPORT CART_DAO
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User; // IMPORT USER
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -38,12 +38,22 @@ public class CartServlet extends HttpServlet {
                 if ("update".equals(action)) {
                     int quantity = Integer.parseInt(request.getParameter("quantity"));
                     if (quantity > 0) {
-                        updateCartQuantityDirect(user.getId(), pid, quantity);
+                        int stockLeft = 0;
+                        for(vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product p : new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO().getAllProducts()) {
+                            if(p.getId() == pid) { stockLeft = p.getStockQuantity(); break; }
+                        }
+
+                        if (quantity > stockLeft) {
+                            request.setAttribute("error", "Sản phẩm chỉ còn tối đa " + stockLeft + " chiếc.");
+                            quantity = stockLeft;
+                        }
+
+                        cartDao.updateCartQuantityDirect(user.getId(), pid, quantity);
                     } else {
-                        removeCartItemDirect(user.getId(), pid);
+                        cartDao.removeCartItemDirect(user.getId(), pid);
                     }
                 } else if ("delete".equals(action)) {
-                    removeCartItemDirect(user.getId(), pid);
+                    cartDao.removeCartItemDirect(user.getId(), pid);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -52,7 +62,6 @@ public class CartServlet extends HttpServlet {
 
         List<CartItem> cart = cartDao.getCartByUserId(user.getId());
 
-        // Tính tổng tiền và tổng số lượng sản phẩm mới nhất
         double totalMoney = 0;
         int totalCount = 0;
         for (CartItem item : cart) {
@@ -60,10 +69,8 @@ public class CartServlet extends HttpServlet {
             totalCount += item.getQuantity();
         }
 
-
         session.setAttribute("cart", cart);
         session.setAttribute("cartCount", totalCount);
-
 
         double discount = 0;
         String voucherCode = request.getParameter("voucherCode");
@@ -125,26 +132,5 @@ public class CartServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
-    }
-
-    private void updateCartQuantityDirect(int userId, int productId, int quantity) {
-        String sql = "UPDATE CartItems SET Quantity = ? WHERE UserID = ? AND ProductID = ?";
-        try (java.sql.Connection conn = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, quantity);
-            ps.setInt(2, userId);
-            ps.setInt(3, productId);
-            ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    private void removeCartItemDirect(int userId, int productId) {
-        String sql = "DELETE FROM CartItems WHERE UserID = ? AND ProductID = ?";
-        try (java.sql.Connection conn = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, productId);
-            ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
     }
 }
