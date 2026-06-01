@@ -317,7 +317,13 @@
 
         fetch('${pageContext.request.contextPath}/add-to-cart?pid=' + pid + '&quantity=' + qty + '&ajax=true')
             .then(response => {
-                if (!response.ok) throw new Error("Lỗi Server");
+                if (response.redirected && response.url.includes("login")) {
+                    window.location.href = "login";
+                    throw new Error("unauthorized");
+                }
+                if (!response.ok) {
+                    return response.text().then(errText => { throw new Error(errText); });
+                }
                 return response.text();
             })
             .then(data => {
@@ -328,7 +334,11 @@
                     setTimeout(function(){ toast.style.visibility = "hidden"; }, 3000);
                 }
             })
-            .catch(error => alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console."));
+            .catch(error => {
+                if (error.message !== "unauthorized") {
+                    alert(error.message);
+                }
+            });
     }
 
     function toggleFavoriteAjax(pid) {
@@ -340,7 +350,7 @@
             .then(res => res.text())
             .then(data => {
                 if (data === "unauthorized") {
-                    alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
+                    alert("Vui lòng đăng nhập!");
                     window.location.href = "login.jsp";
                     return;
                 }

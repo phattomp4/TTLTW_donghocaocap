@@ -2,17 +2,16 @@
 
 const btnScrollToTop = document.getElementById("btnScrollToTop");
 
-window.onscroll = function () {
-    scrollFunction();
-};
+window.onscroll = function() { scrollFunction() };
 
 function scrollFunction() {
-    // Nếu cuộn xuống quá 200px thì hiện nút
-    if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-        btnScrollToTop.classList.add("show");
-    } else {
-        // Nếu ở trên đầu trang thì ẩn nút
-        btnScrollToTop.classList.remove("show");
+    let myElement = document.getElementById("ten_the_cua_ban");
+    if (myElement) {
+        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+            myElement.classList.add("scrolled");
+        } else {
+            myElement.classList.remove("scrolled");
+        }
     }
 }
 
