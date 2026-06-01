@@ -87,4 +87,28 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+
+    // cập nhật số lượng dựa trên UserID và ProductID
+    public void updateCartQuantityDirect(int userId, int productId, int quantity) {
+        String sql = "UPDATE CartItems SET Quantity = ? WHERE UserID = ? AND ProductID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, userId);
+            ps.setInt(3, productId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // xóa sản phẩm dựa trên UserID và ProductID
+    public void removeCartItemDirect(int userId, int productId) {
+        String sql = "DELETE FROM CartItems WHERE UserID = ? AND ProductID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 }
+

@@ -2,8 +2,10 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.OrderDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ProductDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.UserAddress;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Voucher;
@@ -65,7 +67,6 @@ public class CheckoutServlet extends HttpServlet {
             totalMoney += item.getTotalPrice();
         }
 
-
         if ("apply_voucher".equals(action)) {
             String code = request.getParameter("voucherCode");
             Voucher v = adminDAO.getVoucherByCode(code);
@@ -114,9 +115,28 @@ public class CheckoutServlet extends HttpServlet {
         if (discount == null) discount = 0.0;
         double finalAmount = totalMoney - discount;
 
+        ProductDAO pDao = new ProductDAO();
+        for (CartItem item : cart) {
+            Product realProduct = null;
+            try {
+                List<Product> all = pDao.getAllProducts();
+                for (Product p : all) {
+                    if (p.getId() == item.getProductId()) {
+                        realProduct = p; break;
+                    }
+                }
+            } catch(Exception e){}
+
+            int stockLeft = (realProduct != null) ? realProduct.getStockQuantity() : 0;
+            if (realProduct == null || item.getQuantity() > stockLeft) {
+                String errorMsg = "Sản phẩm '" + item.getProduct().getName() + "' chỉ còn " + stockLeft + " chiếc trong kho. Vui lòng quay lại để kiểm tra!";
+                handleError(request, response, acc, cart, errorMsg);
+                return;
+            }
+        }
+
         try {
             int addressId = Integer.parseInt(addressIdRaw);
-
             int orderId = orderDAO.insertOrder(acc, cart, addressId, paymentMethod, finalAmount, discount);
 
             if (orderId > 0) {
@@ -125,12 +145,27 @@ public class CheckoutServlet extends HttpServlet {
                     adminDAO.processVoucherAfterOrder(acc.getId(), appliedVoucher.getCode(), orderId, finalAmount);
                 }
 
+                // bắt cờ mua ngay, không xóa giỏ hàng trong db
+                Boolean isBuyNow = (Boolean) session.getAttribute("isBuyNow");
+                if (isBuyNow != null && isBuyNow) {
+                    // nếu là Mua Ngay -> giữ nguyên db, chỉ xóa cờ ảo
+                    session.removeAttribute("isBuyNow");
+                } else {
+                    // nếu mua từ Giỏ Hàng -> xóa sạch giỏ hàng thật trong db
+                    new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO().clearCart(acc.getId());
+                }
 
                 session.removeAttribute("cart");
                 session.removeAttribute("cartCount");
                 session.removeAttribute("appliedVoucher");
                 session.removeAttribute("discount");
 
+                // kéo dữ liệu Giỏ hàng thật từ db lên lại session để số lượng trên header hiển thị đúng
+                List<CartItem> dbCart = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO().getCartByUserId(acc.getId());
+                int totalCount = 0;
+                for (CartItem item : dbCart) totalCount += item.getQuantity();
+                session.setAttribute("cart", dbCart);
+                session.setAttribute("cartCount", totalCount);
 
                 if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                     String vnpayUrl = VNPayService.createPaymentUrl(finalAmount, orderId, request);
@@ -139,7 +174,7 @@ public class CheckoutServlet extends HttpServlet {
                     response.sendRedirect("order-history?msg=success");
                 }
             } else {
-                handleError(request, response, acc, cart, "Sản phẩm trong kho đã hết hoặc hệ thống gặp sự cố. Vui lòng thử lại!");
+                handleError(request, response, acc, cart, "Lỗi hệ thống khi tạo đơn hàng. Vui lòng thử lại!");
             }
 
         } catch (NumberFormatException e) {
