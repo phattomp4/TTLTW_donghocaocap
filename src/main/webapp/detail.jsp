@@ -350,7 +350,7 @@
             .then(res => res.text())
             .then(data => {
                 if (data === "unauthorized") {
-                    alert("Vui lòng đăng nhập!");
+                    alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
                     window.location.href = "login.jsp";
                     return;
                 }
@@ -359,7 +359,8 @@
                 const btn = document.getElementById("btnFavorite");
                 const text = document.getElementById("favText");
                 const countHeader = document.getElementById("favCountHeader");
-                let currentCount = parseInt(countHaeader.innerText) || 0;
+
+                let currentCount = parseInt(countHeader.innerText) || 0;
 
                 if (data === "added") {
                     icon.classList.remove("fa-regular");

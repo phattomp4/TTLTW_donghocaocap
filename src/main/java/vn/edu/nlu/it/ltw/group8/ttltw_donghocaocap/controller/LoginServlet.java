@@ -8,8 +8,10 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -89,8 +91,14 @@ public class LoginServlet extends HttpServlet {
             session.removeAttribute("lockTime");
             session.setAttribute("acc", user);
 
+
             FavoriteDAO favDao = new FavoriteDAO();
-            session.setAttribute("favCount", favDao.countFavorites(user.getId()));
+            java.util.List<Integer> favIds = favDao.getFavoriteProductIds(user.getId());
+            session.setAttribute("favoriteProductIds", favIds);
+            session.setAttribute("favCount", favIds.size());
+
+            session.setAttribute("cart", new ArrayList<>());
+            session.setAttribute("cartCount", 0);
 
             if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
@@ -142,7 +150,14 @@ public class LoginServlet extends HttpServlet {
                         existingUser = dao.checkEmailExist(googleAcc.getEmail());
                     }
                     session.setAttribute("acc", existingUser);
-                    session.setAttribute("favCount", favDao.countFavorites(existingUser.getId()));
+
+
+                    java.util.List<Integer> favIds = favDao.getFavoriteProductIds(existingUser.getId());
+                    session.setAttribute("favoriteProductIds", favIds);
+                    session.setAttribute("favCount", favIds.size());
+
+                    session.setAttribute("cart", new ArrayList<>());
+                    session.setAttribute("cartCount", 0);
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
                     response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
@@ -155,7 +170,13 @@ public class LoginServlet extends HttpServlet {
 
                     User newUser = dao.checkEmailExist(googleAcc.getEmail());
                     session.setAttribute("acc", newUser);
-                    session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
+
+                    java.util.List<Integer> favIds = favDao.getFavoriteProductIds(newUser.getId());
+                    session.setAttribute("favoriteProductIds", favIds);
+                    session.setAttribute("favCount", favIds.size());
+
+                    session.setAttribute("cart", new ArrayList<>());
+                    session.setAttribute("cartCount", 0);
 
                     response.sendRedirect("home");
                 }

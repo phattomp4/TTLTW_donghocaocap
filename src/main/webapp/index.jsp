@@ -15,21 +15,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        /* CSS tuỳ chỉnh cho 2 băng chuyền mới */
         .custom-slider-container { max-width: 1200px; margin: 50px auto; padding: 0 15px; }
         .slider-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 2px solid #eaeaea; padding-bottom: 10px;}
         .slider-title { color: #1b6e76; font-weight: 800; text-transform: uppercase; margin: 0; font-size: 22px; }
         .view-all-link { color: #d0011b; font-weight: 600; text-decoration: none; font-size: 15px; transition: 0.3s;}
         .view-all-link:hover { color: #a10014; }
 
-        /* Swiper custom */
         .productSwiper { padding-bottom: 50px !important; }
         .productSwiper .swiper-slide { height: auto; display: flex; justify-content: center;}
         .productSwiper .swiper-button-next, .productSwiper .swiper-button-prev { color: #1b6e76; background: white; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .productSwiper .swiper-button-next:after, .productSwiper .swiper-button-prev:after { font-size: 18px; font-weight: bold; }
         .productSwiper .swiper-pagination-bullet-active { background: #1b6e76; }
 
-        /* Đảm bảo card của bạn nằm gọn trong slide */
         .productSwiper .Product { margin: 0; width: 100%; max-width: 250px; }
     </style>
 </head>
@@ -70,7 +67,7 @@
         <div class="icon-box-text"><h4>Miễn phí vận chuyển</h4><p>Giao hàng nhanh, đóng gói cẩn thận</p></div>
     </div>
     <div class="icon-box">
-        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M24 7.06252H24.0625V7.00002V5.00002C24.0625 4.81459 24.1175 4.63333 24.2205 4.47915C24.3236 4.32498 24.47 4.20481 24.6413 4.13386C24.8126 4.0629 25.0011 4.04434 25.183 4.08052C25.3648 4.1167 25.5319 4.206 25.663 4.33712L25.7071 4.29301L25.663 4.33712L28.663 7.33712C28.8388 7.51293 28.9376 7.75138 28.9376 8.00002C28.9376 8.24865 28.8388 8.4871 28.663 8.66291L25.663 11.6629C25.5319 11.794 25.3648 11.8833 25.183 11.9195C25.0011 11.9557 24.8126 11.9371 24.6413 11.8662C24.47 11.7952 24.3236 11.6751 24.2205 11.5209C24.1175 11.3667 24.0625 11.1854 24.0625 11V9.00002V8.93752H24H12H12C10.1275 8.93963 8.33241 9.68438 7.0084 11.0084C5.6844 12.3324 4.93964 14.1275 4.93753 15.9999V16C4.93753 16.2487 4.83876 16.4871 4.66295 16.6629C4.48713 16.8387 4.24867 16.9375 4.00003 16.9375C3.75139 16.9375 3.51294 16.8387 3.33712 16.6629C3.16131 16.4871 3.06254 16.2487 3.06253 16.0001C3.06521 13.6305 4.0077 11.3588 5.68323 9.68322C7.35878 8.00768 9.63053 7.06518 12.0001 7.06252H24ZM20 23.0625H20.0001C21.8725 23.0604 23.6677 22.3157 24.9917 20.9916C26.3157 19.6676 27.0604 17.8725 27.0625 16.0001V16C27.0625 15.7514 27.1613 15.5129 27.3371 15.3371C27.5129 15.1613 27.7514 15.0625 28 15.0625C28.2487 15.0625 28.4871 15.1613 28.6629 15.3371C28.8387 15.5129 28.9375 15.7513 28.9375 15.9999C28.9349 18.3695 27.9924 20.6413 26.3168 22.3168C24.6413 23.9924 22.3695 24.9348 20 24.9375H8.00003H7.93753V25V27C7.93753 27.1854 7.88255 27.3667 7.77953 27.5209C7.67651 27.6751 7.53009 27.7952 7.35878 27.8662C7.18746 27.9371 6.99896 27.9557 6.8171 27.9195C6.63523 27.8833 6.46819 27.794 6.33707 27.6629L3.33707 24.6629C3.16127 24.4871 3.0625 24.2486 3.0625 24C3.0625 23.7514 3.16127 23.5129 3.33707 23.3371L6.33707 20.3371C6.46819 20.206 6.63523 20.1167 6.8171 20.0805C6.99896 20.0443 7.18746 20.0629 7.35878 20.1339C7.53009 20.2048 7.67651 20.325 7.77953 20.4792C7.88255 20.6333 7.93753 20.8146 7.93753 21V23V23.0625H8.00003H20Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg></div></div></div>
+        <div class="icon-box-img" style="width: 28px"><div class="icon"><div class="icon-inner" style="color:rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"> <path d="M24 7.06252H24.0625V7.00002V5.00002C24.0625 4.81459 24.1175 4.63333 24.2205 4.47915C24.3236 4.32498 24.47 4.20481 24.6413 4.13386C24.8126 4.0629 25.0011 4.04434 25.183 4.08052C25.3648 4.1167 25.5319 4.206 25.663 4.33712L25.7071 4.29301L25.663 4.33712L28.663 7.33712C28.8388 7.51293 28.9376 7.75138 28.9376 8.00002C28.9376 8.24865 28.8388 8.4871 28.663 8.66291L25.663 11.6629C25.5319 11.794 25.3648 11.8833 25.183 11.9195C25.0011 11.9557 24.8126 11.9371 24.6413 11.8662C24.47 11.7952 24.3236 11.6751 24.2205 11.5209C24.1175 11.3667 24.0625 11.1854 24.0625 11V9.00002V8.93752H24H12H12C10.1275 8.93963 8.33241 9.68438 7.0084 11.0084C5.6844 12.3324 4.93964 14.1275 4.93753 15.9999V16C4.93753 16.2487 4.83876 16.4871 4.66295 16.6629C4.48713 16.8387 4.24867 16.9375 4.00003 16.9375C3.75139 16.9375 3.51294 16.8387 3.33712 16.6629C3.16131 16.4871 3.06254 16.2487 3.06253 16.0001C3.0652 13.6305 4.0077 11.3588 5.68323 9.68322C7.35878 8.00768 9.63053 7.06518 12.0001 7.06252H24ZM20 23.0625H20.0001C21.8725 23.0604 23.6677 22.3157 24.9917 20.9916C26.3157 19.6676 27.0604 17.8725 27.0625 16.0001V16C27.0625 15.7514 27.1613 15.5129 27.3371 15.3371C27.5129 15.1613 27.7514 15.0625 28 15.0625C28.2487 15.0625 28.4871 15.1613 28.6629 15.3371C28.8387 15.5129 28.9375 15.7513 28.9375 15.9999C28.9349 18.3695 27.9924 20.6413 26.3168 22.3168C24.6413 23.9924 22.3695 24.9348 20 24.9375H8.00003H7.93753V25V27C7.93753 27.1854 7.88255 27.3667 7.77953 27.5209C7.67651 27.6751 7.53009 27.7952 7.35878 27.8662C7.18746 27.9371 6.99896 27.9557 6.8171 27.9195C6.63523 27.8833 6.46819 27.794 6.33707 27.6629L3.33707 24.6629C3.16127 24.4871 3.0625 24.2486 3.0625 24C3.0625 23.7514 3.16127 23.5129 3.33707 23.3371L6.33707 20.3371C6.46819 20.206 6.63523 20.1167 6.8171 20.0805C6.99896 20.0443 7.18746 20.0629 7.35878 20.1339C7.53009 20.2048 7.67651 20.325 7.77953 20.4792C7.88255 20.6333 7.93753 20.8146 7.93753 21V23V23.0625H8.00003H20Z" fill="white" stroke="white" stroke-width="0.125"></path> </svg></div></div></div>
         <div class="icon-box-text"><h4>Đổi hàng 7 ngày</h4><p>1 đổi 1 trong 7 ngày với sản phẩm lỗi</p></div>
     </div>
     <div class="icon-box">
@@ -112,7 +109,6 @@
     </div>
 </div>
 
-
 <div class="custom-slider-container">
     <div class="slider-header">
         <h2 class="slider-title">
@@ -127,9 +123,11 @@
                 <div class="swiper-slide">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
                     <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
-                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                            <i class="fa-solid fa-heart"></i>
+                        <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                         </button>
+
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -151,7 +149,6 @@
     </div>
 </div>
 
-
 <div class="custom-slider-container">
     <div class="slider-header">
         <h2 class="slider-title">
@@ -166,9 +163,12 @@
                 <div class="swiper-slide">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
                     <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
-                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                            <i class="fa-solid fa-heart"></i>
-                        </button>                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
+                        <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                        </button>
+
+                        <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
                         </a>
@@ -189,7 +189,6 @@
     </div>
 </div>
 
-
 <div class="collection-luxury">
     <div class="luxury-title">
         <h2>BỘ SƯU TẬP HÀNG LUXURY</h2>
@@ -206,9 +205,11 @@
                     <li class="luxury-card swiper-slide">
                         <c:set var="isOut" value="${p.stockQuantity <= 0}" />
                         <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
-                            <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                                <i class="fa-solid fa-heart"></i>
+                            <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                            <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                             </button>
+
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                                 <img src="${p.imageUrl}" alt="${p.name}">
                                 <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -263,9 +264,11 @@
                 <div class="link-product js-item-men">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
                     <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
-                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                            <i class="fa-solid fa-heart"></i>
+                        <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                         </button>
+
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -292,9 +295,11 @@
                 <div class="link-product js-item-women">
                     <c:set var="isOut" value="${p.stockQuantity <= 0}" />
                     <div class="Product ${isOut ? 'out-of-stock' : ''}" style="position: relative;">
-                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                            <i class="fa-solid fa-heart"></i>
+                        <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                         </button>
+
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="img-product">
                             <img src="${p.imageUrl}" alt="${p.name}">
                             <c:if test="${isOut}"><span class="badge-out-of-stock">HẾT HÀNG</span></c:if>
@@ -348,6 +353,44 @@
 <script src="${pageContext.request.contextPath}/assets/js/ProductCards.js"></script>
 
 <script>
+    function toggleFavoriteCardAjax(event, pid, btn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        fetch('${pageContext.request.contextPath}/toggle-favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'pid=' + pid
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
+                    window.location.href = "${pageContext.request.contextPath}/login.jsp";
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+                const countHeader = document.getElementById("favCountHeader");
+                let currentCount = parseInt(countHeader.innerText) || 0;
+
+                if (data === "added") {
+                    btn.classList.add("active");
+                    btn.style.color = "#d0011b";
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    if(countHeader) countHeader.innerText = currentCount + 1;
+                } else if (data === "removed") {
+                    btn.classList.remove("active");
+                    btn.style.color = "#ccc";
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    if(countHeader) countHeader.innerText = Math.max(0, currentCount - 1);
+                }
+            })
+            .catch(err => console.error("Có lỗi xảy ra: ", err));
+    }
+
     var featuredSwiper = new Swiper(".productSwiper", {
         slidesPerView: 2,
         spaceBetween: 15,
