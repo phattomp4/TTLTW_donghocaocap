@@ -87,4 +87,21 @@ public class FavoriteDAO {
         }
         return 0;
     }
+
+    public java.util.List<Integer> getFavoriteProductIds(int userId) {
+        java.util.List<Integer> list = new java.util.ArrayList<>();
+        String sql = "SELECT ProductID FROM Favorites WHERE UserID = ?";
+        try (java.sql.Connection conn = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext().getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(rs.getInt(1));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
