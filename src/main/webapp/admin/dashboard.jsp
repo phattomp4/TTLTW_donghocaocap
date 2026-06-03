@@ -13,17 +13,14 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f6f9; }
 
-        /* Sidebar giữ nguyên của bạn */
         .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; z-index: 10; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; font-weight: 800; }
         .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; transition: 0.2s; }
         .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 30px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
 
-        /* Content tinh chỉnh không gian */
         .content { margin-left: 250px; padding: 25px; width: calc(100% - 250px); box-sizing: border-box; }
 
-        /* --- THANH BỘ LỌC VÀ TIÊU ĐỀ --- */
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .filter-group { display: flex; gap: 10px; align-items: center; }
         .btn-filter { padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; text-decoration: none; color: #555; font-size: 14px; font-weight: 500; transition: 0.2s; }
@@ -31,30 +28,25 @@
         .btn-export { padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 14px; transition: 0.2s; }
         .btn-export:hover { background: #218838; }
 
-        /* --- HỆ THỐNG THẺ CHỈ SỐ LỚN (GRID 4 CỘT) --- */
         .card-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #d0011b; position: relative; overflow: hidden; }
         .card h3 { margin: 0; color: #777; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
         .card p { font-size: 26px; font-weight: 800; margin: 12px 0 0; color: #333; }
         .card .card-icon { position: absolute; right: 15px; bottom: 15px; font-size: 32px; color: rgba(0,0,0,0.05); }
 
-        /* --- HỆ THỐNG KHU VỰC BIỂU ĐỒ (GRID 2 CỘT 7:3) --- */
         .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
         .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .chart-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 
-        /* --- HỆ THỐNG KHU VỰC BẢNG SỐ LIỆU --- */
         .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .table-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #333; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 
-        /* Style bảng chuẩn Admin */
         .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
         .admin-table th { background: #f8f9fa; padding: 12px 10px; color: #555; font-weight: 600; border-bottom: 2px solid #eee; }
         .admin-table td { padding: 12px 10px; border-bottom: 1px solid #eee; color: #444; vertical-align: middle; }
         .admin-table tr:hover { background-color: #fcfcfc; }
 
-        /* Badges trạng thái */
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
         .badge-pending { background: #fff3cd; color: #856404; }
         .badge-processing { background: #cce5ff; color: #004085; }
@@ -86,6 +78,14 @@
 </div>
 
 <div class="content">
+
+    <div id="chartDataBridge"
+         data-line-labels="<c:out value='${chartLabels}' />"
+         data-line-data="<c:out value='${chartData}' />"
+         data-brand-labels="<c:out value='${brandLabels}' />"
+         data-brand-data="<c:out value='${brandData}' />"
+         style="display: none;">
+    </div>
 
     <div class="dashboard-header">
         <h2 style="border-left: 5px solid #1b6e76; padding-left: 15px; color: #333; margin: 0; font-size: 24px;">Tổng quan hệ thống</h2>
@@ -174,8 +174,8 @@
                 <c:forEach items="${recentOrders}" var="o">
                     <tr>
                         <td><b>#${o.orderId}</b></td>
-                        <td>${o.customerName}</td>
-                        <td><fmt:formatNumber value="${o.totalMoney}" type="currency" currencySymbol="₫"/></td>
+                        <td>${o.transactionId}</td>
+                        <td><fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/></td>
                         <td>
                             <c:choose>
                                 <c:when test="${o.status == 'Pending'}"><span class="badge badge-pending">Chờ Duyệt</span></c:when>
@@ -217,11 +217,11 @@
                             <b style="color: ${status.index == 0 ? '#daa51e' : '#666'}; font-size: 16px;">${status.index + 1}</b>
                         </td>
                         <td>
-                                <span style="display: block; font-weight: 500; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${w.name}">
-                                        ${w.name}
-                                </span>
+                            <span style="display: block; font-weight: 500; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${w.name}">
+                                    ${w.name}
+                            </span>
                         </td>
-                        <td><span style="color: #1b6e76; font-weight: 500;">${w.brandName}</span></td>
+                        <td><span style="color: #1b6e76; font-weight: 500;">${w.description}</span></td>
                         <td style="text-align: center;"><b>${w.soldQuantity}</b> chiếc</td>
                         <td style="text-align: center;">
                             <c:choose>
@@ -246,16 +246,28 @@
 </div>
 
 <script>
-    // --- 1. BIỂU ĐỒ ĐƯỜNG (XU HƯỚNG DOANH THU) ---
-    // Backend truyền chuỗi nhãn (ví dụ: 'Tháng 1, Tháng 2...') và mảng dữ liệu (ví dụ: 120000000, 150000000...) vào đây
+    const dataBridge = document.getElementById('chartDataBridge');
+
+    const rawLineLabels = dataBridge.getAttribute('data-line-labels');
+    const lineLabelsArr = rawLineLabels && rawLineLabels.trim() !== "" ? rawLineLabels.split(',') : [];
+
+    const rawLineData = dataBridge.getAttribute('data-line-data');
+    const lineDataArr = rawLineData && rawLineData.trim() !== "" ? rawLineData.split(',').map(Number) : [];
+
+    const rawBrandLabels = dataBridge.getAttribute('data-brand-labels');
+    const brandLabelsArr = rawBrandLabels && rawBrandLabels.trim() !== "" ? rawBrandLabels.split(',') : [];
+
+    const rawBrandData = dataBridge.getAttribute('data-brand-data');
+    const brandDataArr = rawBrandData && rawBrandData.trim() !== "" ? rawBrandData.split(',').map(Number) : [];
+
     const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctxRevenue, {
         type: 'line',
         data: {
-            labels: [${chartLabels != null ? chartLabels : "'Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6'" }],
+            labels: lineLabelsArr,
             datasets: [{
                 label: 'Doanh thu tiêu thụ (đ)',
-                data: [${chartData != null ? chartData : "45000000, 68000000, 52000000, 89000000, 110000000, 95000000"}],
+                data: lineDataArr,
                 borderColor: '#1b6e76',
                 backgroundColor: 'rgba(27, 110, 118, 0.08)',
                 borderWidth: 3,
@@ -275,15 +287,14 @@
         }
     });
 
-    // --- 2. BIỂU ĐỒ TRÒN (TỶ TRỌNG LỢI NHUẬN THƯƠNG HIỆU) ---
     const ctxBrand = document.getElementById('brandPieChart').getContext('2d');
     new Chart(ctxBrand, {
-        type: 'doughnut', // Kiểu bánh đúc hiện đại hơn hình tròn khối đặc
+        type: 'doughnut',
         data: {
-            labels: [${brandLabels != null ? brandLabels : "'Rolex', 'Casio', 'Seiko', 'Tissot', 'Khác'"}],
+            labels: brandLabelsArr,
             datasets: [{
-                data: [${brandData != null ? brandData : "40, 20, 15, 15, 10"}],
-                backgroundColor: ['#d0011b', '#17a2b8', '#daa51e', '#28a745', '#6c757d'],
+                data: brandDataArr,
+                backgroundColor: ['#d0011b', '#17a2b8', '#daa51e', '#28a745', '#6c757d', '#8e44ad', '#f39c12'],
                 borderWidth: 2,
                 hoverOffset: 6
             }]

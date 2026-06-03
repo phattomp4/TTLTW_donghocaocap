@@ -47,7 +47,6 @@ public class AdminDashboardServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
-
         String period = request.getParameter("period");
         if (period == null || period.trim().isEmpty()) {
             period = "month";
@@ -65,7 +64,6 @@ public class AdminDashboardServlet extends HttpServlet {
         List<Order> recentOrders = statDao.getRecentOrders(5);
         List<Product> topSellingWatches = statDao.getTopSellingProducts(5);
 
-
         Map<String, Double> revenueChartData = statDao.getRevenueTimelineData(period);
         StringBuilder chartLabels = new StringBuilder();
         StringBuilder chartData = new StringBuilder();
@@ -79,6 +77,8 @@ public class AdminDashboardServlet extends HttpServlet {
             chartData.append(entry.getValue());
             index++;
         }
+        String finalChartLabels = chartLabels.toString().isEmpty() ? "'Chưa có dữ liệu'" : chartLabels.toString();
+        String finalChartData = chartData.toString().isEmpty() ? "0" : chartData.toString();
 
         Map<String, Double> brandChartData = statDao.getBrandRevenueShare();
         StringBuilder brandLabels = new StringBuilder();
@@ -94,6 +94,10 @@ public class AdminDashboardServlet extends HttpServlet {
             index++;
         }
 
+        String finalBrandLabels = brandLabels.toString().isEmpty() ? "'Chưa có dữ liệu'" : brandLabels.toString();
+        String finalBrandData = brandData.toString().isEmpty() ? "0" : brandData.toString();
+
+
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("totalUsers", totalUsers);
@@ -105,10 +109,10 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("recentOrders", recentOrders);
         request.setAttribute("topSellingWatches", topSellingWatches);
 
-        request.setAttribute("chartLabels", chartLabels.toString());
-        request.setAttribute("chartData", chartData.toString());
-        request.setAttribute("brandLabels", brandLabels.toString());
-        request.setAttribute("brandData", brandData.toString());
+        request.setAttribute("chartLabels", finalChartLabels);
+        request.setAttribute("chartData", finalChartData);
+        request.setAttribute("brandLabels", finalBrandLabels);
+        request.setAttribute("brandData", finalBrandData);
 
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }
