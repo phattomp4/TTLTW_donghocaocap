@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+
 <style>
     .profile-dropdown {
         position: relative;
@@ -213,7 +215,7 @@
                         <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
 
                         <span class="cart-count" id="cartCountHeader" style="position: absolute; top: -8px; right: -12px; background: #d0011b; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
-                            ${sessionScope.cartCount != null ? sessionScope.cartCount : 0}
+                            ${sessionScope.cart != null ? fn:length(sessionScope.cart) : 0}
                         </span>
                     </a>
                 </div>
