@@ -8,8 +8,10 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -72,7 +74,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (user == null) {
-            out.write("ERROR|Tài khoản hoặc mật khẩu không chính xác!");
+            out.write("ERROR|Tài khoản không tồn tại!");
             return;
         }
 
@@ -89,8 +91,14 @@ public class LoginServlet extends HttpServlet {
             session.removeAttribute("lockTime");
             session.setAttribute("acc", user);
 
+
             FavoriteDAO favDao = new FavoriteDAO();
-            session.setAttribute("favCount", favDao.countFavorites(user.getId()));
+            java.util.List<Integer> favIds = favDao.getFavoriteProductIds(user.getId());
+            session.setAttribute("favoriteProductIds", favIds);
+            session.setAttribute("favCount", favIds.size());
+
+            session.setAttribute("cart", new ArrayList<>());
+            session.setAttribute("cartCount", 0);
 
             if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
@@ -102,21 +110,9 @@ public class LoginServlet extends HttpServlet {
             }
 
             String redirectUrl = (String) session.getAttribute("redirect_url");
-            String target = "";
+            String target = (redirectUrl != null) ? redirectUrl : "home";
+            if (redirectUrl != null) session.removeAttribute("redirect_url");
 
-            if (redirectUrl != null && !redirectUrl.trim().isEmpty()
-                    && !redirectUrl.contains("login")
-                    && !redirectUrl.contains("register")
-                    && redirectUrl.startsWith("http")) {
-                target = redirectUrl;
-                session.removeAttribute("redirect_url");
-            } else {
-                if (user.getRole() != null && "Admin".equalsIgnoreCase(user.getRole())) {
-                    target = request.getContextPath() + "/admin/dashboard";
-                } else {
-                    target = request.getContextPath() + "/home";
-                }
-            }
             out.write("SUCCESS|" + target);
         } else {
             Integer failedCount = (Integer) session.getAttribute("failedAttempts");
@@ -130,7 +126,7 @@ public class LoginServlet extends HttpServlet {
                 errorMsg = "Sai quá 5 lần. Tài khoản bị khóa 15 phút.";
                 out.write("ERROR|" + errorMsg);
             } else {
-                errorMsg = "Mật khẩu không chính xác! Bạn còn " + (5 - failedCount) + " lần thử.";
+                errorMsg = "Sai mật khẩu! Bạn còn " + (5 - failedCount) + " lần thử.";
                 out.write("ERROR|" + errorMsg);
             }
             session.setAttribute("mess", errorMsg);
@@ -154,36 +150,40 @@ public class LoginServlet extends HttpServlet {
                         existingUser = dao.checkEmailExist(googleAcc.getEmail());
                     }
                     session.setAttribute("acc", existingUser);
-                    session.setAttribute("favCount", favDao.countFavorites(existingUser.getId()));
+
+
+                    java.util.List<Integer> favIds = favDao.getFavoriteProductIds(existingUser.getId());
+                    session.setAttribute("favoriteProductIds", favIds);
+                    session.setAttribute("favCount", favIds.size());
+
+                    session.setAttribute("cart", new ArrayList<>());
+                    session.setAttribute("cartCount", 0);
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
-                    if (redirectUrl != null && !redirectUrl.contains("login") && !redirectUrl.contains("register") && redirectUrl.startsWith("http")) {
-                        session.removeAttribute("redirect_url");
-                        response.sendRedirect(redirectUrl);
-                    } else {
-                        response.sendRedirect(request.getContextPath() + "/home");
-                    }
+                    response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
                 } else {
-                    User googleUser = new User();
-                    googleUser.setEmail(googleAcc.getEmail());
-                    googleUser.setFullName(googleAcc.getName());
-                    googleUser.setAvatar(googleAcc.getPicture());
-
-                    dao.insertGoogleUser(googleUser);
+                    String autoUsername = googleAcc.getEmail().substring(0, googleAcc.getEmail().indexOf("@"));
+                    String randomPassword = java.util.UUID.randomUUID().toString();
+                    String googleToken = "GOOGLE_" + java.util.UUID.randomUUID().toString();
+                    dao.signup(autoUsername, randomPassword, googleAcc.getName(), googleAcc.getEmail(), "", googleToken);
+                    dao.activateAccount(googleToken);
 
                     User newUser = dao.checkEmailExist(googleAcc.getEmail());
-                    if (newUser != null) {
-                        session.setAttribute("acc", newUser);
-                        session.setAttribute("favCount", favDao.countFavorites(newUser.getId()));
-                    }
+                    session.setAttribute("acc", newUser);
 
-                    response.sendRedirect(request.getContextPath() + "/home");
+                    java.util.List<Integer> favIds = favDao.getFavoriteProductIds(newUser.getId());
+                    session.setAttribute("favoriteProductIds", favIds);
+                    session.setAttribute("favCount", favIds.size());
+
+                    session.setAttribute("cart", new ArrayList<>());
+                    session.setAttribute("cartCount", 0);
+
+                    response.sendRedirect("home");
                 }
             }
         } catch (Exception e) {
-            System.out.println(">>> LỖI XỬ LÝ ĐĂNG NHẬP GOOGLE TẠI SERVLET:");
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect("login");
         }
     }
 }

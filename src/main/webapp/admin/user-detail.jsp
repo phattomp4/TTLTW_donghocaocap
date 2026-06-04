@@ -84,7 +84,7 @@
         <div class="stat-card">
             <h4>Tổng chi tiêu</h4>
             <div class="value" style="color: #d0011b;">
-                <fmt:formatNumber value="${stats.totalSpent}" type="currency" currencySymbol="₫"/>
+                <fmt:formatNumber value="${stats.totalSpent}" pattern="#,##0 ₫"/>
             </div>
             <div class="footer">Chỉ tính đơn Hoàn thành</div>
         </div>
@@ -166,7 +166,7 @@
                             <td><strong>#${o.orderId}</strong></td>
                             <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy"/></td>
                             <td style="color: #d0011b; font-weight: bold;">
-                                <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
+                                <fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/>
                             </td>
                             <td>
                                 <span class="status-badge status-${o.status}">${o.status}</span>

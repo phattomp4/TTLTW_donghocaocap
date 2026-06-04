@@ -31,6 +31,7 @@ public class AutoLoginFilter implements Filter {
         String pathInsideApp = requestURI.substring(contextPath.length());
 
         User user = (User) session.getAttribute("acc");
+
         if (user == null) {
             Cookie[] cookies = req.getCookies();
             String token = null;
@@ -44,13 +45,33 @@ public class AutoLoginFilter implements Filter {
             }
             if (token != null) {
                 UserDAO dao = new UserDAO();
-                User userRemember = dao.getUserByToken(token);
-                if (userRemember != null) {
-                    session.setAttribute("acc", userRemember);
-                    FavoriteDAO favDao = new FavoriteDAO();
-                    int favCount = favDao.countFavorites(userRemember.getId());
-                    session.setAttribute("favCount", favCount);
+                user = dao.getUserByToken(token);
+                if (user != null) {
+                    session.setAttribute("acc", user);
                 }
+            }
+        }
+
+        if (user != null) {
+            if (session.getAttribute("favoriteProductIds") == null || session.getAttribute("favCount") == null) {
+                FavoriteDAO favDao = new FavoriteDAO();
+                java.util.List<Integer> favIds = favDao.getFavoriteProductIds(user.getId());
+
+                session.setAttribute("favoriteProductIds", favIds);
+                session.setAttribute("favCount", favIds.size());
+            }
+
+            if (session.getAttribute("cartCount") == null) {
+                vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO cartDao = new vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO();
+                java.util.List<vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem> cart = cartDao.getCartByUserId(user.getId());
+                int totalCartCount = 0;
+                if (cart != null) {
+                    for (vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem item : cart) {
+                        totalCartCount += item.getQuantity();
+                    }
+                }
+                session.setAttribute("cart", cart);
+                session.setAttribute("cartCount", totalCartCount);
             }
         }
 

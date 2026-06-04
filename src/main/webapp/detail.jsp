@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="WEB-INF/tags/header.jsp"></jsp:include>
 <c:set var="pName" value="${fn:toLowerCase(p.name)}" />
 <c:set var="isAccessory" value="${fn:contains(pName, 'dây') or fn:contains(pName, 'hộp') or fn:contains(pName, 'khóa') or fn:contains(pName, 'phụ kiện')}" />
@@ -55,8 +55,8 @@
         <p style="color: #666;">Mã SP: <strong>${p.sku}</strong> | Tình trạng: <strong>${p.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}</strong></p>
 
         <div class="price-box" style="margin: 20px 0;">
-            <span style="color: #d0011b; font-size: 28px; font-weight: bold;"><fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫"/></span>
-            <span style="text-decoration: line-through; color: #888; margin-left: 15px;"><fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫"/></span>
+            <span style="color: #d0011b; font-size: 28px; font-weight: bold;"><fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/></span>
+            <span style="text-decoration: line-through; color: #888; margin-left: 15px;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/></span>
         </div>
 
         <div class="specs-table" style="margin-top: 40px;">
@@ -317,7 +317,13 @@
 
         fetch('${pageContext.request.contextPath}/add-to-cart?pid=' + pid + '&quantity=' + qty + '&ajax=true')
             .then(response => {
-                if (!response.ok) throw new Error("Lỗi Server");
+                if (response.redirected && response.url.includes("login")) {
+                    window.location.href = "login";
+                    throw new Error("unauthorized");
+                }
+                if (!response.ok) {
+                    return response.text().then(errText => { throw new Error(errText); });
+                }
                 return response.text();
             })
             .then(data => {
@@ -328,7 +334,11 @@
                     setTimeout(function(){ toast.style.visibility = "hidden"; }, 3000);
                 }
             })
-            .catch(error => alert("Không thể thêm vào giỏ. Vui lòng kiểm tra Console."));
+            .catch(error => {
+                if (error.message !== "unauthorized") {
+                    alert(error.message);
+                }
+            });
     }
 
     function toggleFavoriteAjax(pid) {
@@ -349,6 +359,7 @@
                 const btn = document.getElementById("btnFavorite");
                 const text = document.getElementById("favText");
                 const countHeader = document.getElementById("favCountHeader");
+
                 let currentCount = parseInt(countHeader.innerText) || 0;
 
                 if (data === "added") {

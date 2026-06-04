@@ -55,7 +55,7 @@
 </head>
 <body>
 <jsp:include page="WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="layout-container">
 
     <div class="sidebar-filter">
@@ -134,9 +134,11 @@
             <c:forEach items="${listProduct}" var="p">
                 <div class="col-lg-3 col-md-4 col-6">
                     <div class="card h-100 shadow-sm border-0 rounded-3 position-relative">
-                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
-                            <i class="fa-solid fa-heart"></i>
+                        <c:set var="isFav" value="${sessionScope.favoriteProductIds != null && sessionScope.favoriteProductIds.contains(p.id)}" />
+                        <button onclick="toggleFavoriteCardAjax(event, ${p.id}, this)" class="${isFav ? 'active' : ''}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: ${isFav ? '#d0011b' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; transition: 0.3s;" onmouseover="this.style.color='#d0011b'" onmouseout="if(!this.classList.contains('active')) this.style.color='#ccc'">
+                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                         </button>
+
                         <a href="${pageContext.request.contextPath}/detail?pid=${p.id}" class="text-center p-3">
                             <img src="${p.imageUrl}" class="card-img-top img-fluid" alt="${p.name}" style="height: 180px; object-fit: contain;">
                         </a>
@@ -149,12 +151,12 @@
 
                             <div class="mt-auto">
                                 <p class="text-danger fw-bold mb-1" style="font-size: 17px;">
-                                    <fmt:formatNumber value="${p.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                    <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/>
                                 </p>
 
                                 <c:if test="${p.originalPrice > p.currentPrice}">
                                     <p class="text-muted text-decoration-line-through mb-1" style="font-size: 13px;">
-                                        <fmt:formatNumber value="${p.originalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                        <fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/>
                                     </p>
                                 </c:if>
 
@@ -212,6 +214,44 @@
     function goToPage(pageNumber) {
         document.getElementById('pageInput').value = pageNumber;
         document.getElementById('filterForm').submit();
+    }
+
+    function toggleFavoriteCardAjax(event, pid, btn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        fetch('${pageContext.request.contextPath}/toggle-favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'pid=' + pid
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
+                    window.location.href = "${pageContext.request.contextPath}/login.jsp";
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+                const countHeader = document.getElementById("favCountHeader");
+                let currentCount = parseInt(countHeader.innerText) || 0;
+
+                if (data === "added") {
+                    btn.classList.add("active");
+                    btn.style.color = "#d0011b";
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    if(countHeader) countHeader.innerText = currentCount + 1;
+                } else if (data === "removed") {
+                    btn.classList.remove("active");
+                    btn.style.color = "#ccc";
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    if(countHeader) countHeader.innerText = Math.max(0, currentCount - 1);
+                }
+            })
+            .catch(err => console.error("Có lỗi xảy ra: ", err));
     }
 </script>
 </body>

@@ -5,6 +5,8 @@ import jakarta.servlet.http.*;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.FavoriteDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 
 @WebServlet("/toggle-favorite")
 public class ToggleFavoriteServlet extends HttpServlet {
@@ -23,17 +25,23 @@ public class ToggleFavoriteServlet extends HttpServlet {
 
         boolean isAdded = dao.toggleFavorite(user.getId(), pid);
 
-        Integer favCount = (Integer) session.getAttribute("favCount");
-        if (favCount == null) {
-            favCount = dao.getFavoriteProducts(user.getId()).size();
-        } else {
-            if (isAdded) {
-                favCount++;
-            } else {
-                favCount = Math.max(0, favCount - 1);
-            }
+        List<Integer> favIds = (List<Integer>) session.getAttribute("favoriteProductIds");
+
+        if (favIds == null) {
+            favIds = dao.getFavoriteProductIds(user.getId());
+            if (favIds == null) favIds = new ArrayList<>();
         }
-        session.setAttribute("favCount", favCount);
+
+        if (isAdded) {
+            if (!favIds.contains(pid)) {
+                favIds.add(pid);
+            }
+        } else {
+            favIds.remove(Integer.valueOf(pid));
+        }
+
+        session.setAttribute("favoriteProductIds", favIds);
+        session.setAttribute("favCount", favIds.size());
 
         response.getWriter().write(isAdded ? "added" : "removed");
     }

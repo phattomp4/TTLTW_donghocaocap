@@ -51,11 +51,14 @@
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
-    <a href="product-manager" ><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
+    <a href="dashboard" ><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
+    <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
+    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
     <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
-    <a href="category-manager" class="active"><i class="fa-solid fa-list"></i> Danh mục & Menu</a>
+    <a href="category-manager"  class="active"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
+    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
@@ -85,7 +88,7 @@
 
             <div class="form-group">
                 <label>Thứ tự (Vị trí):</label>
-                <input type="number" name="sortOrder" id="catSortOrder" class="form-control" value="0" style="min-width: 80px;">
+                <input type="number" name="sortOrder" id="catSortOrder" class="form-control" value="1" min="1" style="min-width: 80px;">
             </div>
 
             <div class="form-group">
@@ -144,10 +147,6 @@
                         <button class="btn btn-edit" onclick="editCategory('${c.id}', '${c.name}', '${c.parentId}', '${c.sortOrder}', ${c.active})">
                             <i class="fa-solid fa-pen"></i>
                         </button>
-
-                        <a href="category-manager?action=delete&id=${c.id}" class="btn btn-delete" onclick="return confirm('Xóa danh mục này?')">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
                     </td>
                 </tr>
             </c:forEach>

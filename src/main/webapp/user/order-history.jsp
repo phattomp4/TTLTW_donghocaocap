@@ -131,7 +131,7 @@
 <body>
 
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="order-container">
     <h2 style="border-left: 5px solid #1b6e76; padding-left: 10px;">Lịch sử đơn hàng</h2>
     <div class="order-tabs">
@@ -167,7 +167,7 @@
                     <td><b>#${o.orderId}</b></td>
                     <td><fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫"/>
+                        <fmt:formatNumber value="${o.totalAmount}" pattern="#,##0 ₫"/>
                     </td>
 
                     <td>

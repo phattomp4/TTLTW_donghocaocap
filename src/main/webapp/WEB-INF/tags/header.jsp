@@ -2,35 +2,6 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <style>
-    .ul-header-action {
-        display: flex !important;
-        align-items: center !important;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        gap: 35px;
-    }
-
-    .ul-header-action li {
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-    }
-
-    .ul-header-action .header-action-item a,
-    .ul-header-action a.favorite-link-header {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        transform: translateY(2px) !important;
-    }
-
-    .ul-header-action .fa-cart-shopping,
-    .ul-header-action .fa-heart {
-        font-size: 22px !important;
-    }
-
     .profile-dropdown {
         position: relative;
         display: inline-block;
@@ -118,15 +89,13 @@
         to {opacity: 1; transform: translateY(0);}
     }
 </style>
-
 <header class="main-header">
-
+    <!--Logo-->
     <div class="logo-container-header">
-        <a href="${pageContext.request.contextPath}/home" class="logo-header">
-            <h1 class="logo-text" style="font-weight: 900; font-size: 35px;">VVP</h1>
+        <a href="${pageContext.request.contextPath}/home" class="logo-header"> <h1 class="logo-text" style="font-weight: 900; font-size: 35px;">VVP</h1>
         </a>
     </div>
-
+    <!--Links dieu huong-->
     <div class="nav-item">
         <nav class="main-nav">
             <ul>
@@ -155,6 +124,7 @@
                                 <h4 style="color: #1b6e76; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; text-transform: uppercase;">
                                     <i class="fa-solid fa-medal"></i> Thương Hiệu
                                 </h4>
+
                                 <ul style="list-style: none; padding: 0; columns: 3; -webkit-columns: 3; gap: 20px;">
                                     <c:forEach items="${menuBrands}" var="cat">
                                         <li style="margin-bottom: 10px;">
@@ -172,6 +142,7 @@
                                     <i class="fa-solid fa-gem"></i> Bộ Sưu Tập
                                 </h4>
                                 <ul style="list-style: none; padding: 0;">
+
                                     <c:forEach items="${menuCollections}" var="cat">
                                         <li style="margin-bottom: 10px;">
                                             <a href="${pageContext.request.contextPath}/category?type=collection&name=${cat.name}"
@@ -195,6 +166,7 @@
                     <div class="megamenu megamenu-phukien">
                         <div class="megamenu-column-phukien">
                             <ul style="list-style: none; padding: 0; margin: 0;">
+
                                 <c:forEach items="${menuAccessories}" var="cat">
                                     <li style="margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
                                         <a href="${pageContext.request.contextPath}/category?type=accessories&name=${cat.name}"
@@ -203,6 +175,7 @@
                                         </a>
                                     </li>
                                 </c:forEach>
+
                             </ul>
                         </div>
                     </div>
@@ -212,34 +185,42 @@
     </div>
 
     <div class="header-action">
-        <ul class="ul-header-action">
-
-            <li>
+        <ul class="ul-header-action" style="display: flex; align-items: center; list-style: none; margin: 0; padding: 0; gap: 20px;">
+            <li style="display: flex; align-items: center;">
                 <div class="search-bar" style="position: relative;">
+
                     <form action="${pageContext.request.contextPath}/category" method="GET" class="search-form">
                         <input type="hidden" name="type" value="search">
-                        <input type="text" name="keyword" oninput="searchByName(this)" placeholder="Tìm kiếm..." required autocomplete="off">
+
+                        <input type="text" name="keyword"
+                               oninput="searchByName(this, '${pageContext.request.contextPath}')"
+                               placeholder="Tìm kiếm..." required autocomplete="off">
+
                         <button type="submit" class="search-button">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </form>
-                    <div id="search-results" class="search-results-box"></div>
+
+                    <div id="search-results" class="search-results-box">
+                    </div>
+
                 </div>
             </li>
 
-            <li>
+            <li style="display: flex; align-items: center;">
                 <div class="header-action-item">
-                    <a href="${pageContext.request.contextPath}/cart" style="position: relative; text-decoration: none; color: inherit;">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="cart-count" id="cartCountHeader" style="position: absolute; top: -8px; right: -8px; background: #d0011b; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
+                    <a href="${pageContext.request.contextPath}/cart" style="position: relative; text-decoration: none; color: inherit; display: inline-flex; align-items: center;">
+                        <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
+
+                        <span class="cart-count" id="cartCountHeader" style="position: absolute; top: -8px; right: -12px; background: #d0011b; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
                             ${sessionScope.cartCount != null ? sessionScope.cartCount : 0}
                         </span>
                     </a>
                 </div>
             </li>
 
-            <li>
-                <a href="${pageContext.request.contextPath}/favorite-list" title="Sản phẩm yêu thích" class="favorite-link-header" style="color: #333; text-decoration: none; position: relative; transition: 0.2s;" onmouseover="this.style.color='#d0011b'" onmouseout="this.style.color='#333'">
+            <li style="display: flex; align-items: center;">
+                <a href="${pageContext.request.contextPath}/favorite-list" title="Sản phẩm yêu thích" style="color: #333; font-size: 22px; text-decoration: none; display: inline-flex; align-items: center; transition: 0.2s; position: relative;" onmouseover="this.style.color='#d0011b'" onmouseout="this.style.color='#333'">
                     <i class="fa-regular fa-heart"></i>
                     <span class="fav-count" id="favCountHeader" style="position: absolute; top: -8px; right: -12px; background: #d0011b; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%;">
                         ${sessionScope.favCount != null ? sessionScope.favCount : 0}
@@ -247,7 +228,7 @@
                 </a>
             </li>
 
-            <li>
+            <li style="display: flex; align-items: center;">
                 <c:if test="${sessionScope.acc == null}">
                     <div class="container-button-login" style="text-align:center">
                         <a href="${pageContext.request.contextPath}/login.jsp" class="button button-login">
@@ -258,7 +239,7 @@
 
                 <c:if test="${sessionScope.acc != null}">
                     <div class="profile-dropdown">
-                        <button id="profile-btn" class="profile-avatar-btn" onclick="toggleProfileMenu(event)">
+                        <button id="avatar-btn-vvp" class="profile-avatar-btn" onclick="toggleProfileMenu(event)">
                             <img src="${not empty sessionScope.acc.avatar ? sessionScope.acc.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="Avatar">
                         </button>
 
@@ -269,19 +250,25 @@
                             </div>
 
                             <c:choose>
+
+                                <%-- TRƯỜNG HỢP LÀ ADMIN --%>
                                 <c:when test="${sessionScope.acc.role == 'Admin'}">
                                     <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #d0011b; font-weight: bold; background-color: #fff5f5;">
                                         <i class="fa-solid fa-screwdriver-wrench"></i> Trang Quản Trị
                                     </a>
                                 </c:when>
+
+                                <%-- TRƯỜNG HỢP LÀ USER THƯỜNG--%>
                                 <c:otherwise>
                                     <a href="${pageContext.request.contextPath}/profile">
                                         <i class="fa-regular fa-user"></i> Hồ sơ cá nhân
                                     </a>
+
                                     <a href="${pageContext.request.contextPath}/order-history" class="btn-history">
                                         <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử đơn hàng
                                     </a>
                                 </c:otherwise>
+
                             </c:choose>
 
                             <div class="divider"></div>
@@ -298,23 +285,21 @@
 
     <script>
         function toggleProfileMenu(event) {
+            event.preventDefault();
             event.stopPropagation();
             var menu = document.getElementById("profile-menu");
             if (menu) {
                 menu.classList.toggle("show");
             }
         }
-
-        window.onclick = function(event) {
-            if (!event.target.closest('.profile-avatar-btn')) {
-                var dropdowns = document.getElementsByClassName("dropdown-menu");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+        document.addEventListener("click", function(event) {
+            var menu = document.getElementById("profile-menu");
+            var btn = document.querySelector(".profile-avatar-btn");
+            if (menu && menu.classList.contains('show')) {
+                if (!menu.contains(event.target) && btn && !btn.contains(event.target)) {
+                    menu.classList.remove('show');
                 }
             }
-        }
+        });
     </script>
 </header>

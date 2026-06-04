@@ -15,7 +15,7 @@
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="profile-container" style="margin-top: 5px;">
     <div class="profile-sidebar">
         <div class="user-brief">

@@ -207,7 +207,7 @@
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <div class="detail-container">
     <a href="order-history" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Trở về lịch sử</a>
 
@@ -228,19 +228,19 @@
                     <div class="timeline-bar" style="width: ${progress}%;"></div>
                 </div>
 
-                <div class="step ${progress >= 0 ? 'active' : ''}">
+                <div class="step ${progress >= 0.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-clipboard-list"></i></div>
                     <p>Đã đặt hàng</p>
                 </div>
-                <div class="step ${progress >= 33 ? 'active' : ''}">
+                <div class="step ${progress >= 33.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-box-open"></i></div>
                     <p>Đã xác nhận</p>
                 </div>
-                <div class="step ${progress >= 66 ? 'active' : ''}">
+                <div class="step ${progress >= 66.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-truck-fast"></i></div>
                     <p>Đang giao</p>
                 </div>
-                <div class="step ${progress == 100 ? 'active' : ''}">
+                <div class="step ${progress == 100.0 ? 'active' : ''}">
                     <div class="circle"><i class="fa-solid fa-house-circle-check"></i></div>
                     <p>Hoàn thành</p>
                 </div>
@@ -259,7 +259,7 @@
             <h4><i class="fa-solid fa-location-dot"></i> Địa chỉ nhận hàng</h4>
             <p><b>${address.name}</b></p>
             <p><i class="fa-solid fa-phone" style="font-size: 12px; width: 15px;"></i> ${address.phone}</p>
-            <p><i class="fa-solid fa-map" style="font-size: 12px; width: 15px;"></i> ${address.address} <c:if test="${not empty address.city}"> - ${address.city}</c:if></p>
+            <p><i class="fa-solid fa-map" style="font-size: 12px; width: 15px;"></i> ${address.streetDetail}, ${address.ward}, ${address.district}, ${address.province}</p>
         </div>
 
         <div class="info-card">
@@ -302,7 +302,7 @@
                         <b style="font-size: 16px;">${d.product.name}</b>
                         <p style="margin: 5px 0; color: #777; font-size: 13px;">Số lượng: x${d.quantity}</p>
                         <div style="font-weight: bold; color: #d0011b;">
-                            <fmt:formatNumber value="${d.priceAtPurchase}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${d.priceAtPurchase}" pattern="#,##0 ₫"/>
                         </div>
                     </div>
                 </div>
@@ -318,12 +318,12 @@
     </div>
 
     <div style="text-align: right; background: #fdfdfd; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-        <p>Tạm tính: <fmt:formatNumber value="${order.totalAmount + order.discountAmount}" type="currency" currencySymbol="₫"/></p>
+        <p>Tạm tính: <fmt:formatNumber value="${order.totalAmount + order.discountAmount}" pattern="#,##0 ₫"/></p>
         <c:if test="${order.discountAmount > 0}">
-            <p>Giảm giá voucher: <span style="color: green;">-<fmt:formatNumber value="${order.discountAmount}" type="currency" currencySymbol="₫"/></span></p>
+            <p>Giảm giá voucher: <span style="color: green;">-<fmt:formatNumber value="${order.discountAmount}" pattern="#,##0 ₫"/></span></p>
         </c:if>
         <h3 style="color: #d0011b; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 10px;">
-            Tổng thanh toán: <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
+            Tổng thanh toán: <fmt:formatNumber value="${order.totalAmount}" pattern="#,##0 ₫"/>
         </h3>
     </div>
 </div>

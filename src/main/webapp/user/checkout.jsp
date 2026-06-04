@@ -14,9 +14,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-
 <body>
-
+<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
 <jsp:include page="../WEB-INF/tags/header.jsp"/>
 
 <div class="container" style="max-width: 1200px; margin: 0 auto; padding-top: 150px;">
@@ -169,9 +168,9 @@
                     <label for="vnpay"
                            style="display: flex; align-items: center; cursor: pointer; width: 100%;">
 
-                        <img src="https://sandbox.vnpayment.vn/paymentv2/Images/cart/vnpay_logo.png"
-                             style="width: 70px; margin-right: 15px;"
-                             alt="VNPAY">
+                        <img src="${pageContext.request.contextPath}/assets/img/banners/vnPay.png"
+                                style="width: 70px; margin-right: 15px;"
+                                alt="VNPAY">
 
                         <div>
                             <div style="font-weight: bold;">
@@ -199,7 +198,7 @@
                     <label for="momo"
                            style="display: flex; align-items: center; width: 100%;">
 
-                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+                        <img src="${pageContext.request.contextPath}/assets/img/banners/momo.png"
                              style="width: 40px; margin-right: 15px;"
                              alt="MoMo">
 
@@ -255,7 +254,7 @@
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Tạm tính</span>
                         <span>
-                            <fmt:formatNumber value="${totalMoney}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${totalMoney}" pattern="#,##0 ₫"/>
                         </span>
                     </div>
 
@@ -263,7 +262,7 @@
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                             <span>Giảm giá</span>
                             <span style="color: green;">
-                                - <fmt:formatNumber value="${discount}" type="currency" currencySymbol="₫"/>
+                                - <fmt:formatNumber value="${discount}" pattern="#,##0 ₫"/>
                             </span>
                         </div>
                     </c:if>
@@ -276,7 +275,7 @@
                     <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 18px; font-weight: bold; color: #d0011b;">
                         <span>Tổng cộng</span>
                         <span>
-                            <fmt:formatNumber value="${finalTotal}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${finalTotal}" pattern="#,##0 ₫"/>
                         </span>
                     </div>
 
@@ -337,57 +336,33 @@
                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
             </div>
 
-            <div class="form-row"
-                 style="display: flex; gap: 15px; margin-bottom: 15px;">
-
+            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
                 <div class="form-col" style="flex: 1;">
-
                     <label style="display: block; font-weight: 600; margin-bottom: 5px;">
                         Tỉnh/Thành phố:
                     </label>
-
-                    <input type="text"
-                           name="provinceName"
-                           required
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <select id="province" name="provinceName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                        <option value="">Chọn Tỉnh/Thành</option>
+                    </select>
                 </div>
 
                 <div class="form-col" style="flex: 1;">
-
                     <label style="display: block; font-weight: 600; margin-bottom: 5px;">
                         Quận/Huyện:
                     </label>
-
-                    <input type="text"
-                           name="districtName"
-                           required
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <select id="district" name="districtName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                        <option value="">Chọn Quận/Huyện</option>
+                    </select>
                 </div>
-
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-
                 <label style="display: block; font-weight: 600; margin-bottom: 5px;">
                     Phường/Xã:
                 </label>
-
-                <input type="text"
-                       name="wardName"
-                       required
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 20px;">
-
-                <label style="display: block; font-weight: 600; margin-bottom: 5px;">
-                    Số nhà, tên đường:
-                </label>
-
-                <input type="text"
-                       name="streetDetail"
-                       required
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                <select id="ward" name="wardName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                    <option value="">Chọn Phường/Xã</option>
+                </select>
             </div>
 
             <div class="modal-footer"
@@ -427,6 +402,7 @@
         document.getElementById(id).checked = true;
     }
 </script>
+<script src="${pageContext.request.contextPath}/assets/js/addressesProfile.js"></script>
 
 </body>
 </html>

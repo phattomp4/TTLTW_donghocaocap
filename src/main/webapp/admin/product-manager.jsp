@@ -52,10 +52,6 @@
         th { background: #343a40; color: white; text-transform: uppercase; font-size: 14px; }
         tr:hover { background-color: #f9f9f9; }
 
-        /* Style CSS bổ sung cho dòng sản phẩm bị ẩn */
-        tr.product-hidden { background-color: #fafafa; opacity: 0.65; }
-        tr.product-hidden:hover { background-color: #f2f2f2; }
-
         .prod-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
 
         .btn-action { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-right: 5px; display: inline-block; border: none; cursor: pointer; transition: 0.2s;}
@@ -68,88 +64,26 @@
         .btn-feature:hover { background: #ffc107; color: white; }
         .btn-feature.active { background: #ffc107; color: white; box-shadow: inset 0 3px 5px rgba(0,0,0,0.125); border-color: #ffb300; }
 
-        /* Style CSS mới cho nút Ẩn/Hiện sản phẩm */
-        .btn-status-toggle { background: #e2e3e5; color: #383d41; }
-        .btn-status-toggle.active { background: #d4edda; color: #155724; }
-        .btn-status-toggle:hover { background: #343a40; color: white; }
-
-        .page-link {
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            color: #333;
-            border-radius: 4px;
-            transition: all 0.3s;
-            background: white;
-            font-weight: 500;
-        }
-        .page-link.active {
-            background-color: #1b6e76;
-            color: white;
-            border-color: #1b6e76;
-        }
-        .page-link:hover:not(.active) {
-            background-color: #f1f1f1;
-            border-color: #ccc;
-        }
-
         .toast-msg {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0;
         }
         .toast-msg.show { visibility: visible; opacity: 1; }
         .toast-msg.success { background-color: #28a745; }
         .toast-msg.error { background-color: #dc3545; }
-
-        tr.product-hidden { background-color: #fafafa; opacity: 0.65; }
-        tr.product-hidden:hover { background-color: #f2f2f2; }
-
-        .filter-select {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            outline: none;
-            background: white;
-            font-size: 14px;
-            color: #333;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .filter-select:focus { border-color: #1b6e76; }
-
-        .btn-status-toggle { background: #e2e3e5; color: #383d41; }
-        .btn-status-toggle.active { background: #d4edda; color: #155724; }
-        .btn-status-toggle:hover { background: #343a40; color: white; }
-
-        tr.stock-warning {
-            background-color: #fff0f0 !important;
-        }
-        tr.stock-warning:hover {
-            background-color: #ffe3e3 !important;
-        }
-
-        .badge-danger {
-            background-color: #dc3545;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 11px;
-            margin-left: 5px;
-            font-weight: bold;
-            display: inline-block;
-        }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="dashboard" ><i class="fa-solid fa-gauge"></i> Tổng quan</a>
     <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager" class="active"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
     <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
     <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
     <a href="category-manager"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
+    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
@@ -178,29 +112,24 @@
                 <th>Giá bán</th>
                 <th>Kho</th>
                 <th>Đã bán</th>
-                <th style="text-align: center; width: 220px;">Hành động</th>
+                <th style="text-align: center; width: 180px;">Hành động</th>
             </tr>
             </thead>
             <tbody>
             <c:if test="${empty listProducts}">
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #777;">
-                        <i class="fa-solid fa-box-open" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
-                        Không tìm thấy sản phẩm nào phù hợp.
+                    <td colspan="8" style="text-align: center; padding: 30px; color: #777;">
+                        Chưa có sản phẩm nào. Hãy bấm "Thêm sản phẩm mới".
                     </td>
                 </tr>
             </c:if>
 
             <c:forEach items="${listProducts}" var="p">
-                <c:set var="statusClass" value="${p.isActive != 1 ? 'product-hidden' : ''}" />
-                <c:set var="warningClass" value="${p.stockQuantity < 5 ? 'stock-warning' : ''}" />
-
-                <tr class="${statusClass} ${warningClass}">
+                <tr>
                     <td><b>#${p.id}</b></td>
-
                     <td>
                         <c:choose>
-                            <c:when test="${not empty p.imageUrl && p.imageUrl.startsWith('http')}">
+                            <c:when test="${p.imageUrl.startsWith('http')}">
                                 <img src="${p.imageUrl}" class="prod-img" onerror="this.src='https://via.placeholder.com/60'">
                             </c:when>
                             <c:otherwise>
@@ -208,7 +137,6 @@
                             </c:otherwise>
                         </c:choose>
                     </td>
-
                     <td>
                         <div style="font-weight: bold;">
                             <a href="${pageContext.request.contextPath}/detail?pid=${p.id}"
@@ -216,68 +144,37 @@
                                style="color: #333; text-decoration: none; transition: 0.2s;"
                                onmouseover="this.style.color='#d0011b'"
                                onmouseout="this.style.color='#333'">
-                                <c:out value="${p.name}" default="Chưa có tên" />
-                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
+                                    ${p.name} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px; color: #999;"></i>
                             </a>
-                            <c:if test="${p.isActive != 1}">
-                                <small style="color: #dc3545; font-style: italic; font-weight: normal; margin-left: 5px;">(Tạm ngưng kinh doanh)</small>
-                            </c:if>
                         </div>
                         <div style="font-size: 12px; color: #777;">
-                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" type="number"/> ₫
+                            Giá gốc: <fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/>
                         </div>
                     </td>
-
-                    <td><span style="background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 12px;"><c:out value="${p.sku}" default="N/A"/></span></td>
-
+                    <td><span style="background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 12px;">${p.sku}</span></td>
                     <td style="color: #d0011b; font-weight: bold;">
-                        <fmt:formatNumber value="${p.currentPrice}" type="number"/> ₫
+                        <fmt:formatNumber value="${p.currentPrice}" pattern="#,##0 ₫"/>
                     </td>
-
                     <td>
                         <c:choose>
-                            <c:when test="${p.stockQuantity <= 0}">
-                                <span style="color: red; font-weight: bold;">Hết hàng</span>
-                            </c:when>
-                            <c:when test="${p.stockQuantity < 5}">
-                                <span style="color: #d0011b; font-weight: bold;">${p.stockQuantity}</span>
-                                <span class="badge-danger" title="Hãy nhập thêm hàng sớm!"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết</span>
+                            <c:when test="${p.stockQuantity > 0}">
+                                <span style="color: green; font-weight: bold;">${p.stockQuantity}</span>
                             </c:when>
                             <c:otherwise>
-                                <span style="color: green; font-weight: bold;">${p.stockQuantity}</span>
+                                <span style="color: red; font-weight: bold;">Hết hàng</span>
                             </c:otherwise>
                         </c:choose>
                     </td>
-
                     <td>${p.soldQuantity}</td>
 
                     <td style="text-align: center; white-space: nowrap;">
 
-                        <button type="button" class="btn-action btn-feature ${p.luxury ? 'active' : ''}"
+                        <button type="button" class="btn-action btn-feature ${p.isFeatured == 1 ? 'active' : ''}"
                                 id="btn-feature-${p.id}"
-                                onclick="toggleFeatured(${p.id}, ${p.luxury ? 0 : 1})"
-                                title="${p.luxury ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
-                            <i class="${p.luxury ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                                onclick="toggleFeatured(${p.id}, ${p.isFeatured == 1 ? 0 : 1})"
+                                title="${p.isFeatured == 1 ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
+                            <i class="${p.isFeatured == 1 ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                         </button>
-
-                        <c:choose>
-                            <c:when test="${p.isActive == 1}">
-                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=0"
-                                   class="btn-action btn-status-toggle active"
-                                   title="Sản phẩm đang hiển thị. Nhấn để Ẩn"
-                                   onclick="return confirm('Bạn có chắc chắn muốn TẠM ẨN sản phẩm này khỏi website không?')">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="product-manager?action=toggleStatus&pid=${p.id}&status=1"
-                                   class="btn-action btn-status-toggle"
-                                   title="Sản phẩm đang bị ẩn. Nhấn để Hiện"
-                                   onclick="return confirm('Bạn muốn MỞ BÁN LẠI sản phẩm này trên website chứ?')">
-                                    <i class="fa-solid fa-eye-slash"></i>
-                                </a>
-                            </c:otherwise>
-                        </c:choose>
 
                         <a href="product-form?id=${p.id}" class="btn-action btn-edit" title="Sửa">
                             <i class="fa-solid fa-pen-to-square"></i>
@@ -296,39 +193,9 @@
             </tbody>
         </table>
     </div>
+</div>
 
-    <c:if test="${totalPages > 1}">
-        <div class="pagination" style="display: flex; justify-content: center; margin-top: 25px; gap: 8px;">
-
-            <c:set var="startPage" value="${currentPage - 1}" />
-            <c:set var="endPage" value="${currentPage + 1}" />
-
-            <c:if test="${startPage < 1}">
-                <c:set var="startPage" value="1" />
-                <c:set var="endPage" value="${totalPages < 3 ? totalPages : 3}" />
-            </c:if>
-
-            <c:if var="isLast" test="${endPage > totalPages}">
-                <c:set var="endPage" value="${totalPages}" />
-                <c:set var="startPage" value="${totalPages - 2 < 1 ? 1 : totalPages - 2}" />
-            </c:if>
-
-            <c:if test="${currentPage > 1}">
-                <a href="product-manager?page=${currentPage - 1}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}" class="page-link">&laquo; Trước</a>
-            </c:if>
-
-            <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                <a href="product-manager?page=${i}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}"
-                   class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
-            </c:forEach>
-
-            <c:if test="${currentPage < totalPages}">
-                <a href="product-manager?page=${currentPage + 1}&keyword=${searchKeyword}&gender=${selectedGender}&brandId=${selectedBrand}&priceRange=${selectedPrice}" class="page-link">Sau &raquo;</a>
-            </c:if>
-
-        </div>
-    </c:if>
-</div> <div id="toastBox" class="toast-msg">Thông báo...</div>
+<div id="toastBox" class="toast-msg">Thông báo...</div>
 
 <script>
     function toggleFeatured(productId, newStatus) {
@@ -369,6 +236,7 @@
                 showToast('Lỗi kết nối Server!', 'error');
             });
     }
+
 
     function showToast(message, type) {
         const toast = document.getElementById("toastBox");
