@@ -167,7 +167,7 @@ public class StatisticDAO {
     public List<Order> getRecentOrders(int limit) {
         List<Order> list = new ArrayList<>();
         String query = "SELECT o.*, u.FullName AS CustomerName FROM orders o " +
-                "LEFT JOIN users u ON o.UserID = u.Id " +
+                "LEFT JOIN users u ON o.UserID = u.UserID " +
                 "ORDER BY o.OrderDate DESC LIMIT ?";
         try {
             conn = new DBContext().getConnection();

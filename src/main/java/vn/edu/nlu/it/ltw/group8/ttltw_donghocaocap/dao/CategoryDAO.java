@@ -34,6 +34,8 @@ public class CategoryDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
         return list;
     }
@@ -56,6 +58,8 @@ public class CategoryDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
         return list;
     }
@@ -72,6 +76,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -84,6 +90,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -100,6 +108,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -113,6 +123,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -126,7 +138,22 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
+    }
+
+    public List<Category> getAllCategoriesForAdmin() {
+        return getAllCategories();
+    }
+
+    public void toggleCategoryStatus(int id, boolean currentStatus) {
+        boolean newStatus = !currentStatus;
+        updateCategoryStatus(id, newStatus);
+    }
+
+    public void updateCategorySortOrder(int id, int sortOrder) {
+        updateCategoryOrder(id, sortOrder);
     }
 
     public List<PriceRange> getAllPriceRanges() {
@@ -146,6 +173,8 @@ public class CategoryDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
         return list;
     }
@@ -161,6 +190,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -173,6 +204,8 @@ public class CategoryDAO {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
 
@@ -186,6 +219,18 @@ public class CategoryDAO {
             ps.setDouble(3, max);
             ps.setInt(4, id);
             ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    private void closeResources() {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
