@@ -22,47 +22,42 @@ function scrollToTop() {
         behavior: "smooth" // ạo hiệu ứng trượt
     });
 }
+window.scrollToTop = scrollToTop;
 
 
 const dotsContainer = document.getElementsByClassName("dot");
 if (dotsContainer.length > 0) {
-
     let slideIndex = 1;
     showSlides(slideIndex);
 
-    function plusSlides(n) {
-        showSlides(slideIndex += n);
-    }
-
-    function currentSlide(n) {
-        showSlides(slideIndex = n);
-    }
+    function plusSlides(n) { showSlides(slideIndex += n); }
+    function currentSlide(n) { showSlides(slideIndex = n); }
 
     function showSlides(n) {
         let i;
         let slides = document.getElementsByClassName("mySlides");
         let dots = document.getElementsByClassName("dot");
-        if (n > slides.length) {
-            slideIndex = 1
-        }
-        if (n < 1) {
-            slideIndex = slides.length
-        }
+
+        if (!slides || slides.length === 0) return;
+
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+
         for (i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
+            if(slides[i]) slides[i].style.display = "none";
         }
         for (i = 0; i < dots.length; i++) {
-            dots[i].className = dots[i].className.replace(" active", "");
+            if(dots[i]) dots[i].className = dots[i].className.replace(" active", "");
         }
-        slides[slideIndex - 1].style.display = "block";
-        dots[slideIndex - 1].className += " active";
+        if(slides[slideIndex - 1]) slides[slideIndex - 1].style.display = "block";
+        if(dots[slideIndex - 1]) dots[slideIndex - 1].className += " active";
     }
+
+    window.plusSlides = plusSlides;
+    window.currentSlide = currentSlide;
 }
 
-
-// SWIPERJS
-if (document.querySelector('.card-wrapper')) {
-
+if (document.querySelector('.card-wrapper') && typeof Swiper !== 'undefined') {
     new Swiper('.card-wrapper', {
         loop: true,
         spaceBetween: 0,
@@ -71,25 +66,15 @@ if (document.querySelector('.card-wrapper')) {
             clickable: true,
             dynamicBullets: true,
         },
-
         navigation: {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
-
         breakpoints: {
-            0: {
-                slidesPerView: 1,
-            },
-            690: {
-                slidesPerView: 2,
-            },
-            900: {
-                slidesPerView: 3,
-            },
-            950: {
-                slidesPerView: 4,
-            },
+            0: { slidesPerView: 1 },
+            690: { slidesPerView: 2 },
+            900: { slidesPerView: 3 },
+            950: { slidesPerView: 4 },
         }
     });
 }
@@ -144,24 +129,9 @@ function switchTab(clickedTab, contentToShow) {
     if (contentToShow) contentToShow.classList.remove('hidden');
 }
 
-
-if (tabFeatured) {
-    tabFeatured.addEventListener('click', () => {
-        switchTab(tabFeatured, contentFeatured);
-    });
-}
-
-if (tabMen) {
-    tabMen.addEventListener('click', () => {
-        switchTab(tabMen, contentMen);
-    });
-}
-
-if (tabWomen) {
-    tabWomen.addEventListener('click', () => {
-        switchTab(tabWomen, contentWomen);
-    });
-}
+if (tabFeatured) tabFeatured.addEventListener('click', () => switchTab(tabFeatured, contentFeatured));
+if (tabMen) tabMen.addEventListener('click', () => switchTab(tabMen, contentMen));
+if (tabWomen) tabWomen.addEventListener('click', () => switchTab(tabWomen, contentWomen));
 
 
 /**
@@ -169,20 +139,15 @@ if (tabWomen) {
  */
 let scrollSlider = (direction) => {
     const slider = document.getElementById("slide-list-img-new");
-    if (!slider) {
-        console.error("Slider element with ID slide-list-img-new not found.");
-        return;
-    }
+    if (!slider) return;
 
     const firstImage = slider.querySelector('.gallery-image');
-    let scrollStep = 300; // Giá trị mặc định an toàn
+    let scrollStep = 300;
 
     if (firstImage) {
         const imageWidth = firstImage.offsetWidth;
         const style = window.getComputedStyle(firstImage);
-
         const marginRight = parseFloat(style.marginRight) || 0;
-
         scrollStep = imageWidth + marginRight;
     }
 
@@ -191,15 +156,15 @@ let scrollSlider = (direction) => {
         behavior: "smooth"
     });
 };
-
 window.scrollSlider = scrollSlider;
 
-
 function searchByName(param) {
+    if (!param) return;
     var txtSearch = param.value;
     var resultBox = document.getElementById("search-results");
 
-    // Nếu ô tìm kiếm trống thì ẩn hộp gợi ý đi
+
+    if (!resultBox) return;
     if (txtSearch.trim() === "") {
         resultBox.style.display = "none";
         return;
@@ -212,15 +177,23 @@ function searchByName(param) {
             resultBox.innerHTML = data;
             resultBox.style.display = "block";
         })
-        .catch(error => console.error('Lỗi:', error));
+        .catch(error => console.error('Lỗi tìm kiếm:', error));
 }
+window.searchByName = searchByName;
 
 // Ẩn hộp gợi ý khi click ra ngoài
 window.addEventListener('click', function (e) {
-    if (!document.querySelector('.search-bar').contains(e.target)) {
-        document.getElementById("search-results").style.display = "none";
+    const searchBar = document.querySelector('.search-bar');
+    const resultBox = document.getElementById("search-results");
+
+    // Chỉ thực hiện nếu thẻ searchBar và resultBox tồn tại trên trang
+    if (searchBar && resultBox) {
+        if (!searchBar.contains(e.target)) {
+            resultBox.style.display = "none";
+        }
     }
 });
+
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -262,8 +235,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     for (let i = itemsPerPage; i < items.length; i++) {
                         items[i].classList.add('hidden-style');
                     }
-
-                    btn.parentElement.previousElementSibling.scrollIntoView({behavior: "smooth", block: "start"});
+                    if(btn.parentElement.previousElementSibling) {
+                        btn.parentElement.previousElementSibling.scrollIntoView({behavior: "smooth", block: "start"});
+                    }
                     btn.innerHTML = 'Xem thêm <i class="fa-solid fa-chevron-down"></i>';
                 }
             });
@@ -275,16 +249,16 @@ document.addEventListener("DOMContentLoaded", function() {
     setupLoadMore('js-item-women', 'btnLoadMoreWomen');   // Tab Nữ
 });
 
+
 // SLIDER THƯƠNG HIỆU
 function scrollBrand(direction) {
     const container = document.getElementById('brand-slider');
-
     if (container) {
         const scrollAmount = container.clientWidth / 1.5;
-
         container.scrollBy({
             left: direction * scrollAmount,
             behavior: 'smooth'
         });
     }
 }
+window.scrollBrand = scrollBrand;

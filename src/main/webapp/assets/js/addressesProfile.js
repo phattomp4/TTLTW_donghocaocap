@@ -1,9 +1,13 @@
+
 function openEditModal(id, name, phone, address) {
-  document.getElementById('editAddressModal').style.display = 'block';
-  document.getElementById('edit_id').value = id;
-  document.getElementById('edit_name').value = name;
-  document.getElementById('edit_phone').value = phone;
-  document.getElementById('edit_address').value = address;
+    const modal = document.getElementById('editAddressModal');
+    if (modal) {
+        modal.style.display = 'block';
+        if (document.getElementById('edit_id')) document.getElementById('edit_id').value = id;
+        if (document.getElementById('edit_name')) document.getElementById('edit_name').value = name;
+        if (document.getElementById('edit_phone')) document.getElementById('edit_phone').value = phone;
+        if (document.getElementById('edit_address')) document.getElementById('edit_address').value = address;
+    }
 }
 
 const host = "https://provinces.open-api.vn/api/";
@@ -13,7 +17,8 @@ var callAPI = (api) => {
         data.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Tỉnh/Thành phố</option>';
         data.forEach(element => { row += `<option value="${element.code}">${element.name}</option>`; });
-        document.querySelector("#province").innerHTML = row;
+        let pSelect = document.querySelector("#province");
+        if (pSelect) pSelect.innerHTML = row;
     });
 }
 
@@ -23,8 +28,11 @@ var callApiDistrict = (api) => {
         districts.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Quận/Huyện</option>';
         districts.forEach(element => { row += `<option value="${element.code}">${element.name}</option>`; });
-        document.querySelector("#district").innerHTML = row;
-        document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
+
+        let dSelect = document.querySelector("#district");
+        let wSelect = document.querySelector("#ward");
+        if (dSelect) dSelect.innerHTML = row;
+        if (wSelect) wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
     });
 }
 
@@ -34,50 +42,80 @@ var callApiWard = (api) => {
         wards.sort((a, b) => a.name.localeCompare(b.name));
         let row = '<option value="">Chọn Phường/Xã</option>';
         wards.forEach(element => { row += `<option value="${element.code}">${element.name}</option>`; });
-        document.querySelector("#ward").innerHTML = row;
+
+        let wSelect = document.querySelector("#ward");
+        if (wSelect) wSelect.innerHTML = row;
     });
 }
 
-callAPI(host + "?depth=1");
+if (document.querySelector("#province")) {
+    callAPI(host + "?depth=1");
+}
 
-document.querySelector("#province").addEventListener("change", function() {
-    let code = this.value;
-    if(code) callApiDistrict(host + "p/" + code + "?depth=2");
-    else {
-        document.querySelector("#district").innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-        document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-    }
-});
+const provSelect = document.querySelector("#province");
+if (provSelect) {
+    provSelect.addEventListener("change", function() {
+        let code = this.value;
+        if(code) {
+            callApiDistrict(host + "p/" + code + "?depth=2");
+        } else {
+            let dSelect = document.querySelector("#district");
+            let wSelect = document.querySelector("#ward");
+            if(dSelect) dSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+            if(wSelect) wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+    });
+}
 
-document.querySelector("#district").addEventListener("change", function() {
-    let code = this.value;
-    if(code) callApiWard(host + "d/" + code + "?depth=2");
-    else document.querySelector("#ward").innerHTML = '<option value="">Chọn Phường/Xã</option>';
-});
+const distSelect = document.querySelector("#district");
+if (distSelect) {
+    distSelect.addEventListener("change", function() {
+        let code = this.value;
+        let wSelect = document.querySelector("#ward");
+        if(code) {
+            callApiWard(host + "d/" + code + "?depth=2");
+        } else {
+            if(wSelect) wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        }
+    });
+}
 
-document.querySelector("#addAddressForm form").addEventListener("submit", function() {
-    const pSelect = document.querySelector("#province");
-    const dSelect = document.querySelector("#district");
-    const wSelect = document.querySelector("#ward");
-    document.querySelector("#provinceName").value = pSelect.options[pSelect.selectedIndex].text;
-    document.querySelector("#districtName").value = dSelect.options[dSelect.selectedIndex].text;
-    document.querySelector("#wardName").value = wSelect.options[wSelect.selectedIndex].text;
-});
+const addForm = document.querySelector("#addAddressForm form") || document.querySelector("#modalAddAddr form");
+if (addForm) {
+    addForm.addEventListener("submit", function() {
+        const pSelect = document.querySelector("#province");
+        const dSelect = document.querySelector("#district");
+        const wSelect = document.querySelector("#ward");
+
+        const pName = document.querySelector("#provinceName");
+        const dName = document.querySelector("#districtName");
+        const wName = document.querySelector("#wardName");
+
+        if (pSelect && pName) pName.value = pSelect.options[pSelect.selectedIndex].text;
+        if (dSelect && dName) dName.value = dSelect.options[dSelect.selectedIndex].text;
+        if (wSelect && wName) wName.value = wSelect.options[wSelect.selectedIndex].text;
+    });
+}
 
 // ==========================================
 // HÀM MỞ MODAL VÀ TỰ ĐỘNG CHỌN ĐỊA CHỈ (ASYNC)
 // ==========================================
 async function openEditModal(id, name, phone, streetDetail, wardName, districtName, provinceName) {
-    document.getElementById('editAddressModal').style.display = 'block';
+    const modal = document.getElementById('editAddressModal');
+    if (!modal) return;
 
-    document.getElementById('edit_id').value = id;
-    document.getElementById('edit_name').value = name;
-    document.getElementById('edit_phone').value = phone;
-    document.getElementById('edit_streetDetail').value = streetDetail;
+    modal.style.display = 'block';
+
+    if (document.getElementById('edit_id')) document.getElementById('edit_id').value = id;
+    if (document.getElementById('edit_name')) document.getElementById('edit_name').value = name;
+    if (document.getElementById('edit_phone')) document.getElementById('edit_phone').value = phone;
+    if (document.getElementById('edit_streetDetail')) document.getElementById('edit_streetDetail').value = streetDetail;
 
     let pSelect = document.querySelector("#edit_province");
     let dSelect = document.querySelector("#edit_district");
     let wSelect = document.querySelector("#edit_ward");
+
+    if (!pSelect || !dSelect || !wSelect) return;
 
     let pRes = await fetch(host + "?depth=1");
     let provinces = await pRes.json();
@@ -115,45 +153,60 @@ async function openEditModal(id, name, phone, streetDetail, wardName, districtNa
     }
 }
 
-document.querySelector("#edit_province").addEventListener("change", async function() {
-    let code = this.value;
-    let dSelect = document.querySelector("#edit_district");
-    let wSelect = document.querySelector("#edit_ward");
-    dSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-    wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+const editProvSelect = document.querySelector("#edit_province");
+if (editProvSelect) {
+    editProvSelect.addEventListener("change", async function() {
+        let code = this.value;
+        let dSelect = document.querySelector("#edit_district");
+        let wSelect = document.querySelector("#edit_ward");
 
-    if(code) {
-        let res = await fetch(host + "p/" + code + "?depth=2");
-        let data = await res.json();
-        data.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
-            dSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`;
-        });
-    }
-});
+        if (dSelect) dSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+        if (wSelect) wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
 
-document.querySelector("#edit_district").addEventListener("change", async function() {
-    let code = this.value;
-    let wSelect = document.querySelector("#edit_ward");
-    wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        if (code && dSelect) {
+            let res = await fetch(host + "p/" + code + "?depth=2");
+            let data = await res.json();
+            data.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
+                dSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`;
+            });
+        }
+    });
+}
 
-    if(code) {
-        let res = await fetch(host + "d/" + code + "?depth=2");
-        let data = await res.json();
-        data.wards.sort((a, b) => a.name.localeCompare(b.name)).forEach(w => {
-            wSelect.innerHTML += `<option value="${w.code}">${w.name}</option>`;
-        });
-    }
-});
+const editDistSelect = document.querySelector("#edit_district");
+if (editDistSelect) {
+    editDistSelect.addEventListener("change", async function() {
+        let code = this.value;
+        let wSelect = document.querySelector("#edit_ward");
+        if (wSelect) wSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
 
-document.querySelector("#editAddressModal form").addEventListener("submit", function(e) {
-    const pSelect = document.querySelector("#edit_province");
-    const dSelect = document.querySelector("#edit_district");
-    const wSelect = document.querySelector("#edit_ward");
+        if (code && wSelect) {
+            let res = await fetch(host + "d/" + code + "?depth=2");
+            let data = await res.json();
+            data.wards.sort((a, b) => a.name.localeCompare(b.name)).forEach(w => {
+                wSelect.innerHTML += `<option value="${w.code}">${w.name}</option>`;
+            });
+        }
+    });
+}
 
-    document.querySelector("#edit_provinceName").value = pSelect.options[pSelect.selectedIndex].text;
-    document.querySelector("#edit_districtName").value = dSelect.options[dSelect.selectedIndex].text;
-    document.querySelector("#edit_wardName").value = wSelect.options[wSelect.selectedIndex].text;
-});
+
+const editFormModal = document.querySelector("#editAddressModal form");
+if (editFormModal) {
+    editFormModal.addEventListener("submit", function(e) {
+        const pSelect = document.querySelector("#edit_province");
+        const dSelect = document.querySelector("#edit_district");
+        const wSelect = document.querySelector("#edit_ward");
+
+        const pName = document.querySelector("#edit_provinceName");
+        const dName = document.querySelector("#edit_districtName");
+        const wName = document.querySelector("#edit_wardName");
+
+        if (pSelect && pName) pName.value = pSelect.options[pSelect.selectedIndex].text;
+        if (dSelect && dName) dName.value = dSelect.options[dSelect.selectedIndex].text;
+        if (wSelect && wName) wName.value = wSelect.options[wSelect.selectedIndex].text;
+    });
+}
 
 document.querySelectorAll("input[name='new_phone'], input[name='edit_phone']").forEach(input => {
     input.addEventListener("input", function() {
