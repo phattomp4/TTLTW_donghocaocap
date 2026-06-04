@@ -31,6 +31,16 @@ public class AddToCartServlet extends HttpServlet {
                 if ("buynow".equals(action)) {
                     session.setAttribute("redirectAfterLogin", "checkout");
                 }
+
+
+                if ("true".equals(ajax)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("text/plain");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("unauthorized");
+                    return;
+                }
+
                 response.sendRedirect("login");
                 return;
             }
@@ -117,8 +127,7 @@ public class AddToCartServlet extends HttpServlet {
 
             // đồng bộ lại giỏ hàng thực lên Session
             List<CartItem> cart = cartDao.getCartByUserId(user.getId());
-            int totalCount = 0;
-            for (CartItem item : cart) totalCount += item.getQuantity();
+            int totalCount = cart.size();
 
             session.setAttribute("cart", cart);
             session.setAttribute("cartCount", totalCount);
@@ -137,7 +146,12 @@ public class AddToCartServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             if ("true".equals(request.getParameter("ajax"))) {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                try {
+                    response.getWriter().write("Server Error: " + e.getMessage());
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             } else {
                 response.sendRedirect("home");
             }
