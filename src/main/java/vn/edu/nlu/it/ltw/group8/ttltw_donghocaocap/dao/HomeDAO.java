@@ -50,24 +50,31 @@ public class HomeDAO {
 
     public List<Banner> getSlideshowBanners() {
         List<Banner> list = new ArrayList<>();
-        String query = "SELECT * FROM banners WHERE IsActive = 1 ORDER BY SortOrder ASC";
+        String query = "SELECT BannerID, ImageURL, link_url, start_date, end_date " +
+                "FROM banners " +
+                "WHERE IsActive = 1 " +
+                "AND (start_date IS NULL OR start_date <= NOW()) " +
+                "AND (end_date IS NULL OR end_date >= NOW()) " +
+                "ORDER BY SortOrder ASC";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
             rs = ps.executeQuery();
             while (rs.next()) {
-                Banner b = new Banner();
-                b.setId(rs.getInt("BannerID"));
-                b.setImageUrl(rs.getString("ImageURL"));
-                b.setSortOrder(rs.getInt("SortOrder"));
-                b.setActive(rs.getBoolean("IsActive"));
-                list.add(b);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+                Banner banner = new Banner();
+                banner.setId(rs.getInt("BannerID"));
+                banner.setImageUrl(rs.getString("ImageURL"));
+                banner.setLinkUrl(rs.getString("link_url"));
 
+                banner.setStartDate(rs.getTimestamp("start_date"));
+                banner.setEndDate(rs.getTimestamp("end_date"));
+                list.add(banner);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
-
     public List<Brand> getFeaturedBrands() {
         List<Brand> list = new ArrayList<>();
 
