@@ -35,7 +35,6 @@ public class AdminBannerServlet extends HttpServlet {
         String action = request.getParameter("action");
         BannerDAO dao = new BannerDAO();
 
-        // 1. XỬ LÝ THEO MỚI BANNER (CÓ FILE ẢNH, LINK, HẸN GIỜ)
         if ("add".equals(action)) {
             try {
                 Part filePart = request.getPart("image");

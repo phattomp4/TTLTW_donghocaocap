@@ -8,6 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CategoryDAO;
 
 import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CategoryDAO;
+import java.io.IOException;
 
 @WebServlet("/admin/category-manager")
 public class AdminCategoryServlet extends HttpServlet {
@@ -33,10 +40,17 @@ public class AdminCategoryServlet extends HttpServlet {
                 return;
             }
             else if ("toggleStatus".equals(action) && idParam != null) {
-                boolean status = Boolean.parseBoolean(request.getParameter("status"));
-                dao.toggleCategoryStatus(Integer.parseInt(idParam), status);
+                // Đọc chính xác chuỗi trạng thái được gửi lên
+                String statusStr = request.getParameter("status").trim();
+                boolean status = Boolean.parseBoolean(statusStr);
+
+                // Gọi trực tiếp hàm update trạng thái, không đi qua hàm toggle đảo ngược lỗi nữa
+                dao.updateCategoryStatus(Integer.parseInt(idParam), status);
                 clearMenuCache(request);
-                response.sendRedirect("category-manager");
+
+                // Phản hồi ngắn cho AJAX fetch biết để không bị lỗi bất đồng bộ
+                response.setContentType("text/plain");
+                response.getWriter().write("success");
                 return;
             }
             else if ("deletePrice".equals(action) && idParam != null) {
@@ -75,10 +89,20 @@ public class AdminCategoryServlet extends HttpServlet {
                 clearMenuCache(request);
             }
             else if ("updateOrder".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                int sortOrder = Integer.parseInt(request.getParameter("sortOrder"));
-                dao.updateCategorySortOrder(id, sortOrder);
-                clearMenuCache(request);
+                // Chỉ giữ lại một khối updateOrder nhận MẢNG duy nhất, xóa khối đơn lẻ thừa đi
+                String[] ids = request.getParameterValues("ids[]");
+                if (ids != null) {
+                    for (int i = 0; i < ids.length; i++) {
+                        int catId = Integer.parseInt(ids[i]);
+                        int newSortOrder = i + 1;
+                        dao.updateCategorySortOrder(catId, newSortOrder);
+                    }
+                    clearMenuCache(request);
+                    response.setContentType("text/plain");
+                    response.getWriter().write("success");
+                } else {
+                    response.getWriter().write("fail");
+                }
                 return;
             }
             else if ("addPrice".equals(action) || "updatePrice".equals(action)) {

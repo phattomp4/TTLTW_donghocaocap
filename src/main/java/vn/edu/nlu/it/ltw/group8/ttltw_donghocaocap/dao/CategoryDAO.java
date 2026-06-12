@@ -1,14 +1,13 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Category;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.PriceRange;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Category;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.PriceRange;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 
 public class CategoryDAO {
     Connection conn = null;
@@ -17,7 +16,9 @@ public class CategoryDAO {
 
     public List<Category> getCategoriesByParent(int parentId) {
         List<Category> list = new ArrayList<>();
-        String query = "SELECT * FROM categories WHERE ParentCategoryID = ? ORDER BY SortOrder ASC";
+        String query = "SELECT * FROM categories " +
+                "WHERE ParentCategoryID = ? AND IsActive = 1 " +
+                "ORDER BY SortOrder ASC";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -115,16 +116,13 @@ public class CategoryDAO {
 
     public void updateCategoryStatus(int id, boolean isActive) {
         String query = "UPDATE categories SET IsActive = ? WHERE CategoryID = ?";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setBoolean(1, isActive);
             ps.setInt(2, id);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            closeResources();
         }
     }
 
@@ -148,12 +146,19 @@ public class CategoryDAO {
     }
 
     public void toggleCategoryStatus(int id, boolean currentStatus) {
-        boolean newStatus = !currentStatus;
-        updateCategoryStatus(id, newStatus);
+        updateCategoryStatus(id, currentStatus);
     }
 
     public void updateCategorySortOrder(int id, int sortOrder) {
-        updateCategoryOrder(id, sortOrder);
+        String sql = "UPDATE categories SET SortOrder = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sortOrder);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public List<PriceRange> getAllPriceRanges() {
