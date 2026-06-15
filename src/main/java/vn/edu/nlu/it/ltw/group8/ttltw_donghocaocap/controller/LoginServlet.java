@@ -5,6 +5,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.FavoriteDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.UserDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.CartDAO;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.GoogleAccount;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
@@ -97,8 +99,11 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("favoriteProductIds", favIds);
             session.setAttribute("favCount", favIds.size());
 
-            session.setAttribute("cart", new ArrayList<>());
-            session.setAttribute("cartCount", 0);
+
+            CartDAO cartDao = new CartDAO();
+            java.util.List<CartItem> currentCart = cartDao.getCartByUserId(user.getId());
+            session.setAttribute("cart", currentCart);
+            session.setAttribute("cartCount", currentCart.size());
 
             if ("ON".equals(r)) {
                 String token = java.util.UUID.randomUUID().toString();
@@ -143,6 +148,7 @@ public class LoginServlet extends HttpServlet {
                 User existingUser = dao.checkEmailExist(googleAcc.getEmail());
                 HttpSession session = request.getSession();
                 FavoriteDAO favDao = new FavoriteDAO();
+                CartDAO cartDao = new CartDAO();
 
                 if (existingUser != null) {
                     if (!"Active".equals(existingUser.getStatus())) {
@@ -151,13 +157,13 @@ public class LoginServlet extends HttpServlet {
                     }
                     session.setAttribute("acc", existingUser);
 
-
                     java.util.List<Integer> favIds = favDao.getFavoriteProductIds(existingUser.getId());
                     session.setAttribute("favoriteProductIds", favIds);
                     session.setAttribute("favCount", favIds.size());
 
-                    session.setAttribute("cart", new ArrayList<>());
-                    session.setAttribute("cartCount", 0);
+                    java.util.List<CartItem> currentCart = cartDao.getCartByUserId(existingUser.getId());
+                    session.setAttribute("cart", currentCart);
+                    session.setAttribute("cartCount", currentCart.size());
 
                     String redirectUrl = (String) session.getAttribute("redirect_url");
                     response.sendRedirect(redirectUrl != null ? redirectUrl : "home");
