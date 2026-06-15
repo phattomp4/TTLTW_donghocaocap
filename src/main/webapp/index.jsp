@@ -44,7 +44,10 @@
 <div class="slideshow-container">
     <c:forEach items="${listSlideshow}" var="banner">
         <div class="mySlides fade">
-            <img src="${banner.imageUrl}" style="width:100%">
+            <a href="${not empty banner.linkUrl ? banner.linkUrl : 'javascript:void(0);'}"
+               style="${not empty banner.linkUrl ? 'cursor: pointer;' : 'cursor: default;'}">
+                <img src="${banner.imageUrl}" style="width:100%">
+            </a>
         </div>
     </c:forEach>
     <a class="prev" onclick="plusSlides(-1)">&#10094;</a>

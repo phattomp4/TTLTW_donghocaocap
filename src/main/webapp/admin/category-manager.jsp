@@ -139,8 +139,7 @@
                     <td class="sort-val">${c.sortOrder}</td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleStatus('${c.id}', this.checked)">
-                            <span class="slider"></span>
+                            <input type="checkbox" ${c.active ? 'checked' : ''} onclick="toggleStatus('${c.id}', this.checked)">                            <span class="slider"></span>
                         </label>
                     </td>
                     <td>
@@ -221,24 +220,40 @@
 
 <script>
     function toggleStatus(id, status) {
-        location.href = 'category-manager?action=toggleStatus&id=' + id + '&status=' + status;
+        fetch('category-manager?action=toggleStatus&id=' + id + '&status=' + status)
+            .then(response => response.text())
+            .then(data => {
+                console.log("Đã lưu trạng thái vào database thành công!");
+            })
+            .catch(err => console.error("Lỗi kết nối mạng:", err));
     }
-
     const sortable = new Sortable(document.getElementById('sortable-cats'), {
         handle: '.handle',
         animation: 150,
         onEnd: function (evt) {
             let items = document.querySelectorAll('#sortable-cats tr');
+
+            let params = new URLSearchParams();
+            params.append('action', 'updateOrder');
+
             items.forEach((tr, index) => {
                 let id = tr.dataset.id;
                 let order = index + 1;
-                fetch('category-manager', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'action=updateOrder&id=' + id + '&sortOrder=' + order
-                });
+
+                params.append('ids[]', id);
                 tr.querySelector('.sort-val').innerText = order;
             });
+
+            fetch('category-manager', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log("Lưu vị trí thành công!");
+                })
+                .catch(err => console.error("Lỗi cập nhật vị trí:", err));
         }
     });
 

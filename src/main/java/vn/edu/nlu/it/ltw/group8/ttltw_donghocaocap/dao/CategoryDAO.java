@@ -1,25 +1,29 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Category;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.PriceRange;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Category;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.PriceRange;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
 
 public class CategoryDAO {
-
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
 
     public List<Category> getCategoriesByParent(int parentId) {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM Categories WHERE ParentCategoryID = ? AND IsActive = 1 ORDER BY SortOrder ASC";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String query = "SELECT * FROM categories " +
+                "WHERE ParentCategoryID = ? AND IsActive = 1 " +
+                "ORDER BY SortOrder ASC";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
             ps.setInt(1, parentId);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Category(
                         rs.getInt("CategoryID"),
@@ -29,16 +33,21 @@ public class CategoryDAO {
                         rs.getBoolean("IsActive")
                 ));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
         return list;
     }
 
-    public List<Category> getAllCategoriesForAdmin() {
+    public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM Categories ORDER BY ParentCategoryID ASC, SortOrder ASC";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String query = "SELECT * FROM categories ORDER BY ParentCategoryID, SortOrder ASC";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Category(
                         rs.getInt("CategoryID"),
@@ -48,112 +57,187 @@ public class CategoryDAO {
                         rs.getBoolean("IsActive")
                 ));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
         return list;
     }
 
     public void addCategory(String name, int parentId, int sortOrder, boolean isActive) {
-        String sql = "INSERT INTO Categories (Name, ParentCategoryID, SortOrder, IsActive) VALUES (?, ?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String query = "INSERT INTO categories (Name, ParentCategoryID, SortOrder, IsActive) VALUES (?, ?, ?, ?)";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
             ps.setString(1, name);
             ps.setInt(2, parentId);
             ps.setInt(3, sortOrder);
             ps.setBoolean(4, isActive);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    public void deleteCategory(int id) {
+        String query = "DELETE FROM categories WHERE CategoryID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
     }
 
     public void updateCategory(int id, String name, int parentId, int sortOrder, boolean isActive) {
-        String sql = "UPDATE Categories SET Name=?, ParentCategoryID=?, SortOrder=?, IsActive=? WHERE CategoryID=?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String query = "UPDATE categories SET Name = ?, ParentCategoryID = ?, SortOrder = ?, IsActive = ? WHERE CategoryID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
             ps.setString(1, name);
             ps.setInt(2, parentId);
             ps.setInt(3, sortOrder);
             ps.setBoolean(4, isActive);
             ps.setInt(5, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
     }
 
-    public void deleteCategory(int id) {
-        String sql = "DELETE FROM Categories WHERE CategoryID = ?";
+    public void updateCategoryStatus(int id, boolean isActive) {
+        String query = "UPDATE categories SET IsActive = ? WHERE CategoryID = ?";
         try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    public void updateCategorySortOrder(int id, int order) {
-        String sql = "UPDATE Categories SET SortOrder = ? WHERE CategoryID = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, order);
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setBoolean(1, isActive);
             ps.setInt(2, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void toggleCategoryStatus(int id, boolean status) {
-        String sql = "UPDATE Categories SET IsActive = ? WHERE CategoryID = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setBoolean(1, status);
+    public void updateCategoryOrder(int id, int sortOrder) {
+        String query = "UPDATE categories SET SortOrder = ? WHERE CategoryID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, sortOrder);
             ps.setInt(2, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
     }
 
+    public List<Category> getAllCategoriesForAdmin() {
+        return getAllCategories();
+    }
+
+    public void toggleCategoryStatus(int id, boolean currentStatus) {
+        updateCategoryStatus(id, currentStatus);
+    }
+
+    public void updateCategorySortOrder(int id, int sortOrder) {
+        String sql = "UPDATE categories SET SortOrder = ? WHERE CategoryID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sortOrder);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public List<PriceRange> getAllPriceRanges() {
         List<PriceRange> list = new ArrayList<>();
-        String sql = "SELECT * FROM PriceRanges ORDER BY minPrice ASC";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String query = "SELECT * FROM PriceRanges ORDER BY SortOrder ASC";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new PriceRange(
-                        rs.getInt("id"),
-                        rs.getString("label"),
-                        rs.getDouble("minPrice"),
-                        rs.getDouble("maxPrice")
+                        rs.getInt("ID"),
+                        rs.getString("Label"),
+                        rs.getDouble("MinPrice"),
+                        rs.getDouble("MaxPrice")
                 ));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
         return list;
     }
 
     public void addPriceRange(String label, double min, double max) {
-        String sql = "INSERT INTO PriceRanges (label, minPrice, maxPrice) VALUES (?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String query = "INSERT INTO PriceRanges (Label, MinPrice, MaxPrice) VALUES (?, ?, ?)";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
             ps.setString(1, label);
             ps.setDouble(2, min);
             ps.setDouble(3, max);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    public void deletePriceRange(int id) {
+        String query = "DELETE FROM PriceRanges WHERE ID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
     }
 
     public void updatePriceRange(int id, String label, double min, double max) {
-        String sql = "UPDATE PriceRanges SET label=?, minPrice=?, maxPrice=? WHERE id=?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String query = "UPDATE PriceRanges SET Label = ?, MinPrice = ?, MaxPrice = ? WHERE ID = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
             ps.setString(1, label);
             ps.setDouble(2, min);
             ps.setDouble(3, max);
             ps.setInt(4, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
     }
 
-    public void deletePriceRange(int id) {
-        String sql = "DELETE FROM PriceRanges WHERE id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+    private void closeResources() {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

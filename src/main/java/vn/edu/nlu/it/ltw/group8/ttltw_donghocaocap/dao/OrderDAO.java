@@ -1,9 +1,14 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao;
 
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.context.DBContext;
-import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.*;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Order;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderDetail;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.CartItem;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderLog;
+
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +41,7 @@ public class OrderDAO {
             if (rs.next()) {
                 orderId = rs.getInt(1);
             }
+
             String sqlDetail = "INSERT INTO orderdetails (OrderID, ProductID, Quantity, PriceAtPurchase) VALUES (?, ?, ?, ?)";
             String sqlUpdateProduct = "UPDATE products SET StockQuantity = StockQuantity - ?, SoldQuantity = SoldQuantity + ? WHERE ProductID = ? AND StockQuantity >= ?";
 
@@ -88,12 +94,10 @@ public class OrderDAO {
         }
     }
 
-
     public boolean confirmPaid(int orderId, String transactionId) throws SQLException {
         String sql = "UPDATE orders SET PaymentStatus = 'Paid', TransactionID = ?, PaymentDate = NOW(), Status = 'Processing' WHERE OrderID = ?";
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
-
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, transactionId);
                 ps.setInt(2, orderId);
@@ -110,6 +114,7 @@ public class OrderDAO {
             throw new SQLException("Lỗi khi xác nhận thanh toán đơn hàng #" + orderId);
         }
     }
+
     private void updateOrderStatusWithConn(Connection conn, int orderId, String status, String note) throws SQLException {
         String sql = "INSERT INTO orderlogs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -122,19 +127,17 @@ public class OrderDAO {
 
     public boolean updatePaymentStatus(int orderId, String paymentStatus, String transactionId) {
         String sql = "UPDATE orders SET PaymentStatus = ?, TransactionID = ? WHERE OrderID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, paymentStatus);
+            ps.setString(2, transactionId);
+            ps.setInt(3, orderId);
+            int row = ps.executeUpdate();
 
-        try (Connection conn = new DBContext().getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, paymentStatus);
-                ps.setString(2, transactionId);
-                ps.setInt(3, orderId);
-                int row = ps.executeUpdate();
-
-                if ("Failed".equalsIgnoreCase(paymentStatus) || "Cancelled".equalsIgnoreCase(paymentStatus)) {
-                    rollbackStock(orderId);
-                }
-                return row > 0;
+            if ("Failed".equalsIgnoreCase(paymentStatus) || "Cancelled".equalsIgnoreCase(paymentStatus)) {
+                rollbackStock(orderId);
             }
+            return row > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -149,14 +152,15 @@ public class OrderDAO {
             conn.setAutoCommit(false);
             try (PreparedStatement psGet = conn.prepareStatement(sqlGetDetails)) {
                 psGet.setInt(1, orderId);
-                ResultSet rs = psGet.executeQuery();
-                while (rs.next()) {
-                    try (PreparedStatement psUp = conn.prepareStatement(sqlUpdateStock)) {
-                        int qty = rs.getInt("Quantity");
-                        psUp.setInt(1, qty);
-                        psUp.setInt(2, qty);
-                        psUp.setInt(3, rs.getInt("ProductID"));
-                        psUp.executeUpdate();
+                try (ResultSet rs = psGet.executeQuery()) {
+                    while (rs.next()) {
+                        try (PreparedStatement psUp = conn.prepareStatement(sqlUpdateStock)) {
+                            int qty = rs.getInt("Quantity");
+                            psUp.setInt(1, qty);
+                            psUp.setInt(2, qty);
+                            psUp.setInt(3, rs.getInt("ProductID"));
+                            psUp.executeUpdate();
+                        }
                     }
                 }
             }
@@ -168,25 +172,22 @@ public class OrderDAO {
 
     public List<Order> getOrdersByUserId(int userId) {
         List<Order> list = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         String query = "SELECT * FROM Orders WHERE UserID = ? ORDER BY OrderDate DESC";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Order o = new Order();
-                o.setOrderId(rs.getInt("OrderID"));
-                o.setUserId(rs.getInt("UserID"));
-                o.setOrderDate(rs.getTimestamp("OrderDate"));
-                o.setTotalAmount(rs.getDouble("TotalAmount"));
-                o.setStatus(rs.getString("Status"));
-                o.setPaymentMethod(rs.getString("PaymentMethod"));
-                o.setPaymentStatus(rs.getString("PaymentStatus"));
-                list.add(o);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order();
+                    o.setOrderId(rs.getInt("OrderID"));
+                    o.setUserId(rs.getInt("UserID"));
+                    o.setOrderDate(rs.getTimestamp("OrderDate"));
+                    o.setTotalAmount(rs.getDouble("TotalAmount"));
+                    o.setStatus(rs.getString("Status"));
+                    o.setPaymentMethod(rs.getString("PaymentMethod"));
+                    o.setPaymentStatus(rs.getString("PaymentStatus"));
+                    list.add(o);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,18 +195,14 @@ public class OrderDAO {
         return list;
     }
 
-
     public int countProductsInOrder(int orderId) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         String query = "SELECT COUNT(*) FROM orderdetails WHERE OrderID = ?";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, orderId);
-            rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -220,93 +217,83 @@ public class OrderDAO {
                 "JOIN Products p ON od.ProductID = p.ProductID " +
                 "WHERE od.OrderID = ?";
 
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, orderId);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                OrderDetail od = new OrderDetail();
-                od.setOrderDetailId(rs.getInt("OrderDetailID"));
-                od.setOrderId(rs.getInt("OrderID"));
-                od.setProductId(rs.getInt("ProductID"));
-                od.setQuantity(rs.getInt("Quantity"));
-                od.setPriceAtPurchase(rs.getDouble("PriceAtPurchase"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    OrderDetail od = new OrderDetail();
+                    od.setOrderDetailId(rs.getInt("OrderDetailID"));
+                    od.setOrderId(rs.getInt("OrderID"));
+                    od.setProductId(rs.getInt("ProductID"));
+                    od.setQuantity(rs.getInt("Quantity"));
+                    od.setPriceAtPurchase(rs.getDouble("PriceAtPurchase"));
 
-                Product p = new Product();
-                p.setId(rs.getInt("ProductID"));
+                    Product p = new Product();
+                    p.setId(rs.getInt("ProductID"));
+                    p.setName(rs.getString("Name"));
 
-                p.setName(rs.getString("Name"));
+                    String img = rs.getString("ImageURL");
+                    if (img == null) img = "https://via.placeholder.com/150";
+                    p.setImageUrl(img);
 
-                String img = rs.getString("ImageURL");
-                if (img == null) img = "https://via.placeholder.com/150";
-                p.setImageUrl(img);
-
-                od.setProduct(p);
-                list.add(od);
+                    od.setProduct(p);
+                    list.add(od);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return list;
     }
 
-
     public Order getOrderById(int orderId) {
         String query = "SELECT * FROM orders WHERE OrderID = ?";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, orderId);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                Order o = new Order();
-                o.setOrderId(rs.getInt("OrderID"));
-                o.setUserId(rs.getInt("UserID"));
-                o.setShippingAddressId(rs.getInt("ShippingAddressID"));
-                o.setTotalAmount(rs.getDouble("TotalAmount"));
-                o.setStatus(rs.getString("Status"));
-                o.setPaymentMethod(rs.getString("PaymentMethod"));
-                o.setPaymentStatus(rs.getString("PaymentStatus"));
-                o.setOrderDate(Timestamp.valueOf(rs.getTimestamp("OrderDate").toLocalDateTime()));
-                return o;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Order o = new Order();
+                    o.setOrderId(rs.getInt("OrderID"));
+                    o.setUserId(rs.getInt("UserID"));
+                    o.setShippingAddressId(rs.getInt("ShippingAddressID"));
+                    o.setTotalAmount(rs.getDouble("TotalAmount"));
+                    o.setStatus(rs.getString("Status"));
+                    o.setPaymentMethod(rs.getString("PaymentMethod"));
+                    o.setPaymentStatus(rs.getString("PaymentStatus"));
+
+                    Timestamp ts = rs.getTimestamp("OrderDate");
+                    if (ts != null) {
+                        o.setOrderDate(Timestamp.valueOf(ts.toLocalDateTime()));
+                    }
+                    return o;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
         }
         return null;
     }
 
-    public void updateOrderStatus(int orderId, String newStatus, String note) {
-        String updateOrder = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
-        String insertLog = "INSERT INTO orderlogs (OrderID, Status, Note) VALUES (?, ?, ?)";
+    public boolean updateOrderStatus(int orderId, String newStatus, String note) {
+        String updateOrder = "UPDATE orders SET Status = ? WHERE OrderID = ?";
+        String insertLog = "INSERT INTO orderlogs (OrderID, Status, Note, CreatedAt) VALUES (?, ?, ?, NOW())";
+        String checkCOD = "SELECT PaymentMethod FROM orders WHERE OrderID = ?";
+        String updatePayment = "UPDATE orders SET PaymentStatus = 'Paid', PaymentDate = NOW() WHERE OrderID = ?";
 
         try (Connection conn = new DBContext().getConnection()) {
             conn.setAutoCommit(false);
 
-
             try (PreparedStatement psUpdate = conn.prepareStatement(updateOrder)) {
                 psUpdate.setString(1, newStatus);
                 psUpdate.setInt(2, orderId);
-                psUpdate.executeUpdate();
+                int rows = psUpdate.executeUpdate();
+                if (rows == 0) {
+                    conn.rollback();
+                    return false;
+                }
             }
-
 
             try (PreparedStatement psLog = conn.prepareStatement(insertLog)) {
                 psLog.setInt(1, orderId);
@@ -315,11 +302,40 @@ public class OrderDAO {
                 psLog.executeUpdate();
             }
 
+            if ("Completed".equalsIgnoreCase(newStatus)) {
+                String paymentMethod = "";
+                try (PreparedStatement psCheck = conn.prepareStatement(checkCOD)) {
+                    psCheck.setInt(1, orderId);
+                    try (ResultSet rs = psCheck.executeQuery()) {
+                        if (rs.next()) {
+                            paymentMethod = rs.getString("PaymentMethod");
+                        }
+                    }
+                }
+
+                if (paymentMethod != null && "COD".equalsIgnoreCase(paymentMethod.trim())) {
+                    try (PreparedStatement psPay = conn.prepareStatement(updatePayment)) {
+                        psPay.setInt(1, orderId);
+                        psPay.executeUpdate();
+                    }
+
+                    try (PreparedStatement psLogPay = conn.prepareStatement(insertLog)) {
+                        psLogPay.setInt(1, orderId);
+                        psLogPay.setString(2, "Paid");
+                        psLogPay.setString(3, "Hệ thống tự động: Đơn hàng COD đã giao thành công -> Xác nhận Đã thanh toán tiền mặt.");
+                        psLogPay.executeUpdate();
+                    }
+                }
+            }
+
             conn.commit();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
+
     public boolean requestCancelOrderSafe(int orderId, int userId) {
         String sql = "UPDATE Orders SET Status = 'Request Cancel' " +
                 "WHERE OrderID = ? AND UserID = ? AND Status IN ('Pending', 'Processing')";
@@ -395,14 +411,14 @@ public class OrderDAO {
         return list;
     }
 
-    public List<OrderLog> getOrderLog(int orderId){
+    public List<OrderLog> getOrderLog(int orderId) {
         List<OrderLog> list = new ArrayList<>();
         String sql = "SELECT * FROM orderlogs WHERE OrderID = ? ORDER BY CreatedAt DESC";
-        try (Connection conn = new DBContext().getConnection()){
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
             preparedStatement.setInt(1, orderId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()){
-                while(resultSet.next()){
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
                     OrderLog orderLog = new OrderLog();
                     orderLog.setOrderId(resultSet.getInt("OrderID"));
                     orderLog.setStatus(resultSet.getString("Status"));
@@ -411,10 +427,8 @@ public class OrderDAO {
                     list.add(orderLog);
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return list;
     }
@@ -427,13 +441,14 @@ public class OrderDAO {
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
             ps.setInt(2, productId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
-
     }
-
 }

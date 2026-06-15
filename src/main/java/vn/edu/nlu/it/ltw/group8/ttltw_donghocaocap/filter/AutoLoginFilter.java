@@ -26,6 +26,9 @@ public class AutoLoginFilter implements Filter {
         HttpSession session = req.getSession();
 
         String requestURI = req.getRequestURI();
+        String contextPath = req.getContextPath();
+
+        String pathInsideApp = requestURI.substring(contextPath.length());
 
         User user = (User) session.getAttribute("acc");
 
@@ -73,12 +76,13 @@ public class AutoLoginFilter implements Filter {
         }
 
         boolean isLoggedIn = (session.getAttribute("acc") != null);
-        boolean isLoginRequest = requestURI.endsWith("login.jsp") || requestURI.endsWith("login");
-        boolean isRegisterRequest = requestURI.endsWith("register.jsp") || requestURI.endsWith("register");
-        boolean isForgotRequest = requestURI.endsWith("userpass.jsp") || requestURI.endsWith("forgotPassword");
+
+        boolean isLoginRequest = pathInsideApp.equals("/login") || pathInsideApp.equals("/login.jsp");
+        boolean isRegisterRequest = pathInsideApp.equals("/register") || pathInsideApp.equals("/register.jsp");
+        boolean isForgotRequest = pathInsideApp.equals("/forgotPassword") || pathInsideApp.equals("/userpass.jsp");
 
         if (isLoggedIn && (isLoginRequest || isRegisterRequest || isForgotRequest)) {
-            res.sendRedirect("home");
+            res.sendRedirect(contextPath + "/home");
             return;
         }
 

@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
@@ -82,6 +82,7 @@
 
             <div class="payment-section" style="margin-top: 30px;">
                 <h3><i class="fa-regular fa-credit-card"></i> Phương thức thanh toán</h3>
+                
                 <div class="payment-option" onclick="selectPayment('cod')" style="display: flex; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 12px; cursor: pointer;">
                     <input type="radio" name="paymentMethod" value="COD" id="cod" checked style="margin-right: 15px; accent-color: #d0011b;">
                     <label for="cod" style="display: flex; align-items: center; cursor: pointer; width: 100%;">
@@ -92,6 +93,7 @@
                         </div>
                     </label>
                 </div>
+
                 <div class="payment-option" onclick="selectPayment('vnpay')" style="display: flex; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 12px; cursor: pointer;">
                     <input type="radio" name="paymentMethod" value="VNPAY" id="vnpay" style="margin-right: 15px; accent-color: #d0011b;">
                     <label for="vnpay" style="display: flex; align-items: center; cursor: pointer; width: 100%;">
@@ -102,6 +104,17 @@
                         </div>
                     </label>
                 </div>
+
+                <div class="payment-option disabled" style="display: flex; align-items: center; padding: 15px; border: 1px solid #f5f5f5; border-radius: 10px; opacity: 0.5; background: #fafafa;">
+                    <input type="radio" name="paymentMethod" value="MOMO" id="momo" disabled style="margin-right: 15px;">
+                    <label for="momo" style="display: flex; align-items: center; width: 100%;">
+                        <img src="${pageContext.request.contextPath}/assets/img/banners/momo.png" style="width: 40px; margin-right: 15px;" alt="MoMo">
+                        <div>
+                            <div style="font-weight: bold;">Ví MoMo (Đang bảo trì)</div>
+                        </div>
+                    </label>
+                </div>
+
             </div>
         </div>
 
@@ -123,25 +136,50 @@
                     </c:forEach>
                 </div>
 
+                <div class="voucher-section" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;">
+                    <label style="display: block; font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">
+                        <i class="fa-solid fa-ticket" style="color: #d0011b;"></i> VVP Voucher
+                    </label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="voucherCode" name="voucherCode" placeholder="Nhập mã giảm giá..." value="${sessionScope.appliedVoucher.code}" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none;">
+                        <button type="button" onclick="applyVoucher()" style="background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 0 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.3s;">
+                            ÁP DỤNG
+                        </button>
+                    </div>
+
+                    <div id="voucherResponse" style="font-size: 13px; margin-top: 6px; display: ${not empty voucherError || not empty voucherSuccess ? 'block' : 'none'}; color: ${not empty voucherError ? '#d0011b' : 'green'};">
+                        <c:if test="${not empty voucherError}">
+                            <i class="fa-solid fa-circle-xmark"></i> ${voucherError}
+                        </c:if>
+                        <c:if test="${not empty voucherSuccess}">
+                            <i class="fa-solid fa-circle-check"></i> ${voucherSuccess}
+                        </c:if>
+                    </div>
+                </div>
+
                 <div class="summary-details" style="font-size: 15px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Tạm tính</span>
                         <span><fmt:formatNumber value="${totalMoney}" pattern="#,##0 ₫"/></span>
                     </div>
+                    
                     <c:if test="${discount > 0}">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                             <span>Giảm giá</span>
                             <span style="color: green;">- <fmt:formatNumber value="${discount}" pattern="#,##0 ₫"/></span>
                         </div>
                     </c:if>
+                    
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Phí vận chuyển</span>
                         <span id="shipping-fee" style="color: #d0011b; font-weight: bold;">Đang tính...</span>
                     </div>
+
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #ccc;">
                         <span>Dự kiến giao</span>
                         <span id="lead-time" style="color: #1b6e76; font-weight: bold;">Đang tính toán...</span>
                     </div>
+                    
                     <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #d0011b;">
                         <span>Tổng cộng</span>
                         <span id="final-total" data-subtotal="<fmt:formatNumber value='${totalMoney - (not empty discount ? discount : 0)}' pattern='0'/>">
@@ -167,7 +205,7 @@
                             <button type="submit" id="btn-checkout" class="btn-checkout" style="width: 100%; background: #1a1a1a; color: #c5a059; padding: 15px; border-radius: 8px; font-weight: bold; border: 1px solid #c5a059; cursor: pointer;">ĐẶT HÀNG NGAY</button>
                         </c:when>
                         <c:otherwise>
-                            <button type="button" onclick="document.getElementById('modalAddAddr').style.display='flex'" class="btn-checkout" style="width: 100%; background: #999; color: white; padding: 15px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">VUI LÒNG THÊM ĐỊA CHỈ</button>
+                            <button type="button" onclick="openModal()" class="btn-checkout" style="width: 100%; background: #999; color: white; padding: 15px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">VUI LÒNG THÊM ĐỊA CHỈ</button>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -210,6 +248,7 @@
                     <option value="">Chọn Phường/Xã</option>
                 </select>
             </div>
+
             <div class="modal-footer" style="text-align: right; border-top: 1px solid #eee; padding-top: 20px;">
                 <button type="button" onclick="closeModal()" style="padding: 10px 25px; border-radius: 6px; border: 1px solid #ccc; background: #f8f8f8; cursor: pointer; margin-right: 10px; font-weight: bold;">HỦY</button>
                 <button type="submit" style="padding: 10px 25px; border-radius: 6px; border: none; background: #c5a059; color: white; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);">LƯU ĐỊA CHỈ</button>
@@ -234,7 +273,45 @@
         const checkedAddress = document.querySelector('input[name="addressId"]:checked');
         if (checkedAddress) updateGHNInfo(checkedAddress);
     }
-    // Token API ghn
+
+    // TÍCH HỢP HÀM APPLY VOUCHER
+    function applyVoucher() {
+        const codeInput = document.getElementById("voucherCode");
+        const responseDiv = document.getElementById("voucherResponse");
+
+        if (!codeInput) return;
+        const code = codeInput.value.trim();
+
+        if (code === "") {
+            responseDiv.style.display = "block";
+            responseDiv.style.color = "#d0011b";
+            responseDiv.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Vui lòng nhập mã voucher!";
+            return;
+        }
+
+        const params = new URLSearchParams();
+        params.append('action', 'apply_voucher');
+        params.append('voucherCode', code);
+
+        fetch('${pageContext.request.contextPath}/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        })
+            .then(response => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Lỗi áp dụng voucher:", error);
+                responseDiv.style.display = "block";
+                responseDiv.style.color = "#d0011b";
+                responseDiv.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Có lỗi hệ thống kết nối, vui lòng thử lại!";
+            });
+    }
+
+    // TÍCH HỢP API GIAO HÀNG NHANH
     const GHN_TOKEN = "c48bc84b-5c05-11f1-a973-aee5264794df";
     const GHN_SHOP_ID = 200546;
     const SHOP_DISTRICT_ID = 3695;

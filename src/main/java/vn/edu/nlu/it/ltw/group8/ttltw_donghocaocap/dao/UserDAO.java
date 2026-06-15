@@ -14,9 +14,7 @@ public class UserDAO {
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-
     public User login(String account, String pass) {
-
         String query = "SELECT * FROM users WHERE Username = ? OR Email = ? OR Phone = ?";
         try {
             conn = new DBContext().getConnection();
@@ -39,8 +37,9 @@ public class UserDAO {
         }
         return null;
     }
+
     public void updateRememberToken(String username, String token) {
-        String query = "UPDATE Users SET RememberToken = ? WHERE Username = ?";
+        String query = "UPDATE users SET RememberToken = ? WHERE Username = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -55,7 +54,7 @@ public class UserDAO {
     }
 
     public User getUserByToken(String token) {
-        String query = "SELECT * FROM Users WHERE RememberToken = ?";
+        String query = "SELECT * FROM users WHERE RememberToken = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -69,38 +68,33 @@ public class UserDAO {
         }
         return null;
     }
+
     public boolean signup(String user, String pass, String fullName, String email, String phone, String token) {
-        // role mặc định là 'user'
-        // Status mặc định là 'Unverified' mã kích hoạt có hạn 24h
-        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Phone, Status, VerificationToken, VerificationExpiry) " +
+        String query = "INSERT INTO users (Username, PasswordHash, Email, Fullname, Role, CreatedAt, Phone, Status, VerificationToken, VerificationExpiry) " +
                 "VALUES (?, ?, ?, ?, 'user', NOW(), ?, 'Unverified', ?, DATE_ADD(NOW(), INTERVAL 24 HOUR))";
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = new DBContext().getConnection();
-            // Bước 1: Tắt AutoCommit để bắt đầu quản lý Transaction
             conn.setAutoCommit(false);
             ps = conn.prepareStatement(query);
             ps.setString(1, user);
-            ps.setString(2, BCrypt.hashpw(pass, BCrypt.gensalt(12))); //
+            ps.setString(2, BCrypt.hashpw(pass, BCrypt.gensalt(12)));
             ps.setString(3, email);
             ps.setString(4, fullName);
             ps.setString(5, phone);
-            ps.setString(6, token); // Lưu mã token ngẫu nhiên để kích hoạt
+            ps.setString(6, token);
 
             int result = ps.executeUpdate();
             if (result > 0) {
-                // Bước 2: Commit khi lệnh INSERT thành công
                 conn.commit();
                 return true;
             } else {
-                // Rollback nếu không có dòng nào được tác động
                 conn.rollback();
             }
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                // Bước 3: Nếu xảy ra lỗi, thực hiện Rollback để đảm bảo toàn vẹn dữ liệu
                 if (conn != null) conn.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -108,7 +102,6 @@ public class UserDAO {
         } finally {
             try {
                 if (conn != null) {
-                    // Bước 4: Trả lại trạng thái AutoCommit và giải phóng tài nguyên
                     conn.setAutoCommit(true);
                     conn.close();
                 }
@@ -119,7 +112,7 @@ public class UserDAO {
         }
         return false;
     }
-    // Hàm cập nhật lại Token mới cho tài khoản chưa kích hoạt
+
     public void refreshVerificationToken(String email, String newToken) {
         String query = "UPDATE users SET VerificationToken = ?, VerificationExpiry = DATE_ADD(NOW(), INTERVAL 24 HOUR) WHERE Email = ?";
         try {
@@ -131,6 +124,7 @@ public class UserDAO {
         } catch (Exception e) { e.printStackTrace(); }
         finally { closeResources(); }
     }
+
     public boolean activateAccount(String token) {
         String query = "UPDATE users SET Status = 'Active', VerificationToken = NULL, VerificationExpiry = NULL WHERE VerificationToken = ?";
         try {
@@ -145,6 +139,7 @@ public class UserDAO {
         }
         return false;
     }
+
     public boolean isAccountExist(String accountInfo) {
         String query = "SELECT COUNT(*) FROM users WHERE Email = ? OR Phone = ? OR Username = ?";
         try {
@@ -164,6 +159,7 @@ public class UserDAO {
         }
         return false;
     }
+
     public User checkUserExist(String user) {
         String query = "SELECT * FROM users WHERE Username = ?";
         return getSingleUser(query, user);
@@ -196,7 +192,7 @@ public class UserDAO {
     }
 
     public void updateAccountProfile(User a) {
-        String query = "UPDATE users SET FullName=?, Gender=? WHERE UserID=?";
+        String query = "UPDATE users SET Fullname=?, Gender=? WHERE UserID=?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -283,6 +279,7 @@ public class UserDAO {
             closeResources();
         }
     }
+
     public UserAddress getAddressById(int addressId) {
         String query = "SELECT * FROM addresses WHERE AddressID = ?";
         try {
@@ -362,7 +359,7 @@ public class UserDAO {
         u.setPhone(rs.getString("Phone"));
         u.setGender(rs.getString("Gender"));
         u.setAddress(rs.getString("Address"));
-        u.setAvatar(rs.getString("Avatar"));
+        u.setAvatar(rs.getString("avatar"));
 
         u.setStatus(rs.getString("Status"));
         u.setVerificationToken(rs.getString("VerificationToken"));
@@ -371,7 +368,7 @@ public class UserDAO {
     }
 
     private UserAddress mapAddress(ResultSet rs) throws SQLException {
-        UserAddress userAddress = new UserAddress(
+        return new UserAddress(
                 rs.getInt("AddressID"),
                 rs.getInt("UserID"),
                 rs.getString("ReceiverName"),
@@ -382,7 +379,6 @@ public class UserDAO {
                 rs.getString("StreetDetail"),
                 rs.getBoolean("IsDefault")
         );
-        return userAddress;
     }
 
     private void closeResources() {
@@ -396,8 +392,7 @@ public class UserDAO {
     }
 
     public User getUserByEmail(String email){
-        User user = null;
-        String query = "SELECT * FROM Users WHERE Email = ?";
+        String query = "SELECT * FROM users WHERE Email = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -407,28 +402,19 @@ public class UserDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            closeResources();
         }
-        return user;
+        return null;
     }
 
     public void insertGoogleUser(User user) {
-        // tự động cắt chuỗi email làm Username
         String email = user.getEmail();
         String autoUsername = email.substring(0, email.indexOf("@"));
 
-        // tạo một mật khẩu ngẫu nhiên (bằng UUID) và mã hóa nó bằng BCrypt
         String randomPass = java.util.UUID.randomUUID().toString();
         String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(randomPass, org.mindrot.jbcrypt.BCrypt.gensalt(12));
 
-        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, Avatar) VALUES (?, ?, ?, ?, 'User', NOW(), ?)";
-
+        String query = "INSERT INTO users (Username, PasswordHash, Email, FullName, Role, CreatedAt, avatar, Status) VALUES (?, ?, ?, ?, 'User', NOW(), ?, 'Active')";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -440,20 +426,17 @@ public class UserDAO {
             ps.setString(5, user.getAvatar());
 
             int rowsAffected = ps.executeUpdate();
-
             if (rowsAffected > 0) {
                 System.out.println(">>> Đăng ký thành công tài khoản Google cho: " + email);
             }
-
         } catch (Exception e) {
             System.out.println(">>> LỖI KHI INSERT GOOGLE USER:");
             e.printStackTrace();
         }
     }
 
-    // hàm cập nhật avatar
     public void updateAvatar (int userId, String avatarUrl){
-        String query = "UPDATE Users SET avatar = ? WHERE UserID = ?";
+        String query = "UPDATE users SET avatar = ? WHERE UserID = ?";
         try {
             conn = new DBContext().getConnection();
             ps = conn.prepareStatement(query);
@@ -467,7 +450,6 @@ public class UserDAO {
         }
     }
 
-    // hàm cập nhật email và sdt sau khi xác thực OTP
     public void updateContactInfo(int userId, String email, String phone) {
         String query = "UPDATE users SET Email = ?, Phone = ? WHERE UserID = ?";
         try {
@@ -484,7 +466,6 @@ public class UserDAO {
         }
     }
 
-    // hàm đổi mật khẩu
     public void updatePassword(int userId, String newPassword) {
         String query = "UPDATE users SET PasswordHash = ? WHERE UserID = ?";
         try {
@@ -499,6 +480,7 @@ public class UserDAO {
             closeResources();
         }
     }
+
     public User getUserByAccount(String account) {
         String query = "SELECT * FROM users WHERE Username = ? OR Email = ? OR Phone = ?";
         try {
@@ -508,7 +490,7 @@ public class UserDAO {
             ps.setString(2, account);
             ps.setString(3, account);
             rs = ps.executeQuery();
-            if (rs.next()) return mapUser(rs); //
+            if (rs.next()) return mapUser(rs);
         } catch (Exception e) { e.printStackTrace(); }
         finally { closeResources(); }
         return null;
