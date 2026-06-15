@@ -32,15 +32,24 @@ public class OrderDetailServlet extends HttpServlet {
 
             Order order = orderDAO.getOrderById(orderId);
 
-            if (order == null || order.getUserId() != acc.getId()) {
-                response.sendRedirect("order-history");
+            if (order == null) {
+                if ("Admin".equalsIgnoreCase(acc.getRole()) || "Staff".equalsIgnoreCase(acc.getRole())) {
+                    response.sendRedirect("dashboard");
+                } else {
+                    response.sendRedirect("order-history");
+                }
                 return;
             }
 
+            if (!"Admin".equalsIgnoreCase(acc.getRole()) && !"Staff".equalsIgnoreCase(acc.getRole())) {
+                if (order.getUserId() != acc.getId()) {
+                    response.sendRedirect("order-history");
+                    return;
+                }
+            }
+
             UserAddress address = userDAO.getAddressById(order.getShippingAddressId());
-
             List<OrderDetail> details = orderDAO.getOrderDetails(orderId);
-
             List<OrderLog> logs = orderDAO.getOrderLog(orderId);
 
             request.setAttribute("order", order);
@@ -48,11 +57,19 @@ public class OrderDetailServlet extends HttpServlet {
             request.setAttribute("details", details);
             request.setAttribute("logs", logs);
 
-            request.getRequestDispatcher("user/order-detail.jsp").forward(request, response);
+            if ("Admin".equalsIgnoreCase(acc.getRole()) || "Staff".equalsIgnoreCase(acc.getRole())) {
+                request.getRequestDispatcher("admin/order-detail.jsp").forward(request, response);
+            } else {
+                request.getRequestDispatcher("user/order-detail.jsp").forward(request, response);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("order-history");
+            if (acc != null && ("Admin".equalsIgnoreCase(acc.getRole()) || "Staff".equalsIgnoreCase(acc.getRole()))) {
+                response.sendRedirect("dashboard");
+            } else {
+                response.sendRedirect("order-history");
+            }
         }
     }
 }
