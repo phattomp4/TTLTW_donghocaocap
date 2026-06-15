@@ -239,6 +239,16 @@
         });
         document.getElementById('grandTotal').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
     }
+    document.addEventListener("input", function(e) {
+        if (e.target.classList.contains("qty-input") || e.target.classList.contains("price-input")) {
+            if (e.target.value < 0) {
+                e.target.value = e.target.classList.contains("qty-input") ? 1 : 0;
+                if (typeof calculateRow === "function") {
+                    calculateRow(e.target);
+                }
+            }
+        }
+    });
 </script>
 </body>
 </html>

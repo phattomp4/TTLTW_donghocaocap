@@ -70,8 +70,9 @@ public class WarehouseServlet extends HttpServlet {
                         int pId = Integer.parseInt(productIds[i]);
                         int qty = Integer.parseInt(quantities[i]);
                         double price = Double.parseDouble(prices[i]);
-
-                        dao.importProduct(pId, qty, price);
+                        if (qty > 0 && price >= 0) {
+                            dao.importProduct(pId, qty, price);
+                        }
                     }
                 }
             }
