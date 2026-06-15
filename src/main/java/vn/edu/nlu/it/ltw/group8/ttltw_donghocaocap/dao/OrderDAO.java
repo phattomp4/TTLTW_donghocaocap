@@ -11,6 +11,8 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.OrderLog;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class OrderDAO {
 
@@ -450,5 +452,31 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public Map<String, Object> getUserReputation(int userId) {
+        Map<String, Object> rep = new HashMap<>();
+        String sql = "SELECT COUNT(OrderID) AS TotalOrders, " +
+                "SUM(CASE WHEN Status = 'Completed' THEN TotalAmount ELSE 0 END) AS TotalSpent, " +
+                "SUM(CASE WHEN Status = 'Cancelled' THEN 1 ELSE 0 END) AS CancelledOrders " +
+                "FROM orders WHERE UserID = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int totalOrders = rs.getInt("TotalOrders");
+                    int cancelled = rs.getInt("CancelledOrders");
+                    double spent = rs.getDouble("TotalSpent");
+                    double cancelRate = (totalOrders == 0) ? 0 : ((double) cancelled / totalOrders) * 100;
+
+                    rep.put("TotalOrders", totalOrders);
+                    rep.put("TotalSpent", spent);
+                    rep.put("CancelRate", Math.round(cancelRate * 10.0) / 10.0);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return rep;
     }
 }
