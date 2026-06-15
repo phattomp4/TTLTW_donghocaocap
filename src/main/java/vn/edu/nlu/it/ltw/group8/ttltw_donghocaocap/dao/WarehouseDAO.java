@@ -63,4 +63,30 @@ public class WarehouseDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
+
+    public Map<String, Object> getImportDetail(int importId) {
+        Map<String, Object> detail = new HashMap<>();
+        String sql = "SELECT pi.*, p.name FROM ProductImports pi JOIN Products p ON pi.productId = p.ProductID WHERE pi.id = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, importId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    detail.put("importId", rs.getInt("id"));
+                    detail.put("productName", rs.getString("name"));
+                    detail.put("quantity", rs.getInt("quantity"));
+                    detail.put("importPrice", rs.getDouble("importPrice"));
+
+                    double totalValue = rs.getInt("quantity") * rs.getDouble("importPrice");
+                    detail.put("totalValue", totalValue);
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return detail;
+    }
 }
