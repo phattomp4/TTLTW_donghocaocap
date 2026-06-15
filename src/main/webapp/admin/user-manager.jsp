@@ -74,7 +74,7 @@
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard" ><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
     <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
     <a href="user-manager" class="active"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
@@ -113,7 +113,8 @@
                 <th style="width: 60px;">Avatar</th>
                 <th>Tên tài khoản</th>
                 <th>Họ và tên</th>
-                <th>Quyền hạn</th> <th>Ngày đăng ký</th>
+                <th>Quyền hạn</th>
+                <th>Ngày đăng ký</th>
                 <th>Trạng thái</th>
                 <th>Email</th>
                 <th>SĐT</th>
@@ -133,11 +134,18 @@
             <c:forEach items="${listUsers}" var="u">
                 <tr>
                     <td><b>#${u.id}</b></td>
+
                     <td>
                         <div class="avatar-circle">
-                                ${u.username != null && u.username.length() > 0 ? u.username.substring(0, 1).toUpperCase() : "U"}
+                            <c:choose>
+                                <c:when test="${not empty u.username}">
+                                    <c:out value="${u.username.toUpperCase().charAt(0)}"/>
+                                </c:when>
+                                <c:otherwise>U</c:otherwise>
+                            </c:choose>
                         </div>
                     </td>
+
                     <td style="font-weight: bold;">
                         <a href="user-manager?action=detail&id=${u.id}"
                            style="color: #1b6e76; text-decoration: none; transition: 0.2s;"
@@ -146,15 +154,16 @@
                                 ${u.username}
                         </a>
                     </td>
+
                     <td>${u.fullName}</td>
 
                     <td>
                         <form action="update-user-role" method="POST" style="display: flex; align-items: center; margin: 0;">
                             <input type="hidden" name="userId" value="${u.id}">
                             <select name="role" class="role-select">
-                                <option value="User" ${u.role == 'User' ? 'selected' : ''}>Khách hàng</option>
-                                <option value="Staff" ${u.role == 'Staff' ? 'selected' : ''}>Nhân viên</option>
-                                <option value="Admin" ${u.role == 'Admin' ? 'selected' : ''}>Admin</option>
+                                <option value="User" ${u.role == 'User' || u.role == 'user' ? 'selected' : ''}>Khách hàng</option>
+                                <option value="Staff" ${u.role == 'Staff' || u.role == 'staff' ? 'selected' : ''}>Nhân viên</option>
+                                <option value="Admin" ${u.role == 'Admin' || u.role == 'admin' ? 'selected' : ''}>Admin</option>
                             </select>
                             <button type="submit" class="btn-save-role" title="Lưu thay đổi">
                                 <i class="fa-solid fa-floppy-disk"></i>
@@ -168,7 +177,7 @@
 
                     <td>
                         <c:choose>
-                            <c:when test="${u.status == 'Active' || u.status == '1'}">
+                            <c:when test="${u.status == 'Active' || u.status == '1' || u.status == 'Hoạt động'}">
                                 <span class="badge badge-active">Hoạt động</span>
                             </c:when>
                             <c:otherwise>
@@ -178,7 +187,9 @@
                     </td>
 
                     <td style="font-size: 13px;">${u.email}</td>
+
                     <td style="font-size: 13px;">${u.phone}</td>
+
                     <td style="color: #666; font-size: 12px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${u.address}">
                             ${u.address}
                     </td>

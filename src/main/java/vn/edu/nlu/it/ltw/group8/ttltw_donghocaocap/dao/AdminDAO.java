@@ -687,12 +687,14 @@ public class AdminDAO {
     public List<User> getUsersWithPagination(int offset, int limit, String keyword) {
         List<User> list = new ArrayList<>();
         String query = "SELECT u.*, " +
-                "(SELECT Street FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
-                "FROM Users u WHERE Role != 'Admin'";
+                "(SELECT StreetDetail FROM addresses WHERE UserID = u.UserID AND IsDefault = 1 LIMIT 1) AS DefaultStreet " +
+                "FROM users u WHERE 1=1";
+
         if (keyword != null && !keyword.isEmpty()) {
-            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+            query += " AND (u.Username LIKE ? OR u.FullName LIKE ? OR u.Email LIKE ? OR u.Phone LIKE ?)";
         }
-        query += " ORDER BY UserID DESC LIMIT ? OFFSET ?";
+        query += " ORDER BY u.UserID DESC LIMIT ? OFFSET ?";
+
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             int paramIdx = 1;
@@ -701,9 +703,11 @@ public class AdminDAO {
                 ps.setString(paramIdx++, key);
                 ps.setString(paramIdx++, key);
                 ps.setString(paramIdx++, key);
+                ps.setString(paramIdx++, key);
             }
             ps.setInt(paramIdx++, limit);
             ps.setInt(paramIdx, offset);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     User u = new User();
@@ -712,20 +716,25 @@ public class AdminDAO {
                     u.setFullName(rs.getString("FullName"));
                     u.setEmail(rs.getString("Email"));
                     u.setPhone(rs.getString("Phone"));
+                    u.setRole(rs.getString("Role"));
                     u.setStatus(rs.getString("Status"));
                     u.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
                     u.setAddress(rs.getString("DefaultStreet") != null ? rs.getString("DefaultStreet") : "Chưa thiết lập");
                     list.add(u);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.out.println(">>> LỖI TẠI GET USERS PAGINATION:");
+            e.printStackTrace();
+        }
         return list;
     }
 
     public int getTotalUsersCount(String keyword) {
-        String query = "SELECT COUNT(*) FROM Users WHERE Role != 'Admin'";
+        String query = "SELECT COUNT(*) FROM users WHERE 1=1";
         if (keyword != null && !keyword.isEmpty()) {
-            query += " AND (FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
+            query += " AND (Username LIKE ? OR FullName LIKE ? OR Email LIKE ? OR Phone LIKE ?)";
         }
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -734,11 +743,14 @@ public class AdminDAO {
                 ps.setString(1, key);
                 ps.setString(2, key);
                 ps.setString(3, key);
+                ps.setString(4, key);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 

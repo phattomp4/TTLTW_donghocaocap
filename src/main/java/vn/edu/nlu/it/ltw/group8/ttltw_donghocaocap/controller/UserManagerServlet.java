@@ -35,12 +35,20 @@ public class UserManagerServlet extends HttpServlet {
             request.setAttribute("user", user);
             request.setAttribute("stats", stats);
             request.getRequestDispatcher("/admin/user-detail.jsp").forward(request, response);
-        } else {
+        }else {
             String keyword = request.getParameter("keyword");
+            if (keyword == null) {
+                keyword = "";
+            } else {
+                keyword = keyword.trim();
+            }
+
             int page = 1;
             int limit = 10;
             if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
+                try {
+                    page = Integer.parseInt(request.getParameter("page"));
+                } catch (Exception e) { page = 1; }
             }
             int offset = (page - 1) * limit;
 
