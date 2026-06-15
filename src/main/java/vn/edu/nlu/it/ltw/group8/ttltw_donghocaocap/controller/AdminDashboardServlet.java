@@ -47,6 +47,7 @@ public class AdminDashboardServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
+
         String period = request.getParameter("period");
         if (period == null || period.trim().isEmpty()) {
             period = "month";
@@ -57,10 +58,14 @@ public class AdminDashboardServlet extends HttpServlet {
         double revenue = statDao.getRevenueByPeriod(period);
         int totalOrders = statDao.countOrdersByPeriod(period);
         int totalUsers = dao.countUsers();
-        int pendingProcessingCount = statDao.countPendingAndProcessingOrders();
-        int cancelRequestsCount = statDao.countOrderStatus("Request Cancel");
-        int lowStockCount = statDao.countLowStockProducts(3);
 
+        Map<String, Integer> orderStats = statDao.getOrderStatusStats();
+        orderStats.putIfAbsent("Pending", 0);
+        orderStats.putIfAbsent("Processing", 0);
+        orderStats.putIfAbsent("Request Cancel", 0);
+
+        int lowStockCount = statDao.countLowStockProducts(3);
+        List<Product> lowStockList = statDao.getLowStockProducts();
         List<Order> recentOrders = statDao.getRecentOrders(5);
         List<Product> topSellingWatches = statDao.getTopSellingProducts(5);
 
@@ -93,18 +98,17 @@ public class AdminDashboardServlet extends HttpServlet {
             brandData.append(entry.getValue());
             index++;
         }
-
         String finalBrandLabels = brandLabels.toString().isEmpty() ? "'Chưa có dữ liệu'" : brandLabels.toString();
         String finalBrandData = brandData.toString().isEmpty() ? "0" : brandData.toString();
-
 
         request.setAttribute("revenue", revenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("totalUsers", totalUsers);
 
-        request.setAttribute("pendingProcessingCount", pendingProcessingCount);
-        request.setAttribute("cancelRequestsCount", cancelRequestsCount);
+        request.setAttribute("orderStats", orderStats);
+
         request.setAttribute("lowStockCount", lowStockCount);
+        request.setAttribute("lowStockList", lowStockList);
 
         request.setAttribute("recentOrders", recentOrders);
         request.setAttribute("topSellingWatches", topSellingWatches);

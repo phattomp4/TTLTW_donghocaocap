@@ -21,19 +21,15 @@ public class ProductManagerServlet extends HttpServlet {
         String action = request.getParameter("action");
         AdminDAO adminDAO = new AdminDAO();
 
-        // 1. Xử lý chức năng ẩn hiện (toggleStatus) nếu có yêu cầu
         if ("toggleStatus".equals(action)) {
             int pid = Integer.parseInt(request.getParameter("pid"));
             int status = Integer.parseInt(request.getParameter("status"));
-            adminDAO.toggleProductStatus(pid, status); // Cập nhật trạng thái xuống DB
+            adminDAO.toggleProductStatus(pid, status);
 
-            // Sau khi xử lý xong, redirect về lại trang quản lý để tránh trùng lặp dữ liệu
             response.sendRedirect("product-manager");
             return;
         }
 
-        // 2. Xử lý Phân trang và Bộ lọc hiển thị dữ liệu
-        // 2. Xử lý Phân trang và Bộ lọc hiển thị dữ liệu
         int pageSize = 10;
         int currentPage = 1;
 
@@ -42,7 +38,6 @@ public class ProductManagerServlet extends HttpServlet {
             currentPage = Integer.parseInt(pageRaw);
         }
 
-// Lấy tham số và lọc sạch giá trị rác
         String keyword = request.getParameter("keyword");
         if (keyword == null || keyword.trim().isEmpty() || keyword.equalsIgnoreCase("null")) keyword = "";
 
@@ -54,19 +49,15 @@ public class ProductManagerServlet extends HttpServlet {
 
         String priceRange = request.getParameter("priceRange");
         if (priceRange == null || priceRange.trim().isEmpty() || priceRange.equalsIgnoreCase("null")) priceRange = "0";
-        // Lấy danh sách sản phẩm theo bộ lọc và phân trang từ AdminDAO hoàn chỉnh đã sửa
         List<Product> listProducts = adminDAO.getProductsWithFilter(keyword, gender, brandId, priceRange, currentPage, pageSize);
 
-        // Tính toán tổng số lượng sản phẩm thỏa mãn điều kiện lọc để chia trang
         int totalProducts = adminDAO.getTotalProductsWithFilter(keyword, gender, brandId, priceRange);
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
 
-        // 3. Đẩy toàn bộ biến lên Request để file JSP nhận diện chuẩn xác 100%
         request.setAttribute("listProducts", listProducts);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
 
-        // Giữ lại trạng thái các bộ lọc để thanh phân trang không bị mất điều kiện tìm kiếm
         request.setAttribute("searchKeyword", keyword);
         request.setAttribute("selectedGender", gender);
         request.setAttribute("selectedBrand", brandId);

@@ -9,10 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f6f9; }
-        .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; }
+        .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; z-index: 100;}
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; }
-        .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; }
-        .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; }
+        .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; transition: 0.2s;}
+        .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 30px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
         .content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); box-sizing: border-box; }
 
@@ -24,10 +24,11 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
 
-        .btn-save { background: #1b6e76; color: white; padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-save { background: #1b6e76; color: white; padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s;}
+        .btn-save:hover { background: #145258; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;}
+        .btn-delete:hover { background: #c82333; }
 
-        /* Danh sách banner dạng bảng hàng dọc hỗ trợ kéo thả */
         .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
         .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid #eee; }
         .admin-table th { background: #f8f9fa; color: #555; font-weight: 600; }
@@ -35,24 +36,41 @@
         .drag-row:active { cursor: grabbing; }
         .sortable-ghost { opacity: 0.4; background-color: #d1ecf1 !important; }
         .handle-icon { color: #aaa; font-size: 18px; cursor: grab; }
+        .handle-icon:hover { color: #1b6e76; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    </c:if>
     <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
-    <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
-    <a href="banner-manager" class="active"><i class="fa-solid fa-paintbrush"></i> Quản lý Banner</a>
-    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
-    <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
+        <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
+        <a href="interface-manager"  class="active"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
+        <a href="category-manager"><i class="fa-solid fa-list"></i> Quản lý tìm kiếm</a>
+        <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
+    </c:if>
+    <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
 <div class="content">
     <h2>Quản lý Giao diện - Phân hệ Cấu hình Banner</h2>
+
+    <c:if test="${not empty param.msg}">
+        <div style="padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: bold;
+                    ${param.msg == 'success' ? 'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : 'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'}">
+            <c:choose>
+                <c:when test="${param.msg == 'success'}"><i class="fa-solid fa-circle-check"></i> Cập nhật banner thành công!</c:when>
+                <c:otherwise><i class="fa-solid fa-circle-xmark"></i> Thao tác thất bại. Vui lòng thử lại!</c:otherwise>
+            </c:choose>
+        </div>
+    </c:if>
 
     <div class="card">
         <h3><i class="fa-solid fa-circle-plus"></i> Thêm Banner Mới</h3>
@@ -106,7 +124,7 @@
             <tbody id="sortable-banner-list">
             <c:forEach items="${listSlideshow}" var="b">
                 <tr class="drag-row" data-id="${b.id}">
-                    <td style="text-align: center;"><i class="fa-solid fa-bars handle-icon"></i></td>
+                    <td style="text-align: center;"><i class="fa-solid fa-bars handle-icon" title="Kéo để di chuyển"></i></td>
                     <td>
                         <img src="${pageContext.request.contextPath}/${b.imageUrl}" style="width: 150px; height: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
                     </td>
@@ -155,27 +173,23 @@
 
         if (sortableContainer) {
             new Sortable(sortableContainer, {
-                handle: '.handle-icon', // Chỉ cho phép kéo thả khi di chuột vào icon ba dấu gạch ngang
-                animation: 250,         // Hoạt ảnh mượt mà 250ms
-                ghostClass: 'sortable-ghost', // Hiệu ứng làm mờ vị trí cũ khi đang kéo hàng
+                handle: '.handle-icon',
+                animation: 250,
+                ghostClass: 'sortable-ghost',
 
                 onEnd: function() {
-                    // Sự kiện kích hoạt khi buông chuột sau khi hoàn thành kéo thả
                     let reorderedIds = [];
 
-                    // Duyệt qua toàn bộ cấu trúc bảng hiện hành để xếp lại mảng ID theo trật tự mới
                     sortableContainer.querySelectorAll('tr').forEach(tr => {
                         reorderedIds.push(tr.getAttribute('data-id'));
                     });
 
-                    // Đóng gói mảng dữ liệu chuyển đổi sang cấu trúc tham số biểu mẫu (Form data parameters)
                     const formParams = new URLSearchParams();
                     formParams.append('action', 'updateOrder');
                     reorderedIds.forEach(id => {
                         formParams.append('ids[]', id);
                     });
 
-                    // Bắn dữ liệu ngầm lên AdminBannerServlet xử lý cập nhật cơ sở dữ liệu hàng loạt
                     fetch('${pageContext.request.contextPath}/admin/banner-manager', {
                         method: 'POST',
                         headers: {

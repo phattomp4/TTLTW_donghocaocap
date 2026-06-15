@@ -3,14 +3,12 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.awt.*;
+import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.StatisticDAO;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -48,10 +46,11 @@ public class ExportStatisticsServlet extends HttpServlet {
                 cell.setCellStyle(headerCellStyle);
             }
 
+            StatisticDAO statDao = new StatisticDAO();
+            double revenueData = statDao.getRevenueByPeriod(period);
+            int ordersData = statDao.countOrdersByPeriod(period);
+            int lowStockData = statDao.countLowStockProducts(10);
 
-            long revenueData = 150000000;
-            int ordersData = 45;
-            int lowStockData = 12;
 
             String periodLabel = period.equals("today") ? "Hôm nay" :
                     period.equals("week") ? "Tuần này" :
@@ -72,7 +71,7 @@ public class ExportStatisticsServlet extends HttpServlet {
             row2.createCell(2).setCellValue(periodLabel);
 
             Row row3 = sheet.createRow(3);
-            row3.createCell(0).setCellValue("Sản Phẩm Sắp Hết Hàng (< 3 chiếc)");
+            row3.createCell(0).setCellValue("Sản Phẩm Sắp Hết Hàng (< 10 chiếc)");
             row3.createCell(1).setCellValue(lowStockData);
             row3.createCell(2).setCellValue("Tất cả thời gian");
 

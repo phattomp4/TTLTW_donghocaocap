@@ -1,5 +1,6 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.controller;
 
+import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -15,8 +16,26 @@ public class WarehouseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ProductDAO productDao = new ProductDAO();
         WarehouseDAO warehouseDao = new WarehouseDAO();
+        String action = request.getParameter("action");
+
+        if ("getImportDetail".equals(action)) {
+            try {
+                int importId = Integer.parseInt(request.getParameter("id"));
+                Map<String, Object> detail = warehouseDao.getImportDetail(importId);
+
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(new Gson().toJson(detail));
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"error\": \"Lỗi truy xuất dữ liệu\"}");
+            }
+            return;
+        }
+
+        ProductDAO productDao = new ProductDAO();
 
         String keyword = request.getParameter("keyword");
         if (keyword == null) keyword = "";
@@ -39,7 +58,6 @@ public class WarehouseServlet extends HttpServlet {
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
 
         List<Product> allProducts = productDao.getAllProducts();
-
         List<Map<String, Object>> history = warehouseDao.getInventoryHistory();
 
         request.setAttribute("listProducts", listProducts);

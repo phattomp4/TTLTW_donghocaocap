@@ -228,14 +228,15 @@ public class StatisticDAO {
     public Map<String, Double> getRevenueTimelineData(String period) {
         Map<String, Double> map = new LinkedHashMap<>();
         String query = "";
-        String statusCondition = "Status IN ('Processing', 'Delivered', 'Completed')";
+
+        String statusCondition = "Status = 'Completed'";
 
         if ("year".equalsIgnoreCase(period)) {
             for (int i = 1; i <= 12; i++) {
                 String monthLabel = (i < 10) ? "Tháng 0" + i : "Tháng " + i;
                 map.put(monthLabel, 0.0);
             }
-            query = "SELECT DATE_FORMAT(OrderDate, 'Tháng %m') AS Label, SUM(TotalAmount) AS Revenue " +
+            query = "SELECT DATE_FORMAT(MAX(OrderDate), 'Tháng %m') AS Label, SUM(TotalAmount) AS Revenue " +
                     "FROM orders WHERE " + statusCondition + " AND YEAR(OrderDate) = YEAR(CURDATE()) " +
                     "GROUP BY MONTH(OrderDate) ORDER BY MONTH(OrderDate)";
 
@@ -243,19 +244,19 @@ public class StatisticDAO {
             map.put("Chủ Nhật", 0.0); map.put("Thứ 2", 0.0); map.put("Thứ 3", 0.0);
             map.put("Thứ 4", 0.0); map.put("Thứ 5", 0.0); map.put("Thứ 6", 0.0); map.put("Thứ 7", 0.0);
 
-            query = "SELECT CASE DAYOFWEEK(OrderDate) " +
+            query = "SELECT CASE DAYOFWEEK(MAX(OrderDate)) " +
                     "WHEN 1 THEN 'Chủ Nhật' WHEN 2 THEN 'Thứ 2' WHEN 3 THEN 'Thứ 3' " +
                     "WHEN 4 THEN 'Thứ 4' WHEN 5 THEN 'Thứ 5' WHEN 6 THEN 'Thứ 6' WHEN 7 THEN 'Thứ 7' END AS Label, " +
                     "SUM(TotalAmount) AS Revenue FROM orders WHERE " + statusCondition + " AND YEARWEEK(OrderDate, 1) = YEARWEEK(CURDATE(), 1) " +
                     "GROUP BY DAYOFWEEK(OrderDate) ORDER BY DAYOFWEEK(OrderDate)";
 
         } else if ("today".equalsIgnoreCase(period)) {
-            query = "SELECT CONCAT(HOUR(OrderDate), 'h') AS Label, SUM(TotalAmount) AS Revenue " +
+            query = "SELECT CONCAT(HOUR(MAX(OrderDate)), 'h') AS Label, SUM(TotalAmount) AS Revenue " +
                     "FROM orders WHERE " + statusCondition + " AND DATE(OrderDate) = CURDATE() " +
                     "GROUP BY HOUR(OrderDate) ORDER BY HOUR(OrderDate)";
 
-        } else { 
-            query = "SELECT DATE_FORMAT(OrderDate, '%d/%m') AS Label, SUM(TotalAmount) AS Revenue " +
+        } else {
+            query = "SELECT DATE_FORMAT(MAX(OrderDate), '%d/%m') AS Label, SUM(TotalAmount) AS Revenue " +
                     "FROM orders WHERE " + statusCondition + " AND MONTH(OrderDate) = MONTH(CURDATE()) AND YEAR(OrderDate) = YEAR(CURDATE()) " +
                     "GROUP BY DATE(OrderDate) ORDER BY DATE(OrderDate)";
         }
