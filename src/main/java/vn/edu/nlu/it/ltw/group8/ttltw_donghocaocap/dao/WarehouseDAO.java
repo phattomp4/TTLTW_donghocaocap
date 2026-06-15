@@ -11,10 +11,8 @@ import java.util.Map;
 
 public class WarehouseDAO {
 
-    // Hàm Nhập kho
     public void importProduct(int productId, int quantity, double importPrice) {
         try (Connection conn = new DBContext().getConnection()) {
-            //Lưu phiếu nhập
             String sqlImport = "INSERT INTO ProductImports (productId, quantity, importPrice) VALUES (?, ?, ?)";
             PreparedStatement ps1 = conn.prepareStatement(sqlImport, PreparedStatement.RETURN_GENERATED_KEYS);
             ps1.setInt(1, productId);
@@ -22,25 +20,21 @@ public class WarehouseDAO {
             ps1.setDouble(3, importPrice);
             ps1.executeUpdate();
 
-            // Lấy ID phiếu nhập vừa tạo
             ResultSet rsKeys = ps1.getGeneratedKeys();
             int importId = 0;
             if (rsKeys.next()) importId = rsKeys.getInt(1);
 
-            //Cập nhật số lượng tồn kho trong bảng Products
-            String sqlUpdateStock = "UPDATE Products SET stockQuantity = stockQuantity + ? WHERE id = ?";
+            String sqlUpdateStock = "UPDATE Products SET stockQuantity = stockQuantity + ? WHERE ProductID = ?";
             PreparedStatement ps2 = conn.prepareStatement(sqlUpdateStock);
             ps2.setInt(1, quantity);
             ps2.setInt(2, productId);
             ps2.executeUpdate();
 
-            //Ghi Log vào Lịch sử
             logTransaction(conn, productId, quantity, "IMPORT", "PNK-" + importId);
 
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // Ghi Log Biến Động Kho (Dùng chung cho cả Nhập, Bán, Hủy)
     public void logTransaction(Connection conn, int productId, int qtyChange, String type, String refCode) throws Exception {
         String sqlLog = "INSERT INTO InventoryTransactions (productId, quantityChange, transactionType, referenceCode) VALUES (?, ?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sqlLog);
@@ -51,10 +45,9 @@ public class WarehouseDAO {
         ps.executeUpdate();
     }
 
-    // Lấy Lịch sử biến động
     public List<Map<String, Object>> getInventoryHistory() {
         List<Map<String, Object>> list = new ArrayList<>();
-        String sql = "SELECT t.*, p.name FROM InventoryTransactions t JOIN Products p ON t.productId = p.id ORDER BY t.createdAt DESC";
+        String sql = "SELECT t.*, p.name FROM InventoryTransactions t JOIN Products p ON t.productId = p.ProductID ORDER BY t.createdAt DESC";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
