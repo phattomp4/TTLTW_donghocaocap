@@ -28,11 +28,10 @@
         .btn-export { padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 14px; transition: 0.2s; }
         .btn-export:hover { background: #218838; }
 
-        /* Cập nhật Card Container sang Grid hỗ trợ click link */
         .card-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #d0011b; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.2s, box-shadow 0.2s; }
 
-        /* Hiệu ứng nổi bật khi rê chuột vào Card (giống alert-box mẫu cũ) */
+
         .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; }
 
         .card h3 { margin: 0; color: #777; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
@@ -72,14 +71,19 @@
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard" class="active"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    </c:if>
     <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
-    <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
-    <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
-    <a href="category-manager"><i class="fa-solid fa-list"></i> Danh mục & Menu</a>
-    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
+
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
+        <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
+        <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
+        <a href="category-manager"><i class="fa-solid fa-list"></i> Quản lý tìm kiếm</a>
+        <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
+    </c:if>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
@@ -118,10 +122,11 @@
         <a href="order-manager?status=Pending&period=${not empty param.period ? param.period : 'month'}" class="card" style="border-color: #ffc107;">
             <h3><i class="fa-solid fa-bell" style="color: #ffc107;"></i> Đơn Cần Xử Lý</h3>
             <p>
-                ${pendingProcessingCount != null ? pendingProcessingCount : 0}
-                <c:if test="${cancelRequestsCount > 0}">
+                ${(orderStats['Pending'] != null ? orderStats['Pending'] : 0) + (orderStats['Processing'] != null ? orderStats['Processing'] : 0)}
+
+                <c:if test="${orderStats['Request Cancel'] != null && orderStats['Request Cancel'] > 0}">
                     <span style="font-size: 13px; color: #dc3545; font-weight: normal; margin-left: 5px;">
-                        (${cancelRequestsCount} khách đòi hủy <i class="fa-solid fa-triangle-exclamation"></i>)
+                        (${orderStats['Request Cancel']} đòi hủy <i class="fa-solid fa-triangle-exclamation"></i>)
                     </span>
                 </c:if>
             </p>
@@ -130,8 +135,8 @@
 
         <a href="warehouse?filter=lowstock" class="card" style="border-color: #fd7e14;">
             <h3><i class="fa-solid fa-boxes-stacked" style="color: #fd7e14;"></i> Sắp Hết Hàng</h3>
-            <p style="color: ${lowStockCount > 0 ? '#dc3545' : '#333'}">
-                ${lowStockCount != null ? lowStockCount : 0} <span style="font-size: 14px; font-weight: normal; color: #666;">mẫu (&lt; 3 chiếc)</span>
+            <p style="color: ${(lowStockList != null && lowStockList.size() > 0) ? '#dc3545' : '#333'}">
+                ${lowStockList != null ? lowStockList.size() : 0} <span style="font-size: 14px; font-weight: normal; color: #666;">mẫu (&lt; 10 chiếc)</span>
             </p>
             <i class="fa-solid fa-boxes-stacked card-icon"></i>
         </a>
@@ -143,21 +148,23 @@
         </a>
     </div>
 
-    <div class="charts-grid">
-        <div class="chart-box">
-            <h3><i class="fa-solid fa-chart-line" style="color: #1b6e76;"></i> Xu Hướng Doanh Thu Tiêu Thụ</h3>
-            <div style="position: relative; height:280px; width:100%">
-                <canvas id="revenueChart"></canvas>
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <div class="charts-grid">
+            <div class="chart-box">
+                <h3><i class="fa-solid fa-chart-line" style="color: #1b6e76;"></i> Xu Hướng Doanh Thu Tiêu Thụ</h3>
+                <div style="position: relative; height:280px; width:100%">
+                    <canvas id="revenueChart"></canvas>
+                </div>
             </div>
-        </div>
 
-        <div class="chart-box">
-            <h3><i class="fa-solid fa-chart-pie" style="color: #daa51e;"></i> Lợi Nhuận Theo Thương Hiệu</h3>
-            <div style="position: relative; height:280px; width:100%; display: flex; justify-content: center;">
-                <canvas id="brandPieChart"></canvas>
+            <div class="chart-box">
+                <h3><i class="fa-solid fa-chart-pie" style="color: #daa51e;"></i> Lợi Nhuận Theo Thương Hiệu</h3>
+                <div style="position: relative; height:280px; width:100%; display: flex; justify-content: center;">
+                    <canvas id="brandPieChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
+    </c:if>
 
     <div class="tables-grid">
         <div class="table-box">
@@ -250,7 +257,6 @@
 </div>
 
 <script>
-    // 1. ĐỌC VÀ CHUYỂN ĐỔI MẢNG TỪ CẦU NỐI HTML5
     const dataBridge = document.getElementById('chartDataBridge');
 
     const rawLineLabels = dataBridge.getAttribute('data-line-labels');
@@ -265,55 +271,59 @@
     const rawBrandData = dataBridge.getAttribute('data-brand-data');
     const brandDataArr = rawBrandData && rawBrandData.trim() !== "" ? rawBrandData.split(',').map(Number) : [];
 
-    // 2. BIỂU ĐỒ ĐƯỜNG
-    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-    new Chart(ctxRevenue, {
-        type: 'line',
-        data: {
-            labels: lineLabelsArr,
-            datasets: [{
-                label: 'Doanh thu tiêu thụ (đ)',
-                data: lineDataArr,
-                borderColor: '#1b6e76',
-                backgroundColor: 'rgba(27, 110, 118, 0.08)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.3,
-                pointBackgroundColor: '#1b6e76'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
-                x: { grid: { display: false } }
+    const ctxRevEl = document.getElementById('revenueChart');
+    if (ctxRevEl) {
+        const ctxRevenue = ctxRevEl.getContext('2d');
+        new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: lineLabelsArr,
+                datasets: [{
+                    label: 'Doanh thu tiêu thụ (đ)',
+                    data: lineDataArr,
+                    borderColor: '#1b6e76',
+                    backgroundColor: 'rgba(27, 110, 118, 0.08)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: '#1b6e76'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } }
+                }
             }
-        }
-    });
+        });
+    }
 
-    // 3. BIỂU ĐỒ TRÒN
-    const ctxBrand = document.getElementById('brandPieChart').getContext('2d');
-    new Chart(ctxBrand, {
-        type: 'doughnut',
-        data: {
-            labels: brandLabelsArr,
-            datasets: [{
-                data: brandDataArr,
-                backgroundColor: ['#d0011b', '#17a2b8', '#daa51e', '#28a745', '#6c757d', '#8e44ad', '#f39c12'],
-                borderWidth: 2,
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 12 } } }
+    const ctxBrandEl = document.getElementById('brandPieChart');
+    if (ctxBrandEl) {
+        const ctxBrand = ctxBrandEl.getContext('2d');
+        new Chart(ctxBrand, {
+            type: 'doughnut',
+            data: {
+                labels: brandLabelsArr,
+                datasets: [{
+                    data: brandDataArr,
+                    backgroundColor: ['#d0011b', '#17a2b8', '#daa51e', '#28a745', '#6c757d', '#8e44ad', '#f39c12'],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 12 } } }
+                }
             }
-        }
-    });
+        });
+    }
 </script>
 
 </body>

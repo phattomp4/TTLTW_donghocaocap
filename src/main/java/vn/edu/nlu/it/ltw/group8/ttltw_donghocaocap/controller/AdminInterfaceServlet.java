@@ -14,8 +14,8 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.InterfaceDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.ShopDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ShopInfo;
 
-
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Map;
 
 @WebServlet(name = "AdminInterfaceServlet", urlPatterns = {"/admin/interface-manager"})
@@ -26,7 +26,6 @@ import java.util.Map;
 )
 public class AdminInterfaceServlet extends HttpServlet {
 
-
     private Cloudinary getCloudinary() {
         return new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", "dnrpxyuwo",
@@ -34,11 +33,11 @@ public class AdminInterfaceServlet extends HttpServlet {
                 "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4"
         ));
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ShopDAO shopDao = new ShopDAO();
         HomeDAO homeDao = new HomeDAO();
-
 
         request.setAttribute("shopInfo", shopDao.getShopInfo());
         request.setAttribute("listSlideshow", homeDao.getSlideshowBanners());
@@ -56,7 +55,6 @@ public class AdminInterfaceServlet extends HttpServlet {
         Cloudinary cloudinary = getCloudinary();
 
         try {
-
             if ("updateInfo".equals(action)) {
                 ShopInfo info = new ShopInfo();
                 info.setBrandName(request.getParameter("brandName"));
@@ -83,19 +81,49 @@ public class AdminInterfaceServlet extends HttpServlet {
                 request.getSession().setAttribute("shopInfo", info);
             }
 
-
             else if ("addBanner".equals(action)) {
                 Part filePart = request.getPart("bannerImage");
+                String linkUrl = request.getParameter("linkUrl");
                 int sortOrder = Integer.parseInt(request.getParameter("sortOrder"));
+
+                String startDateStr = request.getParameter("startDate");
+                String endDateStr = request.getParameter("endDate");
+
+                Timestamp startDate = null;
+                Timestamp endDate = null;
+
+                if (startDateStr != null && !startDateStr.isEmpty()) {
+                    startDate = Timestamp.valueOf(startDateStr.replace("T", " ") + ":00");
+                }
+                if (endDateStr != null && !endDateStr.isEmpty()) {
+                    endDate = Timestamp.valueOf(endDateStr.replace("T", " ") + ":00");
+                }
+
                 if (filePart != null && filePart.getSize() > 0) {
                     Map uploadResult = cloudinary.uploader().upload(filePart.getInputStream().readAllBytes(), ObjectUtils.asMap("folder", "vvp_banners"));
-                    dao.addBanner((String) uploadResult.get("secure_url"), sortOrder);
+
+                    dao.addBanner((String) uploadResult.get("secure_url"), linkUrl, sortOrder, startDate, endDate);
                 }
             }
+
             else if ("deleteBanner".equals(action)) {
                 dao.deleteBanner(Integer.parseInt(request.getParameter("id")));
             }
 
+            else if ("updateOrder".equals(action)) {
+                String[] ids = request.getParameterValues("ids[]");
+                if (ids != null) {
+                    for (int i = 0; i < ids.length; i++) {
+                        int id = Integer.parseInt(ids[i]);
+                        int sortOrder = i + 1;
+                        dao.updateBannerOrder(id, sortOrder);
+                    }
+                }
+                // Phản hồi cho Javascript bằng Text thuần túy, KHÔNG load lại trang
+                response.setContentType("text/plain");
+                response.getWriter().write("success");
+                return;
+            }
 
             else if ("addSmallBanner".equals(action)) {
                 Part filePart = request.getPart("smallImage");
@@ -108,7 +136,6 @@ public class AdminInterfaceServlet extends HttpServlet {
             else if ("deleteSmallBanner".equals(action)) {
                 dao.deleteSmallBanner(Integer.parseInt(request.getParameter("id")));
             }
-
 
             else if ("addBrand".equals(action)) {
                 String name = request.getParameter("brandName");

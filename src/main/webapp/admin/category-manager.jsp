@@ -13,11 +13,11 @@
 
         .sidebar { width: 250px; background: #343a40; color: white; min-height: 100vh; padding: 20px 0; position: fixed; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; color: #1b6e76; }
-        .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; }
-        .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 25px;}
+        .sidebar a { display: block; padding: 15px 25px; color: #c2c7d0; text-decoration: none; border-bottom: 1px solid #4b545c; transition: 0.2s; }
+        .sidebar a:hover, .sidebar a.active { background-image: linear-gradient(45deg, #1b6e76, #2c96a0, #0e3e43) ; color: white; padding-left: 30px;}
         .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
 
-        .content { margin-left: 250px; padding: 30px; width: 100%; }
+        .content { margin-left: 250px; padding: 30px; width: 100%; box-sizing: border-box;}
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .card h2 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: #333; font-size: 20px; }
 
@@ -31,11 +31,16 @@
         .form-control { padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 150px; }
 
         .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: 500; text-decoration: none; display: inline-block;}
-        .btn-add { background: #28a745; }
-        .btn-update { background: #007bff; }
-        .btn-delete { background: #dc3545; padding: 5px 10px; font-size: 12px; }
-        .btn-edit { background: #ffc107; color: #333; padding: 5px 10px; font-size: 12px; margin-right: 5px; }
-        .btn-cancel { background: #6c757d; display: none; }
+        .btn-add { background: #28a745; transition: 0.2s;}
+        .btn-add:hover { background: #218838; }
+        .btn-update { background: #007bff; transition: 0.2s;}
+        .btn-update:hover { background: #0069d9; }
+        .btn-delete { background: #dc3545; padding: 5px 10px; font-size: 12px; transition: 0.2s;}
+        .btn-delete:hover { background: #c82333; }
+        .btn-edit { background: #ffc107; color: #333; padding: 5px 10px; font-size: 12px; margin-right: 5px; transition: 0.2s;}
+        .btn-edit:hover { background: #e0a800; }
+        .btn-cancel { background: #6c757d; display: none; transition: 0.2s;}
+        .btn-cancel:hover { background: #5a6268; }
 
         .handle { cursor: grab; color: #ccc; margin-right: 10px; }
 
@@ -51,18 +56,33 @@
 
 <div class="sidebar">
     <h2>VVP ADMIN</h2>
-    <a href="dashboard" ><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="dashboard"><i class="fa-solid fa-gauge"></i> Tổng quan</a>
+    </c:if>
     <a href="order-manager"><i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng</a>
     <a href="product-manager"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
-    <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-    <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
-    <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
-    <a href="category-manager"  class="active"><i class="fa-solid fa-paintbrush"></i> Danh mục & Menu</a>
-    <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
+
+    <c:if test="${sessionScope.acc.role == 'Admin'}">
+        <a href="user-manager"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
+        <a href="voucher-manager"><i class="fa-solid fa-ticket"></i> Quản lý Voucher</a>
+        <a href="interface-manager"><i class="fa-solid fa-paintbrush"></i> Quản lý Giao diện</a>
+        <a href="category-manager"  class="active"><i class="fa-solid fa-list"></i> Quản lý tìm kiếm</a>
+        <a href="warehouse"><i class="fa-solid fa-boxes-stacked"></i> Quản lý Kho</a>
+    </c:if>
     <a href="${pageContext.request.contextPath}/home"><i class="fa-solid fa-house"></i> Về trang chủ web</a>
 </div>
 
 <div class="content">
+
+    <c:if test="${not empty param.msg}">
+        <div style="padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: bold;
+                    ${param.msg == 'success' ? 'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : 'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'}">
+            <c:choose>
+                <c:when test="${param.msg == 'success'}"><i class="fa-solid fa-circle-check"></i> Thao tác thành công!</c:when>
+                <c:otherwise><i class="fa-solid fa-circle-xmark"></i> Thao tác thất bại!</c:otherwise>
+            </c:choose>
+        </div>
+    </c:if>
 
     <div class="card">
         <h2><i class="fa-solid fa-list"></i> Quản lý Danh mục Sản phẩm</h2>
@@ -124,7 +144,7 @@
             <tbody id="sortable-cats">
             <c:forEach items="${listCats}" var="c">
                 <tr data-id="${c.id}">
-                    <td><i class="fa-solid fa-grip-vertical handle"></i></td>
+                    <td><i class="fa-solid fa-grip-vertical handle" title="Kéo thả để sắp xếp"></i></td>
                     <td>${c.id}</td>
                     <td><b>${c.name}</b></td>
                     <td>
@@ -139,13 +159,18 @@
                     <td class="sort-val">${c.sortOrder}</td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" ${c.active ? 'checked' : ''} onclick="toggleStatus('${c.id}', this.checked)">                            <span class="slider"></span>
+                            <input type="checkbox" ${c.active ? 'checked' : ''} onclick="toggleStatus('${c.id}', this.checked)">
+                            <span class="slider"></span>
                         </label>
                     </td>
                     <td>
                         <button class="btn btn-edit" onclick="editCategory('${c.id}', '${c.name}', '${c.parentId}', '${c.sortOrder}', ${c.active})">
                             <i class="fa-solid fa-pen"></i>
                         </button>
+
+                        <a href="category-manager?action=delete&id=${c.id}" onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?');" class="btn btn-delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
                     </td>
                 </tr>
             </c:forEach>
@@ -174,8 +199,8 @@
             </div>
 
             <div>
-                <button type="submit" id="btnPriceSubmit" style="padding: 8px 15px; background: #d0011b; color: white; border: none; cursor: pointer;">Thêm giá</button>
-                <button type="button" id="btnPriceCancel" onclick="cancelEditPrice()" style="padding: 8px 15px; background: #6c757d; color: white; border: none; cursor: pointer; display: none;">Hủy</button>
+                <button type="submit" id="btnPriceSubmit" style="padding: 8px 15px; background: #d0011b; color: white; border: none; border-radius: 4px; cursor: pointer; transition: 0.2s;">Thêm giá</button>
+                <button type="button" id="btnPriceCancel" onclick="cancelEditPrice()" style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; display: none; transition: 0.2s;">Hủy</button>
             </div>
         </form>
 
@@ -201,12 +226,12 @@
                     </td>
                     <td>
                         <button type="button" onclick="editPrice('${p.id}', '${p.label}', '${p.minPrice}', '${p.maxPrice}')"
-                                style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">
+                                style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; color: #333; transition: 0.2s;">
                             <i class="fa-solid fa-pen"></i>
                         </button>
 
                         <a href="category-manager?action=deletePrice&id=${p.id}" onclick="return confirm('Xóa khoảng giá này?')"
-                           style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 13px;">
+                           style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; display: inline-block; transition: 0.2s;">
                             <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
