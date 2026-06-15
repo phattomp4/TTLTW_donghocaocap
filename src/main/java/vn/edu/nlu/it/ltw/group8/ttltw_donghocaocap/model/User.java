@@ -3,7 +3,7 @@ package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class User  implements Serializable {
+public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
     private String username;
@@ -16,6 +16,7 @@ public class User  implements Serializable {
     private String address;
     private String avatar;
     private String status;
+    private boolean active;
     private String verificationToken;
     private Timestamp verificationExpiry;
     private Timestamp createdAt;
@@ -23,7 +24,7 @@ public class User  implements Serializable {
     public User() {
     }
 
-    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, String verificationToken, Timestamp verificationExpiry, Timestamp createdAt) {
+    public User(int id, String username, String password, String fullName, String email, String role, String phone, String gender, String address, String avatar, String status, boolean active, String verificationToken, Timestamp verificationExpiry, Timestamp createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -35,6 +36,7 @@ public class User  implements Serializable {
         this.address = address;
         this.avatar = avatar;
         this.status = status;
+        this.active = active;
         this.verificationToken = verificationToken;
         this.verificationExpiry = verificationExpiry;
         this.createdAt = createdAt;
@@ -127,6 +129,15 @@ public class User  implements Serializable {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    // ------------------------------------------
 
     public String getVerificationToken() {
         return verificationToken;

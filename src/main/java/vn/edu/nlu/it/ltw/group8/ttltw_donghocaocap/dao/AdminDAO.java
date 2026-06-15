@@ -10,10 +10,6 @@ import java.util.Map;
 
 public class AdminDAO {
 
-    // =========================================================================
-    // 📊 1. THỐNG KÊ & DOANH THU (DASHBOARD)
-    // =========================================================================
-
     public double getTotalRevenue() {
         String query = "SELECT SUM(TotalAmount) FROM Orders WHERE Status != 'Cancelled'";
         try (Connection conn = new DBContext().getConnection();
@@ -43,10 +39,6 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
-
-    // =========================================================================
-    // 📦 2. QUẢN LÝ SẢN PHẨM (PRODUCTS)
-    // =========================================================================
 
     public Product getProductById(int pid) {
         String query = "SELECT p.*, (SELECT ImageURL FROM ProductImages WHERE ProductID = p.ProductID LIMIT 1) AS ImageURL FROM Products p WHERE p.ProductID = ?";
@@ -103,7 +95,6 @@ public class AdminDAO {
 
     public List<Product> getProductsWithFilter(String keyword, String gender, String brandId, String priceRange, int page, int pageSize) {
         List<Product> list = new ArrayList<>();
-        // Viết chữ thường bảng products đồng bộ
         StringBuilder query = new StringBuilder("SELECT * FROM products WHERE 1=1 ");
 
         if (keyword != null && !keyword.trim().isEmpty() && !keyword.equalsIgnoreCase("null")) {
@@ -156,7 +147,6 @@ public class AdminDAO {
                 while (rs.next()) {
                     Product p = new Product();
 
-                    // ĐỌC DỮ LIỆU CHUẨN VÀ GÁN GIÁ TRỊ MẶC ĐỊNH NẾU DỮ LIỆU BỊ NULL
                     p.setId(rs.getInt("ProductID"));
                     p.setBrandId(rs.getInt("BrandID"));
 
@@ -169,7 +159,6 @@ public class AdminDAO {
                     String desc = rs.getString("Description");
                     p.setDescription(desc != null ? desc : "");
 
-                    // Đọc kiểu số thực và gán chuẩn xác
                     p.setOriginalPrice(rs.getDouble("OriginalPrice"));
                     p.setCurrentPrice(rs.getDouble("CurrentPrice"));
                     p.setStockQuantity(rs.getInt("StockQuantity"));
@@ -181,10 +170,8 @@ public class AdminDAO {
                     }
                     p.setImageUrl(img);
 
-                    // Cột IsActive kiểu bit(1) chuyển thành int 1 hoặc 0 khớp chuẩn Model của bạn
                     p.setIsActive(rs.getBoolean("is_active") ? 1 : 0);
 
-                    // Cột IsFeatured kiểu int chuyển thành boolean khớp chuẩn Model p.isLuxury của bạn
                     p.setLuxury(rs.getInt("IsFeatured") == 1);
 
                     list.add(p);
@@ -201,7 +188,6 @@ public class AdminDAO {
 
     public int getTotalProductsWithFilter(String keyword, String gender, String brandId, String priceRange) {
         int total = 0;
-        // Viết chữ thường bảng products đồng bộ 100% với file SQL
         StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM products WHERE 1=1 ");
 
         if (keyword != null && !keyword.trim().isEmpty() && !keyword.equalsIgnoreCase("null")) {
@@ -403,9 +389,6 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // =========================================================================
-    // 🛠️ 3. QUẢN LÝ SẢN PHẨM NÂNG CAO (IMAGES & SPECIFICATIONS)
-    // =========================================================================
 
     public void insertFullProduct(Product p, List<String> detailImages, List<ProductSpecification> listSpecs) {
         String sqlProduct = "INSERT INTO Products (Name, SKU, Description, OriginalPrice, CurrentPrice, StockQuantity, SoldQuantity, BrandID, ImageURL, IsLuxury, IsActive) VALUES (?, ?, ?, ?, ?, ?, 0, 1, ?, ?, 1)";
@@ -553,10 +536,6 @@ public class AdminDAO {
         return map;
     }
 
-    // =========================================================================
-    // 🛒 4. QUẢN LÝ ĐƠN HÀNG (ORDERS)
-    // =========================================================================
-
     public List<Order> getAllOrders() {
         List<Order> list = new ArrayList<>();
         String query = "SELECT * FROM Orders ORDER BY OrderDate DESC";
@@ -628,10 +607,6 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // =========================================================================
-    // 👥 5. QUẢN LÝ NGƯỜI DÙNG (USERS)
-    // =========================================================================
-
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         String query = "SELECT u.*, " +
@@ -649,6 +624,7 @@ public class AdminDAO {
                 u.setPhone(rs.getString("Phone"));
                 String defAddr = rs.getString("DefaultStreet");
                 u.setAddress(defAddr != null ? defAddr : "Chưa thiết lập");
+                u.setActive(rs.getBoolean("is_active"));
                 list.add(u);
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -677,6 +653,7 @@ public class AdminDAO {
                     u.setPhone(rs.getString("Phone"));
                     String defAddr = rs.getString("DefaultStreet");
                     u.setAddress(defAddr != null ? defAddr : "Chưa thiết lập");
+                    u.setActive(rs.getBoolean("is_active")); // LẤY TRẠNG THÁI KHÓA/MỞ
                     list.add(u);
                 }
             }
@@ -719,7 +696,7 @@ public class AdminDAO {
                     u.setRole(rs.getString("Role"));
                     u.setStatus(rs.getString("Status"));
                     u.setCreatedAt(rs.getTimestamp("CreatedAt"));
-
+                    u.setActive(rs.getBoolean("is_active"));
                     u.setAddress(rs.getString("DefaultStreet") != null ? rs.getString("DefaultStreet") : "Chưa thiết lập");
                     list.add(u);
                 }
@@ -770,6 +747,7 @@ public class AdminDAO {
                     u.setStatus(rs.getString("Status"));
                     u.setCreatedAt(rs.getTimestamp("CreatedAt"));
                     u.setAddress(rs.getString("DefaultStreet"));
+                    u.setActive(rs.getBoolean("is_active"));
                     return u;
                 }
             }
@@ -786,6 +764,17 @@ public class AdminDAO {
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); }
         return false;
+    }
+
+    // HÀM MỚI: CẬP NHẬT TRẠNG THÁI KHÓA/MỞ KHÓA (Cho Admin sử dụng)
+    public void toggleUserActiveStatus(int userId, boolean isActive) {
+        String sql = "UPDATE users SET is_active = ? WHERE UserID = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, isActive);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     public UserShoppingStats getCustomerStats(int userId) {
@@ -810,10 +799,6 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return stats;
     }
-
-    // =========================================================================
-    // 🎟️ 6. QUẢN LÝ VOUCHER & LỊCH SỬ SỬ DỤNG
-    // =========================================================================
 
     public boolean addVoucher(Voucher voucher) {
         String sql = "INSERT INTO vouchers (Code, DiscountType, DiscountValue, MaxDiscount, UsageLimit, StartDate, EndDate) VALUES (?,?,?,?,?,?,?)";
@@ -966,9 +951,6 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // =========================================================================
-    // 🖼️ 7. QUẢN LÝ BANNER & DANH MỤC (BANNER & CATEGORIES)
-    // =========================================================================
 
     public List<Banner> getAdminAllBanners() {
         List<Banner> list = new ArrayList<>();
@@ -1063,9 +1045,6 @@ public class AdminDAO {
         return false;
     }
 
-    // =========================================================================
-    // 🛠️ 8. MAPPING HELPER METHOD (TỐI ƯU HÓA TÁI SỬ DỤNG)
-    // =========================================================================
 
     private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
         Product p = new Product();
@@ -1079,7 +1058,7 @@ public class AdminDAO {
         p.setStockQuantity(rs.getInt("StockQuantity"));
         p.setSoldQuantity(rs.getInt("SoldQuantity"));
         p.setLuxury(rs.getBoolean("IsLuxury"));
-        p.setIsActive(rs.getInt("is_active")); // Trùng khớp 100% với chữ thường trong DB của bạn
+        p.setIsActive(rs.getInt("is_active"));
 
         String img = rs.getString("ImageURL");
         if (img == null || img.trim().isEmpty()) {
@@ -1089,6 +1068,3 @@ public class AdminDAO {
         return p;
     }
 }
-
-
-
