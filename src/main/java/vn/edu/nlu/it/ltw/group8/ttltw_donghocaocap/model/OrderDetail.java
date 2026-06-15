@@ -1,5 +1,5 @@
 package vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model;
-
+import java.util.Date;
 public class OrderDetail {
     private int orderDetailId;
     private int orderId;
@@ -7,6 +7,7 @@ public class OrderDetail {
     private int quantity;
     private double priceAtPurchase;
     private Product product;
+    private String ghnOrderCode;
     public Product getProduct() {
         return product;
     }
@@ -16,16 +17,25 @@ public class OrderDetail {
 
     public OrderDetail() {}
 
-    public OrderDetail(int orderDetailId, int orderId, int productId, int quantity, double priceAtPurchase) {
+
+    public OrderDetail(int orderDetailId, int orderId, int productId, int quantity, double priceAtPurchase, Product product, String ghnOrderCode) {
         this.orderDetailId = orderDetailId;
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
         this.priceAtPurchase = priceAtPurchase;
+        this.product = product;
+        this.ghnOrderCode = ghnOrderCode;
     }
 
     public int getOrderDetailId() {
         return orderDetailId;
+    }public String getGhnOrderCode() {
+        return ghnOrderCode;
+    }
+
+    public void setGhnOrderCode(String ghnOrderCode) {
+        this.ghnOrderCode = ghnOrderCode;
     }
 
     public void setOrderDetailId(int orderDetailId) {
