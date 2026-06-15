@@ -64,7 +64,7 @@
             <div>
                 <strong>Người nhận:</strong> ${address.name}<br>
                 <strong>SĐT:</strong> ${address.phone}<br>
-                <strong>Địa chỉ:</strong> ${address.address} <c:if test="${not empty address.city}">- ${address.city}</c:if>
+                <strong>Địa chỉ:</strong> ${address.streetDetail}, ${address.ward}, ${address.district}, ${address.province}
             </div>
             <div style="text-align: right;">
                 <strong>Ngày đặt:</strong> <fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm"/><br>
