@@ -17,6 +17,7 @@ public class Product {
     private int stockQuantity;
     private int soldQuantity;
     private boolean isLuxury;
+    private boolean isFeatured;
     private int isActive;
     private List<String> imageList = new ArrayList<>();
 
@@ -24,7 +25,7 @@ public class Product {
 
     public Product() {}
 
-    public Product(int id, int brandId, String name, String sku, String description, double originalPrice, double currentPrice, String imageUrl, int stockQuantity, int soldQuantity, boolean isLuxury, int isActive) {
+    public Product(int id, int brandId, String name, String sku, String description, double originalPrice, double currentPrice, String imageUrl, int stockQuantity, int soldQuantity, boolean isLuxury, boolean isFeatured, int isActive) {
         this.id = id;
         this.brandId = brandId;
         this.name = name;
@@ -36,6 +37,7 @@ public class Product {
         this.stockQuantity = stockQuantity;
         this.soldQuantity = soldQuantity;
         this.isLuxury = isLuxury;
+        this.isFeatured = isFeatured;
         this.isActive = isActive;
     }
 
@@ -125,6 +127,14 @@ public class Product {
 
     public void setLuxury(boolean luxury) {
         isLuxury = luxury;
+    }
+
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    public void setFeatured(boolean featured) {
+        isFeatured = featured;
     }
 
     public int getIsActive() {

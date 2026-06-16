@@ -13,7 +13,6 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.dao.AdminDAO;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.Product;
 import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.ProductSpecification;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,13 +37,11 @@ public class ProductFormServlet extends HttpServlet {
                 int pid = Integer.parseInt(idRaw);
                 AdminDAO dao = new AdminDAO();
 
-
                 Product p = dao.getProductById(pid);
                 request.setAttribute("product", p);
 
                 List<String> detailImages = dao.getDetailImages(pid);
                 request.setAttribute("detailImages", detailImages);
-
 
                 Map<String, String> specMap = dao.getProductSpecsMap(pid);
                 request.setAttribute("specMap", specMap);
@@ -62,7 +59,6 @@ public class ProductFormServlet extends HttpServlet {
         try {
             request.setCharacterEncoding("UTF-8");
 
-
             String name = request.getParameter("name");
             String sku = request.getParameter("sku");
             double price = Double.parseDouble(request.getParameter("price"));
@@ -70,6 +66,11 @@ public class ProductFormServlet extends HttpServlet {
             int stock = Integer.parseInt(request.getParameter("stock"));
             String desc = request.getParameter("description");
             boolean isLuxury = request.getParameter("isLuxury") != null;
+            String isActiveStr = request.getParameter("isActive");
+            int isActive = (isActiveStr != null && !isActiveStr.trim().isEmpty()) ? Integer.parseInt(isActiveStr) : 1;
+
+            String isFeaturedStr = request.getParameter("isFeatured");
+            boolean isFeatured = isFeaturedStr != null ? Boolean.parseBoolean(isFeaturedStr) : false;
 
 
             Product p = new Product();
@@ -80,6 +81,8 @@ public class ProductFormServlet extends HttpServlet {
             p.setStockQuantity(stock);
             p.setDescription(desc);
             p.setLuxury(isLuxury);
+            p.setIsActive(isActive);
+            p.setFeatured(isFeatured);
 
 
             String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "img" + File.separator + "products";
@@ -92,7 +95,6 @@ public class ProductFormServlet extends HttpServlet {
                     "api_secret", "beBh1tv2UJYTuS8CWkVmKS48CO4"
             ));
 
-
             Part mainPart = request.getPart("mainImage");
             if (mainPart != null && mainPart.getSize() > 0) {
                 try {
@@ -103,13 +105,13 @@ public class ProductFormServlet extends HttpServlet {
                     ));
 
                     String secureUrl = (String) uploadResult.get("secure_url");
-
                     p.setImageUrl(secureUrl);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
             List<String> detailImages = new ArrayList<>();
             Collection<Part> parts = request.getParts();
 
@@ -146,7 +148,6 @@ public class ProductFormServlet extends HttpServlet {
             }
 
             AdminDAO dao = new AdminDAO();
-
             String idRaw = request.getParameter("id");
 
             if (idRaw != null && !idRaw.trim().isEmpty() && !idRaw.equals("0")) {

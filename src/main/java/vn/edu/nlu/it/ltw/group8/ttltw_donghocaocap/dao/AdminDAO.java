@@ -172,7 +172,9 @@ public class AdminDAO {
 
                     p.setIsActive(rs.getBoolean("is_active") ? 1 : 0);
 
-                    p.setLuxury(rs.getInt("IsFeatured") == 1);
+                    // ĐÃ FIX: Tách biệt rõ ràng 2 cột Luxury và Featured
+                    p.setLuxury(rs.getBoolean("IsLuxury"));
+                    p.setFeatured(rs.getBoolean("IsFeatured"));
 
                     list.add(p);
                 }
@@ -239,6 +241,7 @@ public class AdminDAO {
         }
         return total;
     }
+
     public List<Product> searchProductsByName(String keyword) {
         List<Product> list = new ArrayList<>();
         String query = "SELECT * FROM Products WHERE Name LIKE ? ORDER BY ProductID DESC";
@@ -389,9 +392,8 @@ public class AdminDAO {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-
     public void insertFullProduct(Product p, List<String> detailImages, List<ProductSpecification> listSpecs) {
-        String sqlProduct = "INSERT INTO Products (Name, SKU, Description, OriginalPrice, CurrentPrice, StockQuantity, SoldQuantity, BrandID, ImageURL, IsLuxury, IsActive) VALUES (?, ?, ?, ?, ?, ?, 0, 1, ?, ?, 1)";
+        String sqlProduct = "INSERT INTO Products (Name, SKU, Description, OriginalPrice, CurrentPrice, StockQuantity, SoldQuantity, BrandID, ImageURL, IsLuxury, IsFeatured, is_active) VALUES (?, ?, ?, ?, ?, ?, 0, 1, ?, ?, ?, 1)";
         String sqlImg = "INSERT INTO ProductImages (ProductID, ImageURL) VALUES (?, ?)";
         String sqlSpec = "INSERT INTO ProductSpecifications (ProductID, SpecName, SpecValue) VALUES (?, ?, ?)";
         try (Connection conn = new DBContext().getConnection()) {
@@ -405,6 +407,7 @@ public class AdminDAO {
                 ps.setInt(6, p.getStockQuantity());
                 ps.setString(7, p.getImageUrl());
                 ps.setBoolean(8, p.isLuxury());
+                ps.setBoolean(9, p.isFeatured());
                 ps.executeUpdate();
 
                 int productId = 0;
@@ -442,7 +445,7 @@ public class AdminDAO {
     }
 
     public void updateFullProduct(Product p, List<String> detailImages, List<ProductSpecification> listSpecs) {
-        String sqlUpdate = "UPDATE Products SET Name=?, SKU=?, Description=?, OriginalPrice=?, CurrentPrice=?, StockQuantity=?, IsLuxury=?, IsActive=? WHERE ProductID=?";
+        String sqlUpdate = "UPDATE Products SET Name=?, SKU=?, Description=?, OriginalPrice=?, CurrentPrice=?, StockQuantity=?, IsLuxury=?, IsFeatured=?, is_active=? WHERE ProductID=?";
         String sqlUpdateImg = "UPDATE Products SET ImageURL=? WHERE ProductID=?";
         String sqlDelImg = "DELETE FROM ProductImages WHERE ProductID=?";
         String sqlInsImg = "INSERT INTO ProductImages (ProductID, ImageURL) VALUES (?, ?)";
@@ -458,8 +461,9 @@ public class AdminDAO {
                 ps.setDouble(5, p.getCurrentPrice());
                 ps.setInt(6, p.getStockQuantity());
                 ps.setBoolean(7, p.isLuxury());
-                ps.setInt(8, p.getIsActive());
-                ps.setInt(9, p.getId());
+                ps.setBoolean(8, p.isFeatured());
+                ps.setInt(9, p.getIsActive());
+                ps.setInt(10, p.getId());
                 ps.executeUpdate();
 
                 if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
@@ -653,7 +657,7 @@ public class AdminDAO {
                     u.setPhone(rs.getString("Phone"));
                     String defAddr = rs.getString("DefaultStreet");
                     u.setAddress(defAddr != null ? defAddr : "Chưa thiết lập");
-                    u.setActive(rs.getBoolean("is_active")); // LẤY TRẠNG THÁI KHÓA/MỞ
+                    u.setActive(rs.getBoolean("is_active"));
                     list.add(u);
                 }
             }
@@ -766,7 +770,6 @@ public class AdminDAO {
         return false;
     }
 
-    // HÀM MỚI: CẬP NHẬT TRẠNG THÁI KHÓA/MỞ KHÓA (Cho Admin sử dụng)
     public void toggleUserActiveStatus(int userId, boolean isActive) {
         String sql = "UPDATE users SET is_active = ? WHERE UserID = ?";
         try (Connection conn = new DBContext().getConnection();
@@ -1058,8 +1061,8 @@ public class AdminDAO {
         p.setStockQuantity(rs.getInt("StockQuantity"));
         p.setSoldQuantity(rs.getInt("SoldQuantity"));
         p.setLuxury(rs.getBoolean("IsLuxury"));
+        p.setFeatured(rs.getBoolean("IsFeatured"));
         p.setIsActive(rs.getInt("is_active"));
-
         String img = rs.getString("ImageURL");
         if (img == null || img.trim().isEmpty()) {
             img = "https://via.placeholder.com/150";

@@ -71,7 +71,10 @@
         </h2>
 
         <form action="product-form" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="id" value="${product.id}">
+            <input type="hidden" name="action" value="${empty product ? 'add' : 'edit'}">
+            <input type="hidden" name="id" value="${product != null ? product.getId() : 0}">
+            <input type="hidden" name="isActive" value="${product != null ? product.getIsActive() : 1}">
+            <input type="hidden" name="isFeatured" value="${product != null ? product.isFeatured() : false}">
 
             <div class="form-section">
                 <h3>1. Thông tin chung</h3>
@@ -105,12 +108,13 @@
                     <div class="form-group" style="background: #fff3cd; padding: 10px; border-radius: 5px; border: 1px solid #ffeeba;">
                         <label style="color: #856404; font-weight: bold;">Tùy chọn hiển thị:</label>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+
                             <input type="checkbox" id="isLuxury" name="isLuxury" value="true"
                                    style="width: 20px; height: 20px; cursor: pointer;"
-                            ${product != null && product.isLuxury() ? 'checked' : ''}>
+                            ${product != null && product.luxury ? 'checked' : ''}>
 
                             <label for="isLuxury" style="margin: 0; cursor: pointer;">
-                                Đánh dấu là <strong>Sản phẩm Luxury</strong> (Hiển thị nổi bật trang chủ)
+                                Đánh dấu là <strong>Sản phẩm Luxury</strong>
                             </label>
                         </div>
                     </div>
