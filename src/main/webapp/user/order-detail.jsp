@@ -177,13 +177,49 @@
         .summary-box { background: #fafafa; padding: 25px; border-radius: 10px; border: 1px dashed #ddd; width: 100%; max-width: 400px; margin-left: auto; }
         .summary-box p { display: flex; justify-content: space-between; margin: 10px 0; font-size: 15px; color: #555; }
         .summary-box h3 { display: flex; justify-content: space-between; margin-top: 15px; border-top: 2px solid #eee; padding-top: 15px; font-size: 20px; color: #d0011b; }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-fill {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #28a745;
+            transition: 0.2s;
+        }
+        .btn-fill:hover {
+            background: #218838;
+            border-color: #218838;
+            color: white;
+        }
+        .btn-outline {
+            padding: 8px 16px;
+            background: transparent;
+            color: #fd7e14;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #fd7e14;
+            transition: 0.2s;
+        }
+        .btn-outline:hover {
+            background: #fd7e14;
+            color: white;
+        }
     </style>
 </head>
 <body>
 <jsp:include page="../WEB-INF/tags/header.jsp" />
-<script src="${pageContext.request.contextPath}/assets/js/index.js"></script>
+
 <div class="detail-container">
-    <a href="order-history" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Trở về lịch sử</a>
+    <a href="${pageContext.request.contextPath}/order-history?status=all" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Trở về lịch sử</a>
 
     <h2>Chi tiết đơn hàng #${order.orderId}</h2>
 
@@ -283,8 +319,8 @@
 
                 <c:if test="${order.status == 'Completed'}">
                     <div class="btn-group">
-                        <a href="review?productId=${d.product.id}&orderId=${order.orderId}" class="btn-fill">Đánh giá</a>
-                        <a href="return-request?productId=${d.product.id}&orderId=${order.orderId}" class="btn-outline">Trả hàng</a>
+                        <a href="${pageContext.request.contextPath}/review?productId=${d.product.id}&orderId=${order.orderId}" class="btn-fill">Đánh giá</a>
+                        <a href="${pageContext.request.contextPath}/return-request?productId=${d.product.id}&orderId=${order.orderId}" class="btn-outline">Trả hàng</a>
                     </div>
                 </c:if>
             </div>

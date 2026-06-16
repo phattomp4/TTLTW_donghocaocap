@@ -13,9 +13,20 @@ import vn.edu.nlu.it.ltw.group8.ttltw_donghocaocap.model.User;
 import java.io.IOException;
 import java.util.Map;
 
-@WebServlet(name = "ReviewServlet", urlPatterns = {"/submit-review"})
+@WebServlet(name = "ReviewServlet", urlPatterns = {"/submit-review", "/review"})
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 5)
 public class ReviewServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String productIdStr = request.getParameter("productId");
+
+        if (productIdStr != null && !productIdStr.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/detail?pid=" + productIdStr);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/order-history?status=all");
+        }
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -25,7 +36,6 @@ public class ReviewServlet extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             User user = (User) session.getAttribute("acc");
-
             if (user == null) {
                 response.getWriter().write("Vui lòng đăng nhập để đánh giá.");
                 return;
@@ -34,7 +44,6 @@ public class ReviewServlet extends HttpServlet {
             String pidStr = request.getParameter("productId");
             String ratingStr = request.getParameter("rating");
             String comment = request.getParameter("comment");
-            String reviewIdStr = request.getParameter("reviewId");
 
             if (pidStr == null || comment == null || comment.trim().isEmpty()) {
                 response.getWriter().write("Vui lòng nhập nội dung đánh giá.");
@@ -42,20 +51,22 @@ public class ReviewServlet extends HttpServlet {
             }
 
             int productId = Integer.parseInt(pidStr);
-            int rating = 0;
-            if (ratingStr != null && !ratingStr.isEmpty()) {
-                rating = Integer.parseInt(ratingStr);
-            }
-
+            int rating = (ratingStr != null && !ratingStr.isEmpty()) ? Integer.parseInt(ratingStr) : 5;
             OrderDAO orderDAO = new OrderDAO();
             if (!orderDAO.checkUserBoughtProduct(user.getId(), productId)) {
-                response.getWriter().write("Bạn chưa mua sản phẩm này nên không thể đánh giá.");
+                response.getWriter().write("Bạn phải mua và nhận sản phẩm này thành công mới được đánh giá.");
+                return;
+            }
+
+            ReviewDAO reviewDAO = new ReviewDAO();
+            if (reviewDAO.getMyReview(user.getId(), productId) != null) {
+                response.getWriter().write("Bạn đã đánh giá sản phẩm này rồi! Mỗi sản phẩm chỉ được đánh giá 1 lần.");
                 return;
             }
 
             String imageUrl = null;
             Part filePart = request.getPart("reviewImage");
-          
+
             if (filePart != null && filePart.getSize() > 0) {
                 try {
                     Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -71,22 +82,12 @@ public class ReviewServlet extends HttpServlet {
                 }
             }
 
-            ReviewDAO reviewDAO = new ReviewDAO();
-            boolean success = false;
-
-            if (reviewIdStr != null && !reviewIdStr.isEmpty()) {
-                int existingReviewId = Integer.parseInt(reviewIdStr);
-                success = reviewDAO.updateReview(existingReviewId, rating, comment, imageUrl);
-            } else {
-                if (reviewDAO.getMyReview(user.getId(), productId) != null) {
-                    response.getWriter().write("Bạn đã đánh giá sản phẩm này rồi! Vui lòng chọn tính năng chỉnh sửa.");
-                    return;
-                }
-                success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
-            }
+            boolean success = reviewDAO.insertReview(productId, user.getId(), rating, comment, imageUrl);
 
             if (success) {
                 response.getWriter().write("success|" + (imageUrl != null ? imageUrl : ""));
+            } else {
+                response.getWriter().write("Có lỗi xảy ra khi lưu đánh giá. Vui lòng thử lại sau.");
             }
 
         } catch (Exception e) {
