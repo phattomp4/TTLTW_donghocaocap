@@ -43,12 +43,15 @@ public class CartServlet extends HttpServlet {
                             if(p.getId() == pid) { stockLeft = p.getStockQuantity(); break; }
                         }
 
-                        if (quantity > stockLeft) {
+                        if (stockLeft <= 0) {
+                            request.setAttribute("error", "Sản phẩm đã hết hàng.");
+                        } else if (quantity > stockLeft) {
                             request.setAttribute("error", "Sản phẩm chỉ còn tối đa " + stockLeft + " chiếc.");
                             quantity = stockLeft;
+                            cartDao.updateCartQuantityDirect(user.getId(), pid, quantity);
+                        } else {
+                            cartDao.updateCartQuantityDirect(user.getId(), pid, quantity);
                         }
-
-                        cartDao.updateCartQuantityDirect(user.getId(), pid, quantity);
                     } else {
                         cartDao.removeCartItemDirect(user.getId(), pid);
                     }

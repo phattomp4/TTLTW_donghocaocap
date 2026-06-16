@@ -484,7 +484,7 @@ public class ProductDAO {
                 "JOIN OrderDetails od ON p.ProductID = od.ProductID " +
                 "JOIN Orders o ON od.OrderID = o.OrderID " +
                 "WHERE o.OrderDate >= DATE_SUB(NOW(), INTERVAL 3 MONTH) " +
-                "AND o.Status = 'Delivered' " +
+                "AND o.Status = 'Completed' " +
                 "GROUP BY p.ProductID " +
                 "ORDER BY TotalSold DESC " +
                 "LIMIT ?";
