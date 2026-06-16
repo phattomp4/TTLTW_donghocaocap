@@ -16,6 +16,7 @@ public class HomeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ProductDAO productDao = new ProductDAO();
@@ -23,7 +24,6 @@ public class HomeServlet extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
 
         HttpSession session = request.getSession();
-
 
         if (session.getAttribute("shopInfo") == null) {
             ShopInfo info = shopDao.getShopInfo();
@@ -39,13 +39,12 @@ public class HomeServlet extends HttpServlet {
         List<SmallBanner> listSmallBanners = homeDao.getSmallBanners();
         List<Banner> listSlideshow = homeDao.getSlideshowBanners();
         List<Brand> listBrands = homeDao.getFeaturedBrands();
+
         List<Product> listFeatured = productDao.getFeaturedProducts(8);
         List<Product> listBestSeller = productDao.getBestSellersLast3Months(8);
 
-
         request.setAttribute("listFeatured", listFeatured);
         request.setAttribute("listBestSeller", listBestSeller);
-        request.setAttribute("listFeatured", listFeatured);
         request.setAttribute("listMen", listMen);
         request.setAttribute("listWomen", listWomen);
         request.setAttribute("listLuxury", listLuxury);

@@ -20,7 +20,8 @@
         .cart-img { width: 80px; height: 80px; object-fit: cover; border: 1px solid #eee; transition: 0.3s; border-radius: 4px; }
         .cart-img:hover { transform: scale(1.05); }
         .btn-qty { padding: 5px 10px; border: 1px solid #ccc; background: #fff; cursor: pointer; text-decoration: none; color: #333; display: inline-block;}
-        .btn-qty:hover { background: #eee; }
+        .btn-qty:hover:not(:disabled) { background: #eee; }
+        .btn-qty:disabled { cursor: not-allowed; opacity: 0.5; }
         .btn-delete { color: #d0011b; cursor: pointer; text-decoration: none; font-weight: bold; background: none; border: none; font-size: 14px;}
         .btn-delete:hover { color: #a80015; text-decoration: underline; }
         .cart-summary { margin-top: 30px; text-align: right; }
@@ -28,7 +29,17 @@
         .checkout-btn:hover { background: #a80015; }
         .btn-empty-cart:hover { background-color: #14555b !important; }
         .item-check, #checkAll { width: 18px; height: 18px; cursor: pointer; accent-color: #1b6e76; }
+        .item-check:disabled { cursor: not-allowed; }
         .loading-overlay { opacity: 0.5; pointer-events: none; transition: 0.2s; }
+
+        /* CSS cho sản phẩm hết hàng */
+        .out-of-stock-row { background-color: #fdfdfd; }
+        .out-of-stock-row img { opacity: 0.4; filter: grayscale(100%); }
+        .out-of-stock-row .product-name { color: #999 !important; text-decoration: line-through; }
+
+        /* CSS cho Popup cảnh báo (Toast) */
+        .toast-msg { visibility: hidden; min-width: 250px; background-color: #d0011b; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-weight: bold;}
+        .toast-msg.show { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
@@ -54,7 +65,6 @@
         </div>
     </c:if>
 
-    <%-- Kiểm tra nếu chưa có giỏ hàng thì hiển thị giao diện trống --%>
     <c:if test="${empty sessionScope.cart}">
         <div style="text-align: center; padding: 50px 0;">
             <i class="fa-solid fa-cart-shopping" style="font-size: 80px; color: #888; margin-bottom: 20px;"></i>
@@ -66,7 +76,6 @@
         </div>
     </c:if>
 
-    <%-- Kiểm tra nếu có giỏ hàng thì hiển thị danh sách --%>
     <c:if test="${not empty sessionScope.cart}">
         <div id="cart-content-wrapper">
             <table class="cart-table" id="cartTable">
@@ -84,12 +93,15 @@
                 </thead>
                 <tbody id="cartTbody">
                 <c:forEach items="${sessionScope.cart}" var="item">
-                    <tr>
+                    <c:set var="isOut" value="${item.product.stockQuantity <= 0}" />
+
+                    <tr class="${isOut ? 'out-of-stock-row' : ''}">
                         <td>
                             <input type="checkbox" class="item-check"
                                    value="${item.product.id}"
                                    data-price="<fmt:formatNumber value='${item.totalPrice}' pattern='0' groupingUsed='false'/>"
-                                   onchange="updateTotal()">
+                                   onchange="updateTotal()"
+                                ${isOut ? 'disabled' : ''}>
                         </td>
                         <td style="text-align: left; display: flex; align-items: center; gap: 15px;">
                             <a href="${pageContext.request.contextPath}/detail?pid=${item.product.id}">
@@ -97,18 +109,24 @@
                             </a>
                             <div>
                                 <a href="${pageContext.request.contextPath}/detail?pid=${item.product.id}" style="text-decoration: none; color: #333;">
-                                    <b style="font-size: 15px;"><c:out value="${item.product.name}"/></b>
+                                    <b class="product-name" style="font-size: 15px;"><c:out value="${item.product.name}"/></b>
                                 </a>
                                 <p style="color: #888; font-size: 13px; margin: 0;">Mã: #${item.product.id}</p>
+
+                                <c:if test="${isOut}">
+                                    <p style="color: #d0011b; font-size: 12px; font-weight: bold; margin: 5px 0 0 0; background: #ffe6e6; padding: 3px 8px; border-radius: 3px; display: inline-block;">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Sản phẩm đã hết hàng
+                                    </p>
+                                </c:if>
                             </div>
                         </td>
                         <td><fmt:formatNumber value="${item.product.currentPrice}" pattern="#,##0 ₫"/></td>
                         <td>
-                            <button type="button" class="btn-qty" onclick="updateCartItemAJAX(${item.product.id}, ${item.quantity - 1})">-</button>
-                            <span style="margin: 0 10px; font-weight: bold;">${item.quantity}</span>
-                            <button type="button" class="btn-qty" onclick="updateCartItemAJAX(${item.product.id}, ${item.quantity + 1})">+</button>
+                            <button type="button" class="btn-qty" onclick="updateCartItemAJAX(${item.product.id}, ${item.quantity - 1}, ${item.product.stockQuantity})" ${isOut ? 'disabled' : ''}>-</button>
+                            <span style="margin: 0 10px; font-weight: bold; ${isOut ? 'color: #ccc;' : ''}">${item.quantity}</span>
+                            <button type="button" class="btn-qty" onclick="updateCartItemAJAX(${item.product.id}, ${item.quantity + 1}, ${item.product.stockQuantity})" ${isOut ? 'disabled' : ''}>+</button>
                         </td>
-                        <td style="color: #d0011b; font-weight: bold;">
+                        <td style="color: #d0011b; font-weight: bold; ${isOut ? 'opacity: 0.5;' : ''}">
                             <fmt:formatNumber value="${item.totalPrice}" pattern="#,##0 ₫"/>
                         </td>
                         <td>
@@ -152,10 +170,25 @@
     </c:if>
 </div>
 
+<div id="toastBox" class="toast-msg"><i class="fa-solid fa-circle-exclamation"></i> <span id="toastText"></span></div>
+
 <script>
     const formatCurrency = (amount) => amount.toLocaleString('vi-VN') + ' ₫';
-    async function updateCartItemAJAX(pid, newQty) {
+
+    function showToast(message) {
+        const toast = document.getElementById("toastBox");
+        document.getElementById("toastText").innerText = message;
+        toast.className = "toast-msg show";
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    async function updateCartItemAJAX(pid, newQty, maxStock) {
         if (newQty < 1) return;
+
+        if (newQty > maxStock) {
+            showToast('Kho chỉ còn ' + maxStock + ' sản phẩm!');
+            return;
+        }
 
         let wrapper = document.getElementById('cart-content-wrapper');
         wrapper.classList.add('loading-overlay');
@@ -222,14 +255,15 @@
 
         updateTotal();
     }
+
     function toggleAll(source) {
-        const checkboxes = document.querySelectorAll('.item-check');
+        const checkboxes = document.querySelectorAll('.item-check:not(:disabled)');
         checkboxes.forEach(cb => cb.checked = source.checked);
         updateTotal();
     }
 
     function updateTotal() {
-        const checkboxes = document.querySelectorAll('.item-check');
+        const checkboxes = document.querySelectorAll('.item-check:not(:disabled)');
         let total = 0;
         let discount = parseInt(document.getElementById('hidden-discount')?.value) || 0;
         let allChecked = true;
@@ -260,9 +294,9 @@
     }
 
     function goToCheckout() {
-        const checkedItems = document.querySelectorAll('.item-check:checked');
+        const checkedItems = document.querySelectorAll('.item-check:checked:not(:disabled)');
         if (checkedItems.length === 0) {
-            alert("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!");
+            alert("Vui lòng chọn ít nhất 1 sản phẩm còn hàng để thanh toán!");
             return;
         }
 
