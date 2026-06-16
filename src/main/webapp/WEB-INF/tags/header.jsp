@@ -253,9 +253,9 @@
 
                             <c:choose>
 
-                                <%-- TRƯỜNG HỢP LÀ ADMIN --%>
-                                <c:when test="${sessionScope.acc.role == 'Admin'}">
-                                    <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #d0011b; font-weight: bold; background-color: #fff5f5;">
+                                <%-- TRƯỜNG HỢP LÀ ADMIN HOẶC NHÂN VIÊN --%>
+                                <c:when test="${sessionScope.acc.role == 'Admin' || sessionScope.acc.role == 'Staff'}">
+                                    <a href="${pageContext.request.contextPath}/admin/${sessionScope.acc.role == 'Admin' ? 'dashboard' : 'order-manager'}" style="color: #d0011b; font-weight: bold; background-color: #fff5f5;">
                                         <i class="fa-solid fa-screwdriver-wrench"></i> Trang Quản Trị
                                     </a>
                                 </c:when>
