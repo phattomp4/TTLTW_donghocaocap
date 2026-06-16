@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.sql.*;
 import java.util.LinkedHashMap;
 
 public class ProductDAO {
@@ -28,6 +27,7 @@ public class ProductDAO {
                 rs.getInt("StockQuantity"),
                 rs.getInt("SoldQuantity"),
                 rs.getBoolean("IsLuxury"),
+                rs.getBoolean("IsFeatured"), // Đã bổ sung cột IsFeatured
                 rs.getInt("is_active")
         );
     }
@@ -515,8 +515,8 @@ public class ProductDAO {
     }
 
     public boolean insertProduct(Product p) {
-        String query = "INSERT INTO Products (BrandID, Name, SKU, Description, OriginalPrice, CurrentPrice, ImageURL, StockQuantity, SoldQuantity, IsLuxury, is_active) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 1)";
+        String query = "INSERT INTO Products (BrandID, Name, SKU, Description, OriginalPrice, CurrentPrice, ImageURL, StockQuantity, SoldQuantity, IsLuxury, IsFeatured, is_active) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, 1)";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, p.getBrandId());
@@ -528,6 +528,7 @@ public class ProductDAO {
             ps.setString(7, p.getImageUrl());
             ps.setInt(8, p.getStockQuantity());
             ps.setBoolean(9, p.isLuxury());
+            ps.setBoolean(10, p.isFeatured());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -538,7 +539,7 @@ public class ProductDAO {
 
     public boolean updateProduct(Product p) {
         String query = "UPDATE Products SET BrandID=?, Name=?, SKU=?, Description=?, OriginalPrice=?, CurrentPrice=?, " +
-                "ImageURL=?, StockQuantity=?, IsLuxury=?, is_active=? WHERE ProductID=?";
+                "ImageURL=?, StockQuantity=?, IsLuxury=?, IsFeatured=?, is_active=? WHERE ProductID=?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, p.getBrandId());
@@ -550,8 +551,9 @@ public class ProductDAO {
             ps.setString(7, p.getImageUrl());
             ps.setInt(8, p.getStockQuantity());
             ps.setBoolean(9, p.isLuxury());
-            ps.setInt(10, p.getIsActive());
-            ps.setInt(11, p.getId());
+            ps.setBoolean(10, p.isFeatured());
+            ps.setInt(11, p.getIsActive());
+            ps.setInt(12, p.getId());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -585,20 +587,17 @@ public class ProductDAO {
         return false;
     }
 
-    // Lấy danh sách tồn kho có Phân trang, Tìm kiếm và Sắp xếp
     public List<Product> getInventoryProducts(String keyword, String sortType, int offset, int limit) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM Products WHERE Name LIKE ? ";
 
-        // Xử lý các chiến lược sắp xếp
         if ("name_asc".equals(sortType)) {
             sql += "ORDER BY Name ASC ";
         } else if ("stock_desc".equals(sortType)) {
             sql += "ORDER BY StockQuantity DESC ";
         } else if ("newest".equals(sortType)) {
-            sql += "ORDER BY ProductID DESC "; // Mới nhất dựa theo ID
+            sql += "ORDER BY ProductID DESC ";
         } else {
-            // Default: Cảnh báo tồn kho lên đầu (Dưới 5 chiếc xếp trước, số lượng 0 lên đầu tiên)
             sql += "ORDER BY (StockQuantity < 5) DESC, StockQuantity ASC, ProductID DESC ";
         }
 
@@ -619,7 +618,6 @@ public class ProductDAO {
         return list;
     }
 
-    // Đếm tổng số sản phẩm để chia số trang
     public int countInventoryProducts(String keyword) {
         String sql = "SELECT COUNT(*) FROM Products WHERE Name LIKE ?";
         try (Connection conn = new DBContext().getConnection();
@@ -630,6 +628,4 @@ public class ProductDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
-
 }
-

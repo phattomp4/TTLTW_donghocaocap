@@ -33,6 +33,7 @@
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #343a40; color: white; text-transform: uppercase; font-size: 14px; }
         tr:hover { background-color: #fcfcfc; }
+        .row-hidden { background-color: #f8f9fa; opacity: 0.6; }
 
         .prod-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
 
@@ -41,14 +42,14 @@
         .btn-edit:hover { background: #007bff; color: white; }
         .btn-delete { background: #ffe6e6; color: #dc3545; }
         .btn-delete:hover { background: #dc3545; color: white; }
+        .btn-show { background: #e2e3e5; color: #383d41; }
+        .btn-show:hover { background: #383d41; color: white; }
 
         .btn-feature { background: #fff8e1; color: #ffc107; border: 1px solid #ffe082; }
         .btn-feature:hover { background: #ffc107; color: white; }
         .btn-feature.active { background: #ffc107; color: white; box-shadow: inset 0 3px 5px rgba(0,0,0,0.125); border-color: #ffb300; }
 
-        .toast-msg {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0;
-        }
+        .toast-msg { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; transition: visibility 0s, opacity 0.5s linear; opacity: 0; }
         .toast-msg.show { visibility: visible; opacity: 1; }
         .toast-msg.success { background-color: #28a745; }
         .toast-msg.error { background-color: #dc3545; }
@@ -94,14 +95,19 @@
             </thead>
             <tbody>
             <c:forEach items="${listProducts}" var="p">
-                <tr>
+                <tr class="${p.isActive == 0 ? 'row-hidden' : ''}">
                     <td><b>#${p.id}</b></td>
                     <td>
                         <img src="${p.imageUrl.startsWith('http') ? p.imageUrl : pageContext.request.contextPath.concat('/').concat(p.imageUrl)}"
                              class="prod-img" onerror="this.src='https://via.placeholder.com/60'">
                     </td>
                     <td>
-                        <div style="font-weight: bold;">${p.name}</div>
+                        <div style="font-weight: bold;">
+                                ${p.name}
+                            <c:if test="${p.isActive == 0}">
+                                <span style="background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-left: 5px;">Đã ẩn</span>
+                            </c:if>
+                        </div>
                         <div style="font-size: 12px; color: #777;">Giá gốc: <fmt:formatNumber value="${p.originalPrice}" pattern="#,##0 ₫"/></div>
                     </td>
                     <td>${p.sku}</td>
@@ -109,26 +115,34 @@
                     <td>${p.stockQuantity}</td>
                     <td>${p.soldQuantity}</td>
                     <td style="text-align: center; white-space: nowrap;">
-                        <button type="button" class="btn-action btn-feature ${p.luxury ? 'active' : ''}"
-                                id="btn-feature-${p.id}" onclick="toggleFeatured(${p.id}, ${p.luxury ? 0 : 1})">
-                            <i class="${p.luxury ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+
+                        <button type="button" class="btn-action btn-feature ${p.featured ? 'active' : ''}"
+                                id="btn-feature-${p.id}" onclick="toggleFeatured(${p.id}, ${p.featured ? 0 : 1})"
+                                title="${p.featured ? 'Bỏ Nổi Bật' : 'Đánh dấu Nổi Bật'}">
+                            <i class="${p.featured ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                         </button>
-                        <a href="product-form?id=${p.id}" class="btn-action btn-edit"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <c:if test="${sessionScope.acc.role == 'Admin'}">
-                            <form action="product-manager" method="POST" style="display: inline-block;" onsubmit="return confirm('Xóa sản phẩm này?');">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="pid" value="${p.id}">
-                                <button type="submit" class="btn-action btn-delete"><i class="fa-solid fa-trash"></i></button>
-                            </form>
-                        </c:if>
+
+                        <a href="product-form?id=${p.id}" class="btn-action btn-edit" title="Sửa thông tin"><i class="fa-solid fa-pen-to-square"></i></a>
+
+                        <form action="product-manager" method="GET" style="display: inline-block;"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn ${p.isActive == 1 ? 'ẨN' : 'HIỆN'} sản phẩm này khỏi cửa hàng?');">
+                            <input type="hidden" name="action" value="toggleStatus">
+                            <input type="hidden" name="pid" value="${p.id}">
+                            <input type="hidden" name="status" value="${p.isActive == 1 ? 0 : 1}">
+                            <button type="submit" class="btn-action ${p.isActive == 1 ? 'btn-delete' : 'btn-show'}"
+                                    title="${p.isActive == 1 ? 'Nhấn để Ẩn sản phẩm' : 'Nhấn để Hiện sản phẩm'}">
+                                <i class="fa-solid ${p.isActive == 1 ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            </button>
+                        </form>
+
                     </td>
                 </tr>
             </c:forEach>
             </tbody>
         </table>
+
         <c:if test="${totalPages > 1}">
             <div style="margin: 30px 0; display: flex; justify-content: center; gap: 5px;">
-
                 <a href="product-manager?page=${currentPage > 1 ? currentPage - 1 : 1}&keyword=${searchKeyword}"
                    style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; background: white;">
                     &laquo; Trước
@@ -138,7 +152,7 @@
                     <c:if test="${i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2)}">
                         <a href="product-manager?page=${i}&keyword=${searchKeyword}"
                            style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;
-                   ${currentPage == i ? 'background: #1b6e76; color: white; border-color: #1b6e76;' : 'background: white; color: #333;'}">
+                           ${currentPage == i ? 'background: #1b6e76; color: white; border-color: #1b6e76;' : 'background: white; color: #333;'}">
                                 ${i}
                         </a>
                     </c:if>
@@ -156,5 +170,54 @@
         </c:if>
     </div>
 </div>
+
+<div id="toastBox" class="toast-msg">Thông báo...</div>
+
+<script>
+    function toggleFeatured(productId, newStatus) {
+        fetch('product-action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'pid=' + productId + '&featured=' + newStatus
+        })
+            .then(response => response.text())
+            .then(data => {
+                if (data.trim() === 'success') {
+                    const btn = document.getElementById('btn-feature-' + productId);
+                    const icon = btn.querySelector('i');
+
+                    if (newStatus === 1) {
+                        btn.classList.add('active');
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        btn.title = 'Bỏ Nổi Bật';
+                        btn.setAttribute('onclick', 'toggleFeatured(' + productId + ', 0)');
+                        showToast('Đã thêm vào danh sách Sản phẩm Nổi Bật!', 'success');
+                    } else {
+                        btn.classList.remove('active');
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        btn.title = 'Đánh dấu Nổi Bật';
+                        btn.setAttribute('onclick', 'toggleFeatured(' + productId + ', 1)');
+                        showToast('Đã xóa khỏi danh sách Nổi Bật.', 'success');
+                    }
+                } else {
+                    showToast('Có lỗi xảy ra khi cập nhật!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Lỗi kết nối Server!', 'error');
+            });
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById("toastBox");
+        toast.innerText = message;
+        toast.className = "toast-msg show " + type;
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+</script>
+
 </body>
 </html>
